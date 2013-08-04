@@ -36,3 +36,6 @@ OTHER_FILES += \
 
 RESOURCES += \
     resources.qrc
+
+HEADERS += \
+    genericuitest.h

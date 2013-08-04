@@ -7,6 +7,10 @@
 #include <QRect>
 #include <QList>
 
+class GUIMainWindow;
+
+void cursesDirtyMainWindow(GUIMainWindow*);
+
 class CursesBase
 {
     friend class CursesContainer;
@@ -36,7 +40,6 @@ public:
             CursesBase::clear();
         if(par)
             create(par);
-        qDebug() << par << _window << geom();
     }
     inline virtual bool isScreen() const{return false;}
 
@@ -44,34 +47,23 @@ protected:
     inline explicit CursesBase(WINDOW* window =0) {_window=window;_winType=window?Screen:None;_dirty=true;}
 
     inline void create(CursesBase* par) {
+        clear();
+
         if(par->isValid()) {
-            if(par->isScreen())
+            if(par->isScreen()) {
                 _window = newwin(geom().height(), geom().width(), geom().y(), geom().x());
-            else
+                if(_window)
+                    _winType = Window;
+            } else {
                 _window = derwin(par->hnd(), geom().height(), geom().width(), geom().y(), geom().x());
-            if(_window)
-                markDirty();
+                if(_window)
+                    _winType = Derived;
+            }
+            markDirty();
         }
     }
 
-    inline virtual void setSize(QSize s) {
-        switch(_winType) {
-            case Screen:
-                throw "Cannot resize the screen.";
-
-            case Window:
-            case Derived:
-                wresize(hnd(), s.height(), s.width());
-                break;
-
-            case None:
-                return;
-
-        }
-        markDirty();
-    }
-
-    inline virtual void setPos(QPoint p) {
+    inline void setPos(QPoint p) {
         switch(_winType) {
             case Screen:
                 throw "Cannot move the screen.";
@@ -82,6 +74,23 @@ protected:
 
             case Derived:
                 mvderwin(hnd(), p.y(), p.x());
+                break;
+
+            case None:
+                return;
+
+        }
+        notifyDirty();
+    }
+
+    inline void setSize(QSize s) {
+        switch(_winType) {
+            case Screen:
+                throw "Cannot resize the screen.";
+
+            case Window:
+            case Derived:
+                wresize(hnd(), s.height(), s.width());
                 break;
 
             case None:
@@ -116,20 +125,9 @@ public:
 
 protected:
     inline CursesContainer(WINDOW* window =0) : CursesBase(window) {}
-
     virtual void drawChildren() =0;
 
-    inline void childDirty(CursesBase* child) {
-        if(!_dirtyChildren.contains(child))
-            _dirtyChildren << child;
-    }
-    inline void childRemoved(CursesBase* child) {
-        _dirtyChildren.removeOne(child);
-    }
-
 private:
-    QList<CursesBase*> _dirtyChildren;
-
     inline void draw() {if(_dirty) {drawImpl();_dirty=false;}else touchwin(hnd());wnoutrefresh(hnd());drawChildren();}
 };
 

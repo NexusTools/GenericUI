@@ -2,7 +2,6 @@
 #include "guimainwindow.h"
 
 #include <QEvent>
-#include <QDebug>
 
 void GUIWidget::setParent(GUIContainer* par) {
     QObject::setParent(par);
@@ -13,14 +12,11 @@ void GUIWidget::setParent(GUIContainer* par) {
 }
 
 bool GUIWidget::event(QEvent *ev) {
-    qDebug() << "Event" << ev->type();
-
     switch(ev->type()) {
         case QEvent::ParentAboutToChange:
         {
 
             GUIContainer* par = parentContainer();
-            qDebug() << parent() << par;
             if(par) {
                 par->_children.removeOne(this);
                 parentChanged();
@@ -31,7 +27,6 @@ bool GUIWidget::event(QEvent *ev) {
         case QEvent::ParentChange:
         {
             GUIContainer* par = parentContainer();
-            qDebug() << parent() << par;
             if(par) {
                 par->_children.append(this);
                 parentChanged();
@@ -55,9 +50,14 @@ GUIContainer* GUIWidget::parentContainer() const{
     return qobject_cast<GUIContainer*>(parent());
 }
 
+template <class T>
+bool isCompatible(GUIWidget* widget) {
+    return qobject_cast<T*>(widget);
+}
+
 GUIMainWindow* GUIWidget::mainWindow() {
     GUIWidget* widget = this;
-    while(widget && widget->metaObject() != &GUIMainWindow::staticMetaObject)
+    while(!isCompatible<GUIMainWindow>(widget))
         widget = widget->parentContainer();
 
     return (GUIMainWindow*)widget;
@@ -65,7 +65,7 @@ GUIMainWindow* GUIWidget::mainWindow() {
 
 GUIWindow* GUIWidget::window() {
     GUIWidget* widget = this;
-    while(widget && widget->metaObject() != &GUIWindow::staticMetaObject)
+    while(!isCompatible<GUIWidget>(widget))
         widget = widget->parentContainer();
 
     return (GUIWindow*)widget;

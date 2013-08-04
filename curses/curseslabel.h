@@ -16,20 +16,17 @@ public:
         mvwaddnstr(hnd(), 0, 0, text().toLocal8Bit(), text().toLocal8Bit().size());
     }
 
-    inline void notifyDirty() {
-        CursesBase* par = (CursesBase*)parentContainer();
-        if(par)
-            par->notifyDirty();
-    }
+    inline void notifyDirty() {cursesDirtyMainWindow(mainWindow());}
     inline QRect geom() const{return GUIWidget::geom();}
-
-    inline void posChanged(QPoint p) {CursesBase::setPos(p);}
-    inline void sizeChanged(QSize s) {CursesBase::setSize(s);}
-
-    inline void parentChanged() {CursesBase::updateParent((CursesBase*)parentContainer());}
 
 protected:
     inline QSize sizeForString(QString text) {return QSize(text.size(), 1);}
+
+    inline void posChanged() {CursesBase::setPos(pos());}
+    inline void sizeChanged() {CursesBase::setSize(size());}
+
+    inline void parentChanged() {CursesBase::updateParent((CursesBase*)parentContainer());}
+
 };
 
 #endif // CURSESLABEL_H

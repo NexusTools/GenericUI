@@ -14,9 +14,13 @@ public:
         init();
         resize(checkSize());
 
-        repaintTimer.setInterval(50);
+        repaintTimer.setInterval(0);
         repaintTimer.setSingleShot(true);
         connect(&repaintTimer, SIGNAL(timeout()), this, SLOT(drawNow()));
+        repaintTimer.start();
+    }
+
+    inline void notifyDirty() {
         repaintTimer.start();
     }
 
@@ -33,9 +37,6 @@ protected:
     }
 
     inline void sizeChanged() {notifyDirty();}
-    inline void notifyDirty() {
-        repaintTimer.start();
-    }
 
 protected slots:
     inline void drawNow() {

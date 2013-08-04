@@ -25,8 +25,16 @@ public:
     };
     Q_DECLARE_FLAGS(WAttrs, WAttr)
 
+    inline void move(int x, int y) {setPos(QPoint(x, y));}
     inline void move(QPoint p) {setPos(p);}
+
+    inline void resize(int w, int h) {setSize(QSize(w, h));}
     inline void resize(QSize s) {setSize(s);}
+
+    inline int x() const{return _geom.x();}
+    inline int y() const{return _geom.y();}
+    inline int width() const{return _geom.width();}
+    inline int height() const{return _geom.height();}
 
     inline QPoint pos() const{return _geom.topLeft();}
     inline QSize size() const{return _geom.size();}
@@ -61,9 +69,9 @@ protected:
     void setFocused(bool);
     void pushTypedKey(char c);
 
-    inline void setPos(QPoint p) {_geom=QRect(p,size());posChanged();geometryChanged();}
-    inline void setSize(QSize s) {_geom=QRect(pos(),s);sizeChanged();geometryChanged();}
-    inline void setGeometry(QRect r) {_geom=r;posChanged();geometryChanged();}
+    inline void setPos(QPoint p) {if(p==pos())return;_geom=QRect(p,size());posChanged();geometryChanged();}
+    inline void setSize(QSize s) {if(s==size())return;_geom=QRect(pos(),s);sizeChanged();geometryChanged();}
+    inline void setGeometry(QRect r) {_geom=r;posChanged();sizeChanged();geometryChanged();}
 
 public slots:
     void show() {setVisible(true);}
