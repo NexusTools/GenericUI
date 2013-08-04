@@ -8,6 +8,7 @@ class GUILabel : public GUIWidget
     Q_OBJECT
 public:
     inline GUILabel(QString text, GUIContainer* parent =0) : GUIWidget(parent) {_text=text;}
+    inline GUILabel(GUIContainer* parent =0) : GUIWidget(parent) {}
 
     inline void setText(QString text){
         if(text == _text)
