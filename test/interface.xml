@@ -1,0 +1,15 @@
+<MainWindow layout="block">
+	<MenuBar>
+		<Menu text="Test">
+			<Action text="Edit _Source" onTrigger="app.showSource()" />
+			<Action text="_Reset" onTrigger="app.reload()" />
+			<Separator />
+			<Action text="_Quit" onTrigger="app.quit()" />
+		</Menu>
+		<Menu float="right" text="Help">
+			<Action text="A_bout" />
+		</Menu>
+	</MenuBar>
+	<Label text="Test Label" />
+	<Checkbox text="Test Checkbox" />
+</MainWindow>

@@ -7,6 +7,7 @@
 #include <QDomNode>
 #include <QRect>
 
+class GUIContainer;
 class GUIMainWindow;
 class GUIWindow;
 
@@ -24,34 +25,44 @@ public:
     };
     Q_DECLARE_FLAGS(WAttrs, WAttr)
 
+    inline void move(QPoint p) {setPos(p);}
+    inline void resize(QSize s) {setSize(s);}
+
     inline QPoint pos() const{return _geom.topLeft();}
     inline QSize size() const{return _geom.size();}
     inline QRect geom() const{return _geom;}
 
-    virtual void processXML(QDomNode&);
+    virtual void processXML(QDomNode&) {}
+    void setParent(GUIContainer*);
 
-    inline GUIWidget* parentWidget() const{return qobject_cast<GUIWidget*>(parent());}
-
+    GUIContainer* parentContainer() const;
     GUIMainWindow* mainWindow();
     GUIWindow* window();
 
-protected:
-    // Events
-    virtual void focusIn() =0;
-    virtual void focusOut() =0;
-    virtual void keyTyped(char c) =0;
+    bool event(QEvent *);
 
-    virtual void posChanged() =0;
-    virtual void sizeChanged() =0;
-    virtual void geometryChanged() =0;
-    virtual void visibilityChanged() =0;
+protected:
+    inline GUIWidget(GUIContainer* parent =0) {setParent(parent);}
+
+    // Events
+    virtual void clicked() {}
+    virtual void focusIn() {}
+    virtual void focusOut() {}
+    virtual void keyTyped(char) {}
+
+    virtual void posChanged() {}
+    virtual void sizeChanged() {}
+    virtual void geometryChanged() {}
+    virtual void visibilityChanged() {}
+
+    virtual void parentChanged() {}
 
     // Internals
     void setFocused(bool);
     void pushTypedKey(char c);
 
-    inline void setPos(QPoint p) {_geom.setTopLeft(p);posChanged();geometryChanged();}
-    inline void setSize(QSize s) {_geom.setSize(s);sizeChanged();geometryChanged();}
+    inline void setPos(QPoint p) {_geom=QRect(p,size());posChanged();geometryChanged();}
+    inline void setSize(QSize s) {_geom=QRect(pos(),s);sizeChanged();geometryChanged();}
     inline void setGeometry(QRect r) {_geom=r;posChanged();geometryChanged();}
 
 public slots:

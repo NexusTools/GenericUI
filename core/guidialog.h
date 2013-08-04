@@ -5,7 +5,7 @@
 
 class GUIDialog : public GUIWindow
 {
-
+    Q_OBJECT
 };
 
 #endif // GUIDIALOG_H

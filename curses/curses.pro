@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core
+QT       += core xml
 
 QT       -= gui
 
@@ -16,6 +16,8 @@ DEFINES += GENERICUI_CURSES
 
 TEMPLATE = lib
 
+LIBS += -lncurses
+
 
 SOURCES += \
     cursesmainwindow.cpp
@@ -23,7 +25,8 @@ SOURCES += \
 HEADERS += \
     global.h \
     curseslabel.h \
-    cursesmainwindow.h
+    cursesmainwindow.h \
+    cursesbase.h
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../core/release/ -lGenericUI
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../core/debug/ -lGenericUI

@@ -12,7 +12,8 @@ TEMPLATE = lib
 
 DEFINES += GENERICUI_LIBRARY
 
-SOURCES +=
+SOURCES += \
+    genericui.cpp
 
 HEADERS += genericui.h \
     global.h \

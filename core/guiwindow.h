@@ -5,6 +5,7 @@
 
 class GUIWindow : public GUIContainer
 {
+    Q_OBJECT
 public:
     GUIWindow(QString title, GUIWindow* parent) {_title=title;_parent=parent;}
 
