@@ -18,6 +18,73 @@ public:
         BlockElements
     };
 
+    virtual QSize sizeForLayout(int maxWidth =0) {
+        if(maxWidth == -1)
+            maxWidth = width();
+        else if(maxWidth == 0) {
+            GUIContainer* con = parentContainer();
+            if(con)
+                maxWidth = con->width() - x();
+            else
+                maxWidth = 1000;
+        }
+
+        QSize size;
+        switch(_layout) {
+            case InlineElements:
+            {
+                int w=0;
+                int h=0;
+                int lineHeight = 0;
+                foreach(GUIWidget* child, children()) {
+                    if(child->width() + w >= maxWidth) {
+                        w = 0;
+                        h += lineHeight;
+                        lineHeight = 0;
+                    }
+
+                    w += child->width();
+                    if(child->height() > lineHeight)
+                        lineHeight = child->height();
+
+                    if(w > size.width())
+                        size.setWidth(w);
+                }
+                size.setHeight(h);
+
+                break;
+            }
+
+            case BlockElements:
+            {
+                int h=0;
+                foreach(GUIWidget* child, children()) {
+                    h += child->height();
+
+                    if(child->width() > size.width())
+                        size.setWidth(child->width());
+                }
+                size.setHeight(h);
+
+                break;
+            }
+
+            case FreeformLayout:
+                foreach(GUIWidget* child, children()) {
+                    int w = child->x() + child->width();
+                    int h = child->y() + child->height();
+
+                    if(w > size.width())
+                        size.setWidth(w);
+                    if(h > size.height())
+                        size.setHeight(h);
+                }
+
+        }
+
+        return size;
+    }
+
     inline QList<GUIWidget*> children() const{return _children;}
 
 protected:
@@ -35,10 +102,7 @@ protected:
         layoutTimer.setSingleShot(true);
         connect(&layoutTimer, SIGNAL(timeout()), this, SLOT(fixLayout()));
     }
-
-    virtual QSize sizeForLayout() {return QSize();}
     inline void sizeChanged() {GUIWidget::sizeChanged();markLayoutDirty();}
-
     virtual void fixLayoutImpl() {
         if(!_dirtyLayout)
             return;
