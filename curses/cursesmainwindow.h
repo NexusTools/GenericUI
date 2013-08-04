@@ -45,7 +45,30 @@ public:
 
     inline void parentChanged() {CursesBase::updateParent((CursesBase*)parentContainer());}
 
+    virtual void mouseClicked(QPoint p) {
+        foreach(GUIWidget* widget, children()) {
+            if(widget->geom().contains(p)) {
+                widget->internal<CursesBase>()->mouseClicked(p - widget->geom().topLeft());
+                return;
+            }
+        }
+
+        emit clicked();
+    }
+
 protected:
+    inline virtual void drawImpl() {
+        fixLayoutImpl();
+    }
+
+    inline void drawChildren() {
+        foreach(GUIWidget* child, children()) {
+            CursesBase* base = dynamic_cast<CursesBase*>(child);
+            if(base)
+                base->render(this);
+        }
+    }
+
     inline void titleChanged() {printf("\033]0;%s\007", qPrintable(title()));}
     inline virtual void fixLayoutImpl() {GUIContainer::fixLayoutImpl();markDirty();}
 

@@ -46,6 +46,12 @@ bool GUIWidget::event(QEvent *ev) {
     return QObject::event(ev);
 }
 
+void GUIWidget::sizeChanged() {
+    GUIContainer* con = parentContainer();
+    if(con)
+        con->markLayoutDirty();
+}
+
 GUIContainer* GUIWidget::parentContainer() const{
     return qobject_cast<GUIContainer*>(parent());
 }

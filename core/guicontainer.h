@@ -24,20 +24,26 @@ protected:
     inline GUIContainer(LayoutType layout, GUIContainer *parent =0) : GUIWidget(parent) {
         _layout = layout;
 
+        _dirtyLayout = false;
         layoutTimer.setInterval(0);
         layoutTimer.setSingleShot(true);
         connect(&layoutTimer, SIGNAL(timeout()), this, SLOT(fixLayout()));
     }
     inline GUIContainer(GUIContainer *parent =0) : GUIWidget(parent) {
+        _dirtyLayout = false;
         layoutTimer.setInterval(0);
         layoutTimer.setSingleShot(true);
         connect(&layoutTimer, SIGNAL(timeout()), this, SLOT(fixLayout()));
     }
 
     virtual QSize sizeForLayout() {return QSize();}
-    inline void sizeChanged() {markLayoutDirty();}
+    inline void sizeChanged() {GUIWidget::sizeChanged();markLayoutDirty();}
 
     virtual void fixLayoutImpl() {
+        if(!_dirtyLayout)
+            return;
+        _dirtyLayout = false;
+
         switch(_layout) {
             case InlineElements:
             {
@@ -81,10 +87,15 @@ protected slots:
         fixLayoutImpl();
     }
     inline void markLayoutDirty() {
+        if(_dirtyLayout)
+            return;
+
         layoutTimer.start();
+        _dirtyLayout = true;
     }
 
 private:
+    bool _dirtyLayout;
     LayoutType _layout;
     QList<GUIWidget*> _children;
 

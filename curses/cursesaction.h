@@ -14,12 +14,17 @@ class CursesAction : public GUIAction, public CursesBase
 
 public:
     inline CursesAction(QString text, GUIContainer* par =0) : GUIAction(text, par) {
-        blinkTimer.setInterval(600);
+        fitToContent();
+        if(par)
+            CursesBase::updateParent(((GUIWidget*)par)->internal<CursesBase>());
+
+        blinkTimer.setInterval(150);
         connect(&blinkTimer, SIGNAL(timeout()), this, SLOT(blink()));
 
         activateTimer.setSingleShot(true);
         connect(&activateTimer, SIGNAL(timeout()), this, SLOT(activate()));
 
+        _activateWait = false;
         _blink = false;
     }
 
@@ -28,11 +33,15 @@ public:
     }
 
     inline void mouseClicked(QPoint) {
-        //emit clicked();
+        emit clicked();
 
         focus();
+        if(_activateWait)
+            return;
+
         blinkTimer.start();
-        //activateTimer.start(1200);
+        activateTimer.start(600);
+        _activateWait = true;
     }
 
 protected:
@@ -40,7 +49,11 @@ protected:
         bool standout = wattr().testFlag(Focused);
         if(_blink)
             standout = !standout;
-        wattrset(hnd(), standout ? A_STANDOUT : A_NORMAL);
+
+        int attr = standout ? A_STANDOUT : A_NORMAL;
+        if(_activateWait)
+            attr |= A_BOLD;
+        wattrset(hnd(), attr);
         wmove(hnd(), 0, 0);
         waddch(hnd(), ' ');
         waddnstr(hnd(), text().toLocal8Bit(), text().toLocal8Bit().size());
@@ -54,10 +67,12 @@ protected slots:
         _blink = !_blink;
         markDirty();
     }
+
     void activate() {
         blinkTimer.stop();
-        if(_blink) {
+        if(_blink || _activateWait) {
             _blink = false;
+            _activateWait = false;
             markDirty();
         }
         emit activated();
@@ -65,6 +80,7 @@ protected slots:
 
 private:
     bool _blink;
+    bool _activateWait;
 
     QTimer blinkTimer;
     QTimer activateTimer;

@@ -38,8 +38,8 @@ public:
     inline void focus() {
         if(_focusBase)
             _focusBase->focusTaken();
-        _focusBase = this;
-        this->focusGiven();
+        _focusBase = static_cast<CursesBase*>(this);
+        _focusBase->focusGiven();
     }
 
     virtual QRect geom() const =0;
@@ -123,7 +123,7 @@ private:
     WINDOW* _window;
     bool _dirty;
 
-    inline virtual void draw() {if(_dirty) {wclear(hnd());drawImpl();_dirty=false;}else touchwin(hnd());wnoutrefresh(hnd());}
+    inline virtual void draw() {if(_winType == Derived) {drawImpl();} else if(_dirty) {wclear(hnd());drawImpl();_dirty=false;}else touchwin(hnd());wnoutrefresh(hnd());}
 
     inline void clear() {
         if(_window) {
@@ -146,7 +146,8 @@ protected:
     virtual void drawImpl() {}
 
 private:
-    inline void draw() {if(_dirty) {wclear(hnd());drawImpl();_dirty=false;}else touchwin(hnd());wnoutrefresh(hnd());drawChildren();}
+    inline void draw() {if(_winType == Derived) {drawImpl();} else if(_dirty) {wclear(hnd());drawImpl();_dirty=false;}else touchwin(hnd());wnoutrefresh(hnd());drawChildren();}
+
 };
 
 class CursesWindow : public CursesContainer
@@ -204,10 +205,9 @@ private:
 \
 protected: \
     inline void posChanged() {CursesBase::setPos(pos());} \
-    inline void sizeChanged() {CursesBase::setSize(size());} \
     inline void parentChanged() {CursesBase::updateParent(((GUIWidget*)parentContainer())->internal<CursesBase>());} \
-    inline void focusTaken() {if(!wattr().testFlag(GUIWidget::Focused))return;setWAttr(wattr() ^ GUIWidget::Focused);markDirty();} \
-    inline void focusGiven() {if(wattr().testFlag(GUIWidget::Focused))return;setWAttr(wattr() & GUIWidget::Focused);markDirty();}
+    inline void focusTaken() {if(!wattr().testFlag(GUIWidget::Focused))return;setWAttr(GUIWidget::Normal);markDirty();} \
+    inline void focusGiven() {if(wattr().testFlag(GUIWidget::Focused))return;setWAttr(GUIWidget::Focused);markDirty();}
 
 
 #define CURSES_CORE public:\
@@ -215,32 +215,17 @@ protected: \
     virtual void* handlePtr() {return (void*)hnd();} \
     inline QRect geom() const{return GUIWidget::geom();}
 
-#define BASIC_CURSES_OBJECT CURSES_CORE CURSES_IMPL
+#define BASIC_CURSES_OBJECT CURSES_CORE CURSES_IMPL \
+    inline void sizeChanged() {GUIWidget::sizeChanged();CursesBase::setSize(size());}
 
 #define CURSES_OBJECT BASIC_CURSES_OBJECT  \
 public: \
-    inline void mouseClicked(QPoint) {emit clicked();}
+    inline void mouseClicked(QPoint) {emit clicked();focus();}
 
-#define CURSES_CONTAINER_CORE CURSES_CORE \
-    virtual void mouseClicked(QPoint p) { \
-        foreach(GUIWidget* widget, children()) { \
-            if(widget->geom().contains(p)) { \
-                widget->internal<CursesBase>()->mouseClicked(p - widget->geom().topLeft()); \
-                return; \
-            } \
-        } \
-\
-        emit clicked(); \
-    } \
-protected: \
-    inline void drawChildren() { \
-        foreach(GUIWidget* child, children()) { \
-            CursesBase* base = dynamic_cast<CursesBase*>(child); \
-            if(base) \
-                base->render(this); \
-        } \
-    }
+#define CURSES_CONTAINER_CORE CURSES_CORE
 
-#define CURSES_CONTAINER CURSES_CONTAINER_CORE CURSES_IMPL
+
+#define CURSES_CONTAINER CURSES_CONTAINER_CORE CURSES_IMPL \
+    inline void sizeChanged() {GUIContainer::sizeChanged();CursesBase::setSize(size());}
 
 #endif // CURSESWINDOW_H

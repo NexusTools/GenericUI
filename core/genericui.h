@@ -72,7 +72,7 @@ protected:
 
     // Events
     virtual void posChanged() {}
-    virtual void sizeChanged() {}
+    virtual void sizeChanged();
     virtual void geometryChanged() {}
     virtual void visibilityChanged() {}
     virtual void parentChanged() {}
