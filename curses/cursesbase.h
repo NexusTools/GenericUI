@@ -25,7 +25,7 @@ class CursesBase
     };
 
 public:
-    virtual ~CursesBase() {clear();}
+    virtual ~CursesBase() {clear();if(_focusBase == this)_focusBase=0;}
 
     inline WINDOW* hnd() const{return _window;}
 
@@ -35,6 +35,13 @@ public:
     inline void markDirty() {_dirty=true;notifyDirty();}
     virtual void notifyDirty() =0;
 
+    inline void focus() {
+        if(_focusBase)
+            _focusBase->focusTaken();
+        _focusBase = this;
+        this->focusGiven();
+    }
+
     virtual QRect geom() const =0;
     inline virtual void updateParent(CursesBase* par) {
         if(_window)
@@ -42,7 +49,8 @@ public:
         if(par)
             create(par);
     }
-    inline virtual bool isScreen() const{return false;}
+    virtual bool isScreen() const{return false;}
+    virtual bool isWindow() const{return false;}
     virtual void mouseClicked(QPoint) =0;
 
     inline void* thisBasePtr() {return (void*)static_cast<CursesBase*>(this);}
@@ -50,11 +58,14 @@ public:
 protected:
     inline explicit CursesBase(WINDOW* window =0) {_window=window;_winType=window?Screen:None;_dirty=true;}
 
+    virtual void focusTaken() =0;
+    virtual void focusGiven() =0;
+
     inline void create(CursesBase* par) {
         clear();
 
         if(par->isValid()) {
-            if(par->isScreen()) {
+            if(isWindow() || par->isScreen()) {
                 _window = newwin(geom().height(), geom().width(), geom().y(), geom().x());
                 if(_window)
                     _winType = Window;
@@ -112,7 +123,7 @@ private:
     WINDOW* _window;
     bool _dirty;
 
-    inline virtual void draw() {if(_dirty) {drawImpl();_dirty=false;}else touchwin(hnd());wnoutrefresh(hnd());}
+    inline virtual void draw() {if(_dirty) {wclear(hnd());drawImpl();_dirty=false;}else touchwin(hnd());wnoutrefresh(hnd());}
 
     inline void clear() {
         if(_window) {
@@ -120,6 +131,8 @@ private:
             _window = 0;
         }
     }
+
+    static CursesBase* _focusBase;
 };
 
 class CursesContainer : public CursesBase
@@ -136,14 +149,22 @@ private:
     inline void draw() {if(_dirty) {wclear(hnd());drawImpl();_dirty=false;}else touchwin(hnd());wnoutrefresh(hnd());drawChildren();}
 };
 
-class CursesScreen : public CursesContainer
+class CursesWindow : public CursesContainer
+{
+protected:
+    inline CursesWindow(WINDOW* window =0) : CursesContainer(window) {}
+
+    inline virtual bool isWindow() const{return false;}
+};
+
+class CursesScreen : public CursesWindow
 {
 public:
     inline virtual void updateParent(CursesBase*) {}
     inline bool isScreen() const{return true;}
 
 protected:
-    inline CursesScreen() : CursesContainer(initscr()) {
+    inline CursesScreen() : CursesWindow(initscr()) {
         start_color();
 
         mousemask(ALL_MOUSE_EVENTS, NULL);
@@ -178,14 +199,27 @@ private:
     QPoint _cursor;
 };
 
+#define CURSES_IMPL  \
+    inline void notifyDirty() {cursesDirtyMainWindow();} \
+\
+protected: \
+    inline void posChanged() {CursesBase::setPos(pos());} \
+    inline void sizeChanged() {CursesBase::setSize(size());} \
+    inline void parentChanged() {CursesBase::updateParent(((GUIWidget*)parentContainer())->internal<CursesBase>());} \
+    inline void focusTaken() {if(!wattr().testFlag(GUIWidget::Focused))return;setWAttr(wattr() ^ GUIWidget::Focused);markDirty();} \
+    inline void focusGiven() {if(wattr().testFlag(GUIWidget::Focused))return;setWAttr(wattr() & GUIWidget::Focused);markDirty();}
+
+
 #define CURSES_CORE public:\
     virtual void* internalPtr() {return (void*)thisBasePtr();} \
     virtual void* handlePtr() {return (void*)hnd();} \
     inline QRect geom() const{return GUIWidget::geom();}
 
-#define CURSES_OBJECT CURSES_CORE \
-    inline void mouseClicked(QPoint) {emit clicked();} \
-    inline void notifyDirty() {cursesDirtyMainWindow();}
+#define BASIC_CURSES_OBJECT CURSES_CORE CURSES_IMPL
+
+#define CURSES_OBJECT BASIC_CURSES_OBJECT  \
+public: \
+    inline void mouseClicked(QPoint) {emit clicked();}
 
 #define CURSES_CONTAINER_CORE CURSES_CORE \
     virtual void mouseClicked(QPoint p) { \
@@ -207,8 +241,6 @@ protected: \
         } \
     }
 
-#define CURSES_CONTAINER CURSES_CONTAINER_CORE \
-public: \
-    inline void notifyDirty() {cursesDirtyMainWindow();}
+#define CURSES_CONTAINER CURSES_CONTAINER_CORE CURSES_IMPL
 
 #endif // CURSESWINDOW_H

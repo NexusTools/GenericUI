@@ -3,6 +3,7 @@
 #include <signal.h>
 
 CursesMainWindow* CursesMainWindow::_current = 0;
+CursesBase* CursesBase::_focusBase = 0;
 
 void resetScreen(int) {
     if(CursesMainWindow::current())

@@ -49,6 +49,9 @@ protected:
     inline void titleChanged() {printf("\033]0;%s\007", qPrintable(title()));}
     inline virtual void fixLayoutImpl() {GUIContainer::fixLayoutImpl();markDirty();}
 
+    inline void focusTaken() {setWAttr(wattr() ^ GUIWidget::Focused);markDirty();} \
+    inline void focusGiven() {setWAttr(wattr() & GUIWidget::Focused);markDirty();}
+
 protected slots:
     inline void drawNow() {
         render(0);

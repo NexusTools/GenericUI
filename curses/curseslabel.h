@@ -25,10 +25,6 @@ public:
     inline Q_INVOKABLE CursesLabel(QString text, GUIContainer* parent =0) : GUILabel(text, parent) {fitToContent();CursesBase::updateParent((CursesBase*)parentContainer());}
     inline Q_INVOKABLE CursesLabel(GUIContainer* parent =0) : GUILabel(parent) {CursesBase::updateParent((CursesBase*)parentContainer());}
 
-    inline void drawImpl() {
-        wattrset(hnd(), _attr);
-        mvwaddnstr(hnd(), 0, 0, text().toLocal8Bit(), text().toLocal8Bit().size());
-    }
 
     inline Attr attr() const{return _attr;}
     inline void setAttr(Attr attr) {if(_attr==attr)return;_attr=attr;markDirty();}
@@ -36,12 +32,12 @@ public:
 
 protected:
     inline QSize sizeForString(QString text) {return QSize(text.size(), 1);}
-
-    inline void posChanged() {CursesBase::setPos(pos());}
-    inline void sizeChanged() {CursesBase::setSize(size());}
     inline void textChanged() {markDirty();}
 
-    inline void parentChanged() {CursesBase::updateParent((CursesBase*)parentContainer());}
+    inline void drawImpl() {
+        wattrset(hnd(), _attr);
+        mvwaddnstr(hnd(), 0, 0, text().toLocal8Bit(), text().toLocal8Bit().size());
+    }
 
 private:
     Attr _attr;

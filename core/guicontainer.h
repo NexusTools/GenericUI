@@ -40,10 +40,36 @@ protected:
     virtual void fixLayoutImpl() {
         switch(_layout) {
             case InlineElements:
+            {
+                int x=0;
+                int y=0;
+                int lineHeight = 0;
+                foreach(GUIWidget* child, children()) {
+                    if(child->width() + x >= width()) {
+                        x = 0;
+                        y += lineHeight;
+                        lineHeight = 0;
+                    }
+                    child->move(x, y);
+
+                    x += child->width();
+                    if(child->height() > lineHeight)
+                        lineHeight = child->height();
+                }
+
                 break;
+            }
 
             case BlockElements:
+            {
+                int y=0;
+                foreach(GUIWidget* child, children()) {
+                    child->move(0, y);
+                    y += child->height();
+                }
+
                 break;
+            }
 
             case FreeformLayout:
                 return;

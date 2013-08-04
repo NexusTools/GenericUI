@@ -16,14 +16,20 @@ class GENERICUISHARED_EXPORT GUIWidget : public QObject
     Q_OBJECT
 public:
     enum WAttr {
-        Hidden,
+        Normal,
+
         FloatRight,
         FloatCenter,
+
         ExpandHeight,
         ExpandWidth,
-        Focused
+
+        Focused,
+        Hidden
     };
     Q_DECLARE_FLAGS(WAttrs, WAttr)
+
+    inline WAttrs wattr() const{return _attr;}
 
     inline void move(int x, int y) {setPos(QPoint(x, y));}
     inline void move(QPoint p) {setPos(p);}
@@ -49,8 +55,6 @@ public:
     GUIMainWindow* mainWindow();
     GUIWindow* window();
 
-
-
     template <class T>
     inline T* internal() {return static_cast<T*>(internalPtr());}
     template <class T>
@@ -60,7 +64,11 @@ public:
     virtual void* handlePtr() =0;
 
 protected:
-    inline GUIWidget(GUIContainer* parent =0) {setParent(parent);}
+    inline GUIWidget(GUIContainer* parent =0) {setParent(parent);_attr=Normal;}
+
+    inline void setWAttr(WAttrs attr) {
+        _attr = attr;
+    }
 
     // Events
     virtual void posChanged() {}

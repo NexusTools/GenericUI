@@ -12,13 +12,8 @@ class CursesMenuBar : public GUIMenuBar, public CursesContainer
 
 public:
     inline CursesMenuBar(GUIContainer* parent) : GUIMenuBar(parent) {}
-
     inline void addSeparator() {new CursesLabel("|", this);}
 
-protected:
-    inline void drawImpl() {
-        mvwaddstr(hnd(), 0, 0, "MenuBar Test");
-    }
 };
 
 #endif // CURSESMENUBAR_H
