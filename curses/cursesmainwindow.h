@@ -36,8 +36,22 @@ public:
         resize(checkSize());
     }
 
+    virtual void* internal() {return (void*)thisBasePtr();}
+    virtual void* handle() {return (void*)hnd();}
+
     inline void notifyDirty() {
         repaintTimer.start();
+    }
+
+    virtual void mouseClicked(QPoint p) {
+        foreach(GUIWidget* widget, children()) {
+            if(widget->geom().contains(p)) {
+                ((CursesBase*)widget->internal())->mouseClicked(p - widget->geom().topLeft());
+                return;
+            }
+        }
+
+        emit clicked();
     }
 
     inline QRect geom() const{return GUIWidget::geom();}
@@ -71,7 +85,6 @@ protected slots:
                     break;
 
                 case KEY_RESIZE:
-                    qDebug() << "Resize Event";
                     resize(checkSize());
                     break;
 

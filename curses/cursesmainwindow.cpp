@@ -21,6 +21,8 @@ void CursesMainWindow::init() {
     signal(SIGWINCH, resetScreen);
 }
 
-void cursesDirtyMainWindow(GUIMainWindow* main) {
-    if(main) ((CursesMainWindow*)main)->notifyDirty();
+void cursesDirtyMainWindow() {
+    CursesMainWindow* main = CursesMainWindow::current();
+    if(main)
+        main->notifyDirty();
 }

@@ -9,7 +9,7 @@
 
 class GUIMainWindow;
 
-void cursesDirtyMainWindow(GUIMainWindow*);
+void cursesDirtyMainWindow();
 
 class CursesBase
 {
@@ -43,6 +43,9 @@ public:
             create(par);
     }
     inline virtual bool isScreen() const{return false;}
+    virtual void mouseClicked(QPoint) =0;
+
+    inline void* thisBasePtr() {return (void*)static_cast<CursesBase*>(this);}
 
 protected:
     inline explicit CursesBase(WINDOW* window =0) {_window=window;_winType=window?Screen:None;_dirty=true;}
@@ -101,8 +104,7 @@ protected:
         markDirty();
     }
 
-    inline virtual void mouseClicked(QPoint p) {}
-    inline virtual void drawImpl() {}
+    virtual void drawImpl() =0;
 
 private:
     WinType _winType;
@@ -128,6 +130,7 @@ public:
 protected:
     inline CursesContainer(WINDOW* window =0) : CursesBase(window) {}
     virtual void drawChildren() =0;
+    virtual void drawImpl() {}
 
 private:
     inline void draw() {if(_dirty) {wclear(hnd());drawImpl();_dirty=false;}else touchwin(hnd());wnoutrefresh(hnd());drawChildren();}

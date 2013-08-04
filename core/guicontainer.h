@@ -21,6 +21,13 @@ public:
     inline QList<GUIWidget*> children() const{return _children;}
 
 protected:
+    inline GUIContainer(LayoutType layout, GUIContainer *parent =0) : GUIWidget(parent) {
+        _layout = layout;
+
+        layoutTimer.setInterval(0);
+        layoutTimer.setSingleShot(true);
+        connect(&layoutTimer, SIGNAL(timeout()), this, SLOT(fixLayout()));
+    }
     inline GUIContainer(GUIContainer *parent =0) : GUIWidget(parent) {
         layoutTimer.setInterval(0);
         layoutTimer.setSingleShot(true);

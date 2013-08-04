@@ -49,20 +49,17 @@ public:
 
     bool event(QEvent *);
 
+    virtual void* internal() =0;
+    virtual void* handle() =0;
+
 protected:
     inline GUIWidget(GUIContainer* parent =0) {setParent(parent);}
 
     // Events
-    virtual void clicked() {}
-    virtual void focusIn() {}
-    virtual void focusOut() {}
-    virtual void keyTyped(char) {}
-
     virtual void posChanged() {}
     virtual void sizeChanged() {}
     virtual void geometryChanged() {}
     virtual void visibilityChanged() {}
-
     virtual void parentChanged() {}
 
     // Internals
@@ -84,6 +81,8 @@ signals:
 
     void shown();
     void hidden();
+
+    void clicked();
 
 private:
     QRect _geom;
