@@ -2,9 +2,15 @@
 
 #include <signal.h>
 
+CursesMainWindow* CursesMainWindow::_current = 0;
+
 void resetScreen(int) {
-    endwin();
-    refresh();
+    if(CursesMainWindow::current())
+        CursesMainWindow::current()->recheckSize();
+    else {
+        endwin();
+        refresh();
+    }
 }
 
 void CursesMainWindow::init() {

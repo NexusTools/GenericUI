@@ -11,6 +11,8 @@ class CursesMainWindow : public GUIMainWindow, public CursesScreen
     Q_OBJECT
 public:
     inline explicit CursesMainWindow(QString title) : GUIMainWindow(title), CursesScreen() {
+        _current = this;
+
         init();
         resize(checkSize());
 
@@ -18,6 +20,20 @@ public:
         repaintTimer.setSingleShot(true);
         connect(&repaintTimer, SIGNAL(timeout()), this, SLOT(drawNow()));
         repaintTimer.start();
+
+        inputTimer.setInterval(30);
+        connect(&inputTimer, SIGNAL(timeout()), this, SLOT(readNextCH()));
+        inputTimer.start();
+    }
+    virtual ~CursesMainWindow() {_current=0;}
+
+    static inline CursesMainWindow* current() {return _current;}
+
+    inline void recheckSize() {
+        endwin();
+        refresh();
+
+        resize(checkSize());
     }
 
     inline void notifyDirty() {
@@ -36,17 +52,43 @@ protected:
         }
     }
 
-    inline void sizeChanged() {notifyDirty();}
+    inline void sizeChanged() {markDirty();}
 
 protected slots:
     inline void drawNow() {
         render(0);
     }
 
+    inline void readNextCH() {
+        int ch = getch();
+        while(ch != ERR) {
+            if(ch > 0 && ch < KEY_MAX) {
+                //TODO: Process normal keys
+            } else {
+                switch(ch) {
+                    case KEY_MOUSE:
+                        break;
+
+                    case KEY_RESIZE:
+                        qDebug() << "Resize Event";
+                        resize(checkSize());
+                        break;
+
+                    default:
+                        qWarning() << "Unknown key" << ch;
+                        break;
+                }
+            }
+            ch = getch();
+        }
+    }
+
 private:
     static void init();
+    static CursesMainWindow* _current;
 
     QTimer repaintTimer;
+    QTimer inputTimer;
 };
 
 #endif // CURSESMAINWINDOW_H
