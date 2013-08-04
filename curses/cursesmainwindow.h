@@ -12,6 +12,7 @@ class CursesMainWindow : public GUIMainWindow, public CursesScreen
 public:
     inline explicit CursesMainWindow(QString title) : GUIMainWindow(title), CursesScreen() {
         _current = this;
+        titleChanged();
 
         init();
         resize(checkSize());
@@ -66,6 +67,7 @@ protected:
         }
     }
 
+    inline void titleChanged() {printf("\033]0;%s\007", qPrintable(title()));}
     inline virtual void fixLayoutImpl() {GUIContainer::fixLayoutImpl();markDirty();}
 
 protected slots:

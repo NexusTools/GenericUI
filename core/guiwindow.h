@@ -9,6 +9,19 @@ class GUIWindow : public GUIContainer
 public:
     GUIWindow(QString title, GUIWindow* parent) {_title=title;_parent=parent;}
 
+    inline QString title() const{return _title;}
+
+public slots:
+    void setTitle(QString title) {
+        if(_title == title)
+            return;
+        _title = title;
+        titleChanged();
+    }
+
+protected:
+    virtual void titleChanged() {}
+
 private:
     GUIWindow* _parent;
     QString _title;
