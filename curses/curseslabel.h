@@ -28,8 +28,8 @@ public:
         mvwaddnstr(hnd(), 0, 0, text().toLocal8Bit(), text().toLocal8Bit().size());
     }
 
-    virtual void* internal() {return (void*)thisBasePtr();}
-    virtual void* handle() {return (void*)hnd();}
+    virtual void* internalPtr() {return (void*)thisBasePtr();}
+    virtual void* handlePtr() {return (void*)hnd();}
 
     inline Attr attr() const{return _attr;}
     inline void setAttr(Attr attr) {if(_attr==attr)return;_attr=attr;markDirty();}

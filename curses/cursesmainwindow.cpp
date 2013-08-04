@@ -22,7 +22,7 @@ void CursesMainWindow::init() {
 }
 
 void cursesDirtyMainWindow() {
-    CursesMainWindow* main = CursesMainWindow::current();
-    if(main)
+    CursesMainWindow* main;
+    if((main = CursesMainWindow::current()))
         main->notifyDirty();
 }

@@ -49,8 +49,14 @@ public:
 
     bool event(QEvent *);
 
-    virtual void* internal() =0;
-    virtual void* handle() =0;
+
+    template <class T>
+    inline T* internal() {return static_cast<T*>(internalPtr());}
+    template <class T>
+    inline T* handle() {return static_cast<T*>(handlePtr());}
+
+    virtual void* internalPtr() =0;
+    virtual void* handlePtr() =0;
 
 protected:
     inline GUIWidget(GUIContainer* parent =0) {setParent(parent);}

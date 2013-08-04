@@ -36,8 +36,8 @@ public:
         resize(checkSize());
     }
 
-    virtual void* internal() {return (void*)thisBasePtr();}
-    virtual void* handle() {return (void*)hnd();}
+    virtual void* internalPtr() {return (void*)thisBasePtr();}
+    virtual void* handlePtr() {return (void*)hnd();}
 
     inline void notifyDirty() {
         repaintTimer.start();
@@ -46,7 +46,7 @@ public:
     virtual void mouseClicked(QPoint p) {
         foreach(GUIWidget* widget, children()) {
             if(widget->geom().contains(p)) {
-                ((CursesBase*)widget->internal())->mouseClicked(p - widget->geom().topLeft());
+                widget->internal<CursesBase>()->mouseClicked(p - widget->geom().topLeft());
                 return;
             }
         }
