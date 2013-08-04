@@ -9,6 +9,7 @@ class GUIWindow : public GUIContainer
 public:
     GUIWindow(QString title, GUIWindow* parent) {_title=title;_parent=parent;}
 
+    inline bool isWindow() const{return true;}
     inline QString title() const{return _title;}
 
 public slots:

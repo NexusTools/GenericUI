@@ -178,4 +178,37 @@ private:
     QPoint _cursor;
 };
 
+#define CURSES_CORE public:\
+    virtual void* internalPtr() {return (void*)thisBasePtr();} \
+    virtual void* handlePtr() {return (void*)hnd();} \
+    inline QRect geom() const{return GUIWidget::geom();}
+
+#define CURSES_OBJECT CURSES_CORE \
+    inline void mouseClicked(QPoint) {emit clicked();} \
+    inline void notifyDirty() {cursesDirtyMainWindow();}
+
+#define CURSES_CONTAINER_CORE CURSES_CORE \
+    virtual void mouseClicked(QPoint p) { \
+        foreach(GUIWidget* widget, children()) { \
+            if(widget->geom().contains(p)) { \
+                widget->internal<CursesBase>()->mouseClicked(p - widget->geom().topLeft()); \
+                return; \
+            } \
+        } \
+\
+        emit clicked(); \
+    } \
+protected: \
+    inline void drawChildren() { \
+        foreach(GUIWidget* child, children()) { \
+            CursesBase* base = dynamic_cast<CursesBase*>(child); \
+            if(base) \
+                base->render(this); \
+        } \
+    }
+
+#define CURSES_CONTAINER CURSES_CONTAINER_CORE \
+public: \
+    inline void notifyDirty() {cursesDirtyMainWindow();}
+
 #endif // CURSESWINDOW_H

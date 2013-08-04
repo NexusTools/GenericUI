@@ -40,14 +40,15 @@ public:
     inline QSize size() const{return _geom.size();}
     inline QRect geom() const{return _geom;}
 
+    inline virtual bool isWindow() const{return false;}
     virtual void processXML(QDomNode&) {}
     void setParent(GUIContainer*);
+    bool event(QEvent *);
 
     GUIContainer* parentContainer() const;
     GUIMainWindow* mainWindow();
     GUIWindow* window();
 
-    bool event(QEvent *);
 
 
     template <class T>

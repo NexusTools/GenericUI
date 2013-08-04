@@ -1,18 +1,18 @@
-#ifndef GUIMENUBAR_H
-#define GUIMENUBAR_H
+#ifndef GUIMENU_H
+#define GUIMENU_H
 
-#include "guicontainer.h"
-#include "guimenu.h"
+#include "guiwindow.h"
+#include "guiaction.h"
 
 class GUIAction;
-class GUIMenu;
 
-class GUIMenuBar : public GUIContainer
+class GUIMenu : public GUIWindow
 {
     Q_OBJECT
 public:
-    inline GUIMenuBar(GUIContainer* parent) : GUIContainer(parent) {}
+    inline GUIMenu(QString title, GUIWindow* parent) : GUIWindow(title, parent) {}
 
+    virtual GUIAction* action(QString name =QString()) =0;
     inline void addAction(GUIAction* action) {action->setParent(this);}
     inline void addMenu(GUIMenu* menu, QString text) {addAction(menu->action(text));}
     inline void addMenu(GUIMenu* menu) {addAction(menu->action());}
@@ -20,4 +20,4 @@ public:
 
 };
 
-#endif // GUIMENUBAR_H
+#endif // GUIMENU_H

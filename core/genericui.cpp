@@ -5,6 +5,9 @@
 
 void GUIWidget::setParent(GUIContainer* par) {
     QObject::setParent(par);
+    if(isWindow())
+        return;
+
     if(par) {
         par->_children.append(this);
         parentChanged();
@@ -12,36 +15,33 @@ void GUIWidget::setParent(GUIContainer* par) {
 }
 
 bool GUIWidget::event(QEvent *ev) {
-    switch(ev->type()) {
-        case QEvent::ParentAboutToChange:
-        {
+    if(!isWindow())
+        switch(ev->type()) {
+            case QEvent::ParentAboutToChange:
+            {
 
-            GUIContainer* par = parentContainer();
-            if(par) {
-                par->_children.removeOne(this);
-                parentChanged();
+                GUIContainer* par = parentContainer();
+                if(par) {
+                    par->_children.removeOne(this);
+                    parentChanged();
+                }
+                break;
             }
-            break;
-        }
 
-        case QEvent::ParentChange:
-        {
-            GUIContainer* par = parentContainer();
-            if(par) {
-                par->_children.append(this);
-                parentChanged();
+            case QEvent::ParentChange:
+            {
+                GUIContainer* par = parentContainer();
+                if(par) {
+                    par->_children.append(this);
+                    parentChanged();
+                }
+                break;
             }
-            break;
+
+            default:
+                break;
+
         }
-
-        default:
-            break;
-
-    }
-
-    if(ev->type() == QEvent::ParentChange) {
-
-    }
 
     return QObject::event(ev);
 }
