@@ -52,7 +52,7 @@ protected:
         }
     }
 
-    inline void sizeChanged() {markDirty();}
+    inline virtual void fixLayoutImpl() {GUIContainer::fixLayoutImpl();markDirty();}
 
 protected slots:
     inline void drawNow() {
