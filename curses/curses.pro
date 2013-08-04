@@ -26,7 +26,8 @@ HEADERS += \
     global.h \
     curseslabel.h \
     cursesmainwindow.h \
-    cursesbase.h
+    cursesbase.h \
+    cursesaction.h
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../core/release/ -lGenericUI
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../core/debug/ -lGenericUI

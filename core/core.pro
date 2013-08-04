@@ -21,7 +21,8 @@ HEADERS += genericui.h \
     guicontainer.h \
     guiwindow.h \
     guimainwindow.h \
-    guidialog.h
+    guidialog.h \
+    guiaction.h
 
 unix:!symbian {
     maemo5 {
