@@ -9,6 +9,15 @@ class GUILabel : public GUIWidget
 public:
     inline GUILabel(QString text, GUIContainer* parent =0) : GUIWidget(parent) {_text=text;}
 
+    inline void setText(QString text){
+        if(text == _text)
+            return;
+
+        _text=text;
+        fitToContent();
+        textChanged();
+    }
+
     inline void fitToContent() {
         setSize(sizeForString(text()));
     }
@@ -17,6 +26,7 @@ public:
 
 protected:
     virtual QSize sizeForString(QString) =0;
+    virtual void textChanged() =0;
 
 private:
     QString _text;

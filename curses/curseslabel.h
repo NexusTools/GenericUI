@@ -22,8 +22,10 @@ public:
 protected:
     inline QSize sizeForString(QString text) {return QSize(text.size(), 1);}
 
+
     inline void posChanged() {CursesBase::setPos(pos());}
     inline void sizeChanged() {CursesBase::setSize(size());}
+    inline void textChanged() {markDirty();}
 
     inline void parentChanged() {CursesBase::updateParent((CursesBase*)parentContainer());}
 

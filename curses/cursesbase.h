@@ -108,7 +108,7 @@ private:
     WINDOW* _window;
     bool _dirty;
 
-    inline virtual void draw() {if(_dirty) {drawImpl();_dirty=false;}wnoutrefresh(hnd());}
+    inline virtual void draw() {if(_dirty) {drawImpl();_dirty=false;}else touchwin(hnd());wnoutrefresh(hnd());}
 
     inline void clear() {
         if(_window) {
@@ -128,7 +128,7 @@ protected:
     virtual void drawChildren() =0;
 
 private:
-    inline void draw() {if(_dirty) {drawImpl();_dirty=false;}else touchwin(hnd());wnoutrefresh(hnd());drawChildren();}
+    inline void draw() {if(_dirty) {wclear(hnd());drawImpl();_dirty=false;}else touchwin(hnd());wnoutrefresh(hnd());drawChildren();}
 };
 
 class CursesScreen : public CursesContainer

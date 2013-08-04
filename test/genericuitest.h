@@ -1,6 +1,7 @@
 #ifndef GENERICUITEST_H
 #define GENERICUITEST_H
 
+#include <QDateTime>
 #include <QObject>
 #include <QTimer>
 #include <QDebug>
@@ -12,7 +13,7 @@ class GenericUITest : public QObject
 {
     Q_OBJECT
 public:
-    inline explicit GenericUITest() : mainWindow("Generic UI Test"), label1("Testing your love!", &mainWindow), label2("One day at a time...", &mainWindow) {
+    inline explicit GenericUITest() : mainWindow("Generic UI Test"), label1("Testing your love!", &mainWindow), label2("One day at a time...", &mainWindow), dateLabel("Loading...", &mainWindow) {
         label1.move(QPoint(5, 3));
         label2.move(QPoint(7, 5));
         move1 = true;
@@ -21,6 +22,7 @@ public:
         animation.setInterval(50);
         connect(&animation, SIGNAL(timeout()), this, SLOT(move()));
         animation.start();
+        move();
     }
 
 public slots:
@@ -35,6 +37,9 @@ public slots:
             move2 = true;
         else if(label2.x() + label2.width() >= mainWindow.width())
             move2 = false;
+
+        dateLabel.setText(QDateTime::currentDateTime().toString());
+        dateLabel.move(mainWindow.width()-dateLabel.width(), 0);
     }
 
 private:
@@ -42,6 +47,7 @@ private:
 
     CursesMainWindow mainWindow;
     CursesLabel label1, label2;
+    CursesLabel dateLabel;
     bool move1, move2;
     
 };
