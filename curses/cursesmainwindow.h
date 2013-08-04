@@ -60,25 +60,29 @@ protected slots:
     }
 
     inline void readNextCH() {
+        MEVENT mEvent;
+
         int ch = getch();
         while(ch != ERR) {
-            if(ch > 0 && ch < KEY_MAX) {
-                //TODO: Process normal keys
-            } else {
-                switch(ch) {
-                    case KEY_MOUSE:
-                        break;
+            switch(ch) {
+                case KEY_MOUSE:
+                    if(getmouse(&mEvent) == OK)
+                        processMouseEvent(mEvent);
+                    break;
 
-                    case KEY_RESIZE:
-                        qDebug() << "Resize Event";
-                        resize(checkSize());
-                        break;
+                case KEY_RESIZE:
+                    qDebug() << "Resize Event";
+                    resize(checkSize());
+                    break;
 
-                    default:
+                default:
+                    if(ch > 0 && ch < KEY_MAX) {
+                        //TODO: Process normal keys
+                    } else
                         qWarning() << "Unknown key" << ch;
-                        break;
-                }
+                    break;
             }
+
             ch = getch();
         }
     }

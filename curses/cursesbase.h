@@ -14,6 +14,7 @@ void cursesDirtyMainWindow(GUIMainWindow*);
 class CursesBase
 {
     friend class CursesContainer;
+    friend class CursesScreen;
 
     enum WinType {
         None,
@@ -100,6 +101,7 @@ protected:
         markDirty();
     }
 
+    inline virtual void mouseClicked(QPoint p) {}
     inline virtual void drawImpl() {}
 
 private:
@@ -141,17 +143,36 @@ protected:
     inline CursesScreen() : CursesContainer(initscr()) {
         start_color();
 
+        mousemask(ALL_MOUSE_EVENTS, NULL);
         nodelay(hnd(), true);
         keypad(hnd(), true);
         meta(hnd(), true);
+        curs_set(0);
+    }
+
+    inline void processMouseEvent(MEVENT& mEvent) {
+        if(_cursor.isNull())
+            curs_set(1);
+        _cursor = QPoint(mEvent.x, mEvent.y);
+        if(mEvent.bstate & BUTTON1_CLICKED)
+            mouseClicked(_cursor);
+        markDirty();
     }
 
     inline QSize checkSize() {
         return QSize(getmaxx(hnd()), getmaxy(hnd()));
     }
 
-    inline void draw() {CursesContainer::draw();doupdate();}
+    inline void draw() {
+        CursesContainer::draw();
+        if(!_cursor.isNull())
+            move(_cursor.y(), _cursor.x());
 
+        doupdate();
+    }
+
+private:
+    QPoint _cursor;
 };
 
 #endif // CURSESWINDOW_H
