@@ -39,14 +39,14 @@ public:
         resize(checkSize());
     }
 
-    inline void notifyDirty() {
+    inline void scheduleRepaint() {
         repaintTimer.start();
     }
 
     inline void showWindow(GUIWindow* window) {
         if(!_windowStack.contains(window)) {
             _windowStack << window;
-            notifyDirty();
+            scheduleRepaint();
         }
     }
 
@@ -56,7 +56,7 @@ public:
 
     inline void closeWindow(GUIWindow* window) {
         _windowStack.removeOne(window);
-        notifyDirty();
+        scheduleRepaint();
     }
 
     inline void parentChanged() {CursesBase::updateParent((CursesBase*)parentContainer());}

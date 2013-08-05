@@ -32,8 +32,7 @@ public:
     inline void render(CursesBase* par) {if(!isValid())create(par);draw();}
     inline bool isValid() const{return _window;}
     inline bool isDirty() const{return _dirty;}
-    inline void markDirty() {_dirty=true;notifyDirty();}
-    virtual void notifyDirty() =0;
+    inline void markDirty() {_dirty=true;cursesDirtyMainWindow();}
 
     inline void focus() {
         if(_focusBase)
@@ -95,7 +94,7 @@ protected:
                 return;
 
         }
-        notifyDirty();
+        cursesDirtyMainWindow();
     }
 
     inline void setSize(QSize s) {
@@ -202,8 +201,6 @@ private:
 };
 
 #define CURSES_IMPL  \
-    inline void notifyDirty() {cursesDirtyMainWindow();} \
-\
 protected: \
     inline void posChanged() {CursesBase::setPos(pos());} \
     inline void parentChanged() {CursesBase::updateParent(((GUIWidget*)parentContainer())->internal<CursesBase>());} \

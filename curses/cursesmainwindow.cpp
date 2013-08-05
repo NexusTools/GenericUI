@@ -141,5 +141,5 @@ void CursesMainWindow::init() {
 void cursesDirtyMainWindow() {
     CursesMainWindow* main;
     if((main = CursesMainWindow::current()))
-        main->notifyDirty();
+        main->startRepaintTimer();
 }
