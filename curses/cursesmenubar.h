@@ -16,9 +16,11 @@ public:
 
 
     virtual void mouseClicked(QPoint p) {
-        foreach(GUIWidget* widget, children()) {
-            if(widget->geom().contains(p)) {
-                widget->internal<CursesBase>()->mouseClicked(p - widget->geom().topLeft());
+        GUIChildren::Iterator i = children().end();
+        while(i != children().begin()) {
+            i--;
+            if((*i)->geom().contains(p)) {
+                (*i)->internal<CursesBase>()->mouseClicked(p - (*i)->geom().topLeft());
                 return;
             }
         }

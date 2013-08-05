@@ -11,6 +11,8 @@ class GUIContainer : public GUIWidget
 
     friend class GUIWidget;
 public:
+    typedef QList<GUIWidget*> GUIChildren;
+
     enum LayoutType {
         FreeformLayout,
 
@@ -85,7 +87,7 @@ public:
         return size;
     }
 
-    inline QList<GUIWidget*> children() const{return _children;}
+    inline GUIChildren children() const{return _children;}
 
 protected:
     inline GUIContainer(LayoutType layout, GUIContainer *parent =0) : GUIWidget(parent) {
@@ -161,7 +163,7 @@ protected slots:
 private:
     bool _dirtyLayout;
     LayoutType _layout;
-    QList<GUIWidget*> _children;
+    GUIChildren _children;
 
     QTimer layoutTimer;
 };
