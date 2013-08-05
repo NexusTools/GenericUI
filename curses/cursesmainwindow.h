@@ -50,6 +50,10 @@ public:
         }
     }
 
+    inline bool isWindowOpen(GUIWindow* window) {
+        return _windowStack.contains(window);
+    }
+
     inline void closeWindow(GUIWindow* window) {
         _windowStack.removeOne(window);
         notifyDirty();
@@ -58,16 +62,12 @@ public:
     inline void parentChanged() {CursesBase::updateParent((CursesBase*)parentContainer());}
 
     virtual void mouseClicked(QPoint p) {
-        GUIChildren::Iterator i = _windowStack.end();
-        while(i != _windowStack.begin()) {
-            i--;
-            if((*i)->geom().contains(p)) {
-                (*i)->internal<CursesWindow>()->mouseClicked(p - (*i)->geom().topLeft());
-                return;
-            }
+        if(!_windowStack.isEmpty()) {
+            _windowStack.last()->internal<CursesWindow>()->mouseClicked(p - _windowStack.last()->geom().topLeft());
+            return;
         }
 
-        i = children().end();
+        GUIChildren::Iterator i = children().end();
         while(i != children().begin()) {
             i--;
             if((*i)->geom().contains(p)) {

@@ -87,6 +87,10 @@ public:
         return size;
     }
 
+    inline void fitToContent() {
+        resize(sizeForLayout());
+    }
+
     inline GUIChildren children() const{return _children;}
 
 protected:

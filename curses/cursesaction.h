@@ -7,11 +7,14 @@
 
 #include "cursesbase.h"
 
+class CursesMenu;
+
 class CursesAction : public GUIAction, public CursesBase
 {
     Q_OBJECT
     BASIC_CURSES_OBJECT
 
+    friend class CursesMenu;
 public:
     inline CursesAction(QString text, GUIContainer* par =0) : GUIAction(text, par) {
         fitToContent();
@@ -27,6 +30,7 @@ public:
         } else
             _shortcut = 0;
 
+        _menu = 0;
         blinkTimer.setInterval(150);
         connect(&blinkTimer, SIGNAL(timeout()), this, SLOT(blink()));
 
@@ -53,41 +57,19 @@ public:
     }
 
     inline void mouseClicked(QPoint) {
+        clickFeedback();
         emit clicked();
-        emit clickedAt(QPoint(screenX(), screenY()+1));
-
         focus();
+
         if(_activateWait)
             return;
 
-        blinkTimer.start();
-        activateTimer.start(600);
         _activateWait = true;
     }
 
 protected:
-    inline void drawImpl() {
-        bool standout = wattr().testFlag(Focused);
-        if(_blink)
-            standout = !standout;
-
-        int attr = standout ? A_STANDOUT : A_NORMAL;
-        if(_activateWait)
-            attr |= A_BOLD;
-        wattrset(hnd(), attr);
-        wmove(hnd(), 0, 0);
-        waddch(hnd(), ' ');
-        foreach(char c, text().toLocal8Bit()) {
-            if(c == '_') {
-                wattron(hnd(), A_UNDERLINE);
-                continue;
-            }
-
-            waddch(hnd(), c);
-            wattroff(hnd(), A_UNDERLINE);
-        }
-        waddch(hnd(), ' ');
-    }
+    void drawImpl();
+    void clickFeedback();
 
     inline void textChanged() {markDirty();}
 
@@ -97,15 +79,7 @@ protected slots:
         markDirty();
     }
 
-    void activate() {
-        blinkTimer.stop();
-        if(_blink || _activateWait) {
-            _blink = false;
-            _activateWait = false;
-            markDirty();
-        }
-        emit activated();
-    }
+    void activate();
 
 signals:
     void clickedAt(QPoint);
@@ -117,6 +91,7 @@ private:
     char _shortcut;
     QTimer blinkTimer;
     QTimer activateTimer;
+    CursesMenu* _menu;
 
     static QHash<char, CursesAction*> shortcuts;
 };
