@@ -38,3 +38,12 @@ else:unix: LIBS += -L$$OUT_PWD/../core/ -lGenericUI
 
 INCLUDEPATH += $$PWD/../core
 DEPENDPATH += $$PWD/../core
+
+unix:!symbian {
+	maemo5 {
+		target.path = /opt/usr/lib
+	} else {
+		target.path = /usr/lib
+	}
+	INSTALLS += target
+}
