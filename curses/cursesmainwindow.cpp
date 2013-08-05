@@ -141,11 +141,23 @@ void crash(int sig) {
     exit(0);
 }
 
-void end(int sig) {
+void shutdown(int sig){
     endwin();
     printf("Shutdown signal %i received.\n%s Terminated.\n\n", sig, qPrintable(QCoreApplication::instance()->applicationName()));
 
     exit(0);
+}
+
+void tryTerminate(int sig) {
+    CursesMainWindow* mainWin = CursesMainWindow::current();
+    if(mainWin)
+        mainWin->terminateRequested(sig);
+    else
+        shutdown(sig);
+}
+
+void CursesMainWindow::terminateRequested(int sig) {
+    shutdown(sig);
 }
 
 QSize CursesMainWindow::init() {
@@ -158,9 +170,9 @@ QSize CursesMainWindow::init() {
         signal(SIGABRT, crash);
         signal(SIGTERM, crash);
 
-        signal(SIGKILL, end);
-        signal(SIGQUIT, end);
-        signal(SIGINT, end);
+        signal(SIGKILL, tryTerminate);
+        signal(SIGQUIT, tryTerminate);
+        signal(SIGINT, tryTerminate);
 
         initscr();
         start_color();

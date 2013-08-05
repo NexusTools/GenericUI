@@ -12,7 +12,7 @@ class CursesMainWindow : public GUIMainWindow, public CursesScreen
     CURSES_CONTAINER_CORE
 
 public:
-        inline explicit CursesMainWindow(QString title) : GUIMainWindow(title), CursesScreen(init()) {
+    inline explicit CursesMainWindow(QString title) : GUIMainWindow(title), CursesScreen(init()) {
         _current = this;
         titleChanged();
 
@@ -31,6 +31,7 @@ public:
     virtual ~CursesMainWindow() {_current=0;}
 
     static inline CursesMainWindow* current() {return _current;}
+    virtual void terminateRequested(int);
 
     inline void recheckSize() {
         endwin();
