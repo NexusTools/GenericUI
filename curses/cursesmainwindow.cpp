@@ -18,7 +18,7 @@ void CursesMenu::showChain() {
         if(parentMenu)
             parentMenu->showChain();
     }
-    showImpl();
+    show();
 }
 
 void CursesMenu::hideChain() {
@@ -27,7 +27,7 @@ void CursesMenu::hideChain() {
         if(parentMenu)
             parentMenu->hideChain();
     }
-    hideImpl();
+    hide();
 }
 
 void CursesAction::activate() {
