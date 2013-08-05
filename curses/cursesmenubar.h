@@ -14,7 +14,6 @@ public:
     inline CursesMenuBar(GUIContainer* parent) : GUIMenuBar(parent) {}
     inline void addSeparator() {new CursesLabel("|", this);}
 
-
     virtual void mouseClicked(QPoint p) {
         GUIChildren::Iterator i = children().end();
         while(i != children().begin()) {
