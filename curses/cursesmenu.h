@@ -32,25 +32,7 @@ public:
     inline void addMenu(GUIMenu* menu) {addAction(menu->action());}
     inline void addSeparator() {new CursesMenuSeparator(this);}
 
-    virtual void mouseClicked(QPoint p) {
-        if(QRect(QPoint(0,0),size()).contains(p)) {
-            QListIterator<GUIWidget*> i(children());
-
-            i.toBack();
-            while(i.hasPrevious()) {
-               GUIWidget* child = i.previous();
-               CursesBase* curses = child ? child->internal<CursesBase>() : 0;
-               if(curses && child->geom().contains(p)) {
-                   curses->mouseClicked(p - child->geom().topLeft());
-                   return;
-               }
-            }
-            emit clicked();
-            return;
-        }
-
-        close();
-    }
+    virtual void mouseClicked(QPoint p);
 
     inline QSize sizeForLayout(int) {
         int h = 0;
