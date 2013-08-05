@@ -111,6 +111,7 @@ protected:
     }
 
     void showChain();
+    void hideChain();
 
 private:
     QPointer<CursesAction> _action;

@@ -21,6 +21,15 @@ void CursesMenu::showChain() {
     showImpl();
 }
 
+void CursesMenu::hideChain() {
+    if(_action) {
+        CursesMenu* parentMenu = qobject_cast<CursesMenu*>(_action->parent());
+        if(parentMenu)
+            parentMenu->hideChain();
+    }
+    hideImpl();
+}
+
 void CursesAction::activate() {
     blinkTimer.stop();
     if(_blink) {
@@ -34,7 +43,7 @@ void CursesAction::activate() {
 
     CursesMenu* parentMenu = qobject_cast<CursesMenu*>(parent());
     if(parentMenu)
-        parentMenu->close();
+        parentMenu->hideChain();
 
     emit activated();
 }
