@@ -12,7 +12,7 @@ class CursesMainWindow : public GUIMainWindow, public CursesScreen
     CURSES_CONTAINER_CORE
 
 public:
-    inline explicit CursesMainWindow(QString title) : GUIMainWindow(title), CursesScreen() {
+        inline explicit CursesMainWindow(QString title) : GUIMainWindow(title), CursesScreen(init()) {
         _current = this;
         titleChanged();
 
@@ -59,8 +59,6 @@ public:
         scheduleRepaint();
     }
 
-    inline void parentChanged() {CursesBase::updateParent((CursesBase*)parentContainer());}
-
     virtual void mouseClicked(QPoint p) {
         if(!_windowStack.isEmpty()) {
             _windowStack.last()->internal<CursesWindow>()->mouseClicked(p - _windowStack.last()->geom().topLeft());
@@ -84,16 +82,16 @@ protected:
         fixLayoutImpl();
     }
 
-    inline void drawChildren() {
+    inline void drawChildren(WINDOW* buffer, QRect clip, QPoint off) {
         foreach(GUIWidget* child, _windowStack) {
             CursesBase* base = dynamic_cast<CursesBase*>(child);
             if(base)
-                base->render(this);
+                drawChild(base, buffer, clip, off);
         }
         foreach(GUIWidget* child, children()) {
             CursesBase* base = dynamic_cast<CursesBase*>(child);
             if(base)
-                base->render(this);
+                drawChild(base, buffer, clip, off);
         }
     }
 
@@ -105,7 +103,7 @@ protected:
 
 protected slots:
     inline void drawNow() {
-        render(0);
+        render();
     }
 
     inline void readNextCH() {
@@ -138,7 +136,7 @@ protected slots:
     }
 
 private:
-    static void init();
+    static QSize init();
     static CursesMainWindow* _current;
 
     GUIChildren _windowStack;

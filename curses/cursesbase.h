@@ -16,20 +16,11 @@ class CursesBase
     friend class CursesContainer;
     friend class CursesScreen;
 
-    enum WinType {
-        None,
-
-        Screen,
-        Window,
-        Derived
-    };
-
 public:
     virtual ~CursesBase() {clear();if(_focusBase == this)_focusBase=0;}
 
     inline WINDOW* hnd() const{return _window;}
 
-    inline void render(CursesBase* par) {if(!isValid())create(par);draw();}
     inline bool isValid() const{return _window;}
     inline bool isDirty() const{return _dirty;}
     inline void markDirty() {_dirty=true;cursesDirtyMainWindow();}
@@ -42,12 +33,6 @@ public:
     }
 
     virtual QRect geom() const =0;
-    inline virtual void updateParent(CursesBase* par) {
-        if(_window)
-            CursesBase::clear();
-        if(par)
-            create(par);
-    }
     virtual bool isScreen() const{return false;}
     virtual bool isWindow() const{return false;}
     virtual void mouseClicked(QPoint) =0;
@@ -55,74 +40,29 @@ public:
     inline void* thisBasePtr() {return (void*)static_cast<CursesBase*>(this);}
 
 protected:
-    inline explicit CursesBase(WINDOW* window =0) {_window=window;_winType=window?Screen:None;_dirty=true;}
+    inline explicit CursesBase(QSize size =QSize(1, 1)) {_window=newpad(size.height(), size.width());if(!_window)throw "Unable to allocate pad";_dirty=true;}
 
     virtual void focusTaken() =0;
     virtual void focusGiven() =0;
 
-    inline void create(CursesBase* par) {
-        clear();
-
-        if(par->isValid()) {
-            if(isWindow() || par->isScreen()) {
-                _window = newwin(geom().height(), geom().width(), geom().y(), geom().x());
-                if(_window)
-                    _winType = Window;
-            } else {
-                _window = derwin(par->hnd(), geom().height(), geom().width(), geom().y(), geom().x());
-                if(_window)
-                    _winType = Derived;
-            }
-            markDirty();
-        }
-    }
-
-    inline void setPos(QPoint p) {
-        switch(_winType) {
-            case Screen:
-                throw "Cannot move the screen.";
-
-            case Window:
-                mvwin(hnd(), p.y(), p.x());
-                break;
-
-            case Derived:
-                mvderwin(hnd(), p.y(), p.x());
-                break;
-
-            case None:
-                return;
-
-        }
-        cursesDirtyMainWindow();
-    }
-
     inline void setSize(QSize s) {
-        switch(_winType) {
-            case Screen:
-                throw "Cannot resize the screen.";
-
-            case Window:
-            case Derived:
-                wresize(hnd(), s.height(), s.width());
-                break;
-
-            case None:
-                return;
-
-        }
+        wresize(hnd(), s.height(), s.width());
         markDirty();
+    }
+
+    inline virtual void draw(WINDOW*, QRect, QPoint) {
+        if(_dirty) {
+            wclear(hnd());
+            drawImpl();
+            _dirty=false;
+        }
     }
 
     virtual void drawImpl() =0;
 
 private:
-    WinType _winType;
-
     WINDOW* _window;
     bool _dirty;
-
-    inline virtual void draw() {if(_winType == Derived) {drawImpl();} else if(_dirty) {wclear(hnd());drawImpl();_dirty=false;}else touchwin(hnd());wnoutrefresh(hnd());}
 
     inline void clear() {
         if(_window) {
@@ -140,19 +80,23 @@ class CursesContainer : public CursesBase
 public:
 
 protected:
-    inline CursesContainer(WINDOW* window =0) : CursesBase(window) {}
-    virtual void drawChildren() =0;
+    inline CursesContainer(QSize size =QSize(1,1)) : CursesBase(size) {}
+
+    inline void draw(WINDOW* buffer, QRect clip, QPoint off) {
+        CursesBase::draw(buffer, clip, off);
+        drawChildren(buffer, clip, off);
+    }
+    inline void drawChild(CursesBase*, WINDOW*, QRect, QPoint) {}
+    virtual void drawChildren(WINDOW* buffer, QRect clip, QPoint off) =0;
     virtual void drawImpl() {}
 
 private:
-    inline void draw() {if(_winType == Derived) {drawImpl();} else if(_dirty) {wclear(hnd());drawImpl();_dirty=false;}else touchwin(hnd());wnoutrefresh(hnd());drawChildren();}
-
 };
 
 class CursesWindow : public CursesContainer
 {
 protected:
-    inline CursesWindow(WINDOW* window =0) : CursesContainer(window) {}
+    inline CursesWindow(QSize size =QSize(1,1)) : CursesContainer(size) {}
 
     inline virtual bool isWindow() const{return true;}
 };
@@ -160,19 +104,23 @@ protected:
 class CursesScreen : public CursesWindow
 {
 public:
-    inline virtual void updateParent(CursesBase*) {}
     inline bool isScreen() const{return true;}
+    inline void render() {
+        CursesBase::draw(0, QRect(), QPoint());
+        overwrite(_window, _buffer);
+
+        wnoutrefresh(stdscr);
+        wnoutrefresh(_buffer);
+        //pnoutrefresh(_window, 0, 0, 0, 0, geom().height(), geom().width());
+
+        doupdate();
+        //qDebug() << geom() << getmaxx(hnd()) << getmaxy(hnd());
+    }
 
 protected:
-    inline CursesScreen() : CursesWindow(initscr()) {
-        start_color();
-
-        mousemask(ALL_MOUSE_EVENTS, NULL);
-        nodelay(hnd(), true);
-        keypad(hnd(), true);
-        meta(hnd(), true);
-        curs_set(0);
-        noecho();
+    inline CursesScreen(QSize s) : CursesWindow(s) {
+        _window = newwin(0, 0, 0, 0);
+        _buffer = newwin(0, 0, 0, 0);
     }
 
     inline void processMouseEvent(MEVENT& mEvent) {
@@ -185,11 +133,11 @@ protected:
     }
 
     inline QSize checkSize() {
-        return QSize(getmaxx(hnd()), getmaxy(hnd()));
+        return QSize(getmaxx(stdscr), getmaxy(stdscr));
     }
 
-    inline void draw() {
-        CursesContainer::draw();
+    inline void draw(WINDOW* buffer, QRect clip, QPoint off) {
+        CursesContainer::draw(buffer, clip, off);
         if(!_cursor.isNull())
             move(_cursor.y(), _cursor.x());
 
@@ -198,12 +146,12 @@ protected:
 
 private:
     QPoint _cursor;
+    WINDOW* _buffer;
 };
 
 #define CURSES_IMPL  \
 protected: \
-    inline void posChanged() {CursesBase::setPos(pos());} \
-    inline void parentChanged() {CursesBase::updateParent(((GUIWidget*)parentContainer())->internal<CursesBase>());} \
+    inline void posChanged() {cursesDirtyMainWindow();} \
     inline void focusTaken() {if(!wattr().testFlag(GUIWidget::Focused))return;setWAttr(GUIWidget::Normal);markDirty();} \
     inline void focusGiven() {if(wattr().testFlag(GUIWidget::Focused))return;setWAttr(GUIWidget::Focused);markDirty();}
 

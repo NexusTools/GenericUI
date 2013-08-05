@@ -18,8 +18,6 @@ class CursesAction : public GUIAction, public CursesBase
 public:
     inline CursesAction(QString text, GUIContainer* par =0) : GUIAction(text, par) {
         fitToContent();
-        if(par)
-            CursesBase::updateParent(((GUIWidget*)par)->internal<CursesBase>());
 
         int pos = text.indexOf('_');
         if(pos > -1) {

@@ -22,15 +22,8 @@ public:
     };
     Q_DECLARE_FLAGS(Attr, AttrFlag)
 
-    inline Q_INVOKABLE CursesLabel(QString text, GUIContainer* parent =0) : GUILabel(text, parent) {
-        fitToContent();
-        if(parent)
-            CursesBase::updateParent(((GUIWidget*)parent)->internal<CursesBase>());
-    }
-    inline Q_INVOKABLE CursesLabel(GUIContainer* parent =0) : GUILabel(parent) {
-        if(parent)
-            CursesBase::updateParent(((GUIWidget*)parent)->internal<CursesBase>());
-    }
+    Q_INVOKABLE inline CursesLabel(QString text, GUIContainer* parent =0) : GUILabel(text, parent) {fitToContent();}
+    Q_INVOKABLE inline CursesLabel(GUIContainer* parent =0) : GUILabel(parent) {}
 
 
     inline Attr attr() const{return _attr;}

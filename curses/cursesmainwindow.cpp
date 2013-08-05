@@ -122,24 +122,37 @@ void end(int sig) {
     exit(0);
 }
 
-void CursesMainWindow::init() {
+QSize CursesMainWindow::init() {
     static bool initialized = false;
-    if(initialized)
-        return;
-    initialized = true;
-    signal(SIGWINCH, resetScreen);
+    if(!initialized) {
+        initialized = true;
+        signal(SIGWINCH, resetScreen);
 
-    signal(SIGSEGV, crash);
-    signal(SIGABRT, crash);
-    signal(SIGTERM, crash);
+        signal(SIGSEGV, crash);
+        signal(SIGABRT, crash);
+        signal(SIGTERM, crash);
 
-    signal(SIGKILL, end);
-    signal(SIGQUIT, end);
-    signal(SIGINT, end);
+        signal(SIGKILL, end);
+        signal(SIGQUIT, end);
+        signal(SIGINT, end);
+
+        initscr();
+        start_color();
+
+        //_window = newwin(0, 0, 0, 0);
+        mousemask(ALL_MOUSE_EVENTS, NULL);
+        nodelay(stdscr, true);
+        keypad(stdscr, true);
+        meta(stdscr, true);
+        curs_set(0);
+        noecho();
+    }
+
+    return QSize(getmaxx(stdscr), getmaxy(stdscr));
 }
 
 void cursesDirtyMainWindow() {
     CursesMainWindow* main;
     if((main = CursesMainWindow::current()))
-        main->startRepaintTimer();
+        main->scheduleRepaint();
 }
