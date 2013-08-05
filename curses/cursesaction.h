@@ -18,6 +18,15 @@ public:
         if(par)
             CursesBase::updateParent(((GUIWidget*)par)->internal<CursesBase>());
 
+        int pos = text.indexOf('_');
+        if(pos > -1) {
+            _shortcut = text.toLocal8Bit().toLower().at(pos+1);
+            shortcuts.insert(1 + (_shortcut - 'a'), this);
+
+            qDebug() << "Registering shortcut" << _shortcut << text;
+        } else
+            _shortcut = 0;
+
         blinkTimer.setInterval(150);
         connect(&blinkTimer, SIGNAL(timeout()), this, SLOT(blink()));
 
@@ -28,12 +37,24 @@ public:
         _blink = false;
     }
 
+    static bool callShortcut(char s) {
+        CursesAction* action = shortcuts.value(s);
+        if(action)
+            action->mouseClicked(QPoint(0, 0));
+        return action;
+    }
+
+    char shortcut() {
+        return _shortcut;
+    }
+
     QSize sizeForString(QString str) {
         return QSize(2 + str.size(), 1);
     }
 
     inline void mouseClicked(QPoint) {
         emit clicked();
+        emit clickedAt(QPoint(screenX(), screenY()+1));
 
         focus();
         if(_activateWait)
@@ -56,7 +77,15 @@ protected:
         wattrset(hnd(), attr);
         wmove(hnd(), 0, 0);
         waddch(hnd(), ' ');
-        waddnstr(hnd(), text().toLocal8Bit(), text().toLocal8Bit().size());
+        foreach(char c, text().toLocal8Bit()) {
+            if(c == '_') {
+                wattron(hnd(), A_UNDERLINE);
+                continue;
+            }
+
+            waddch(hnd(), c);
+            wattroff(hnd(), A_UNDERLINE);
+        }
         waddch(hnd(), ' ');
     }
 
@@ -78,13 +107,18 @@ protected slots:
         emit activated();
     }
 
+signals:
+    void clickedAt(QPoint);
+
 private:
     bool _blink;
     bool _activateWait;
 
+    char _shortcut;
     QTimer blinkTimer;
     QTimer activateTimer;
 
+    static QHash<char, CursesAction*> shortcuts;
 };
 
 #endif // CURSESACTION_H

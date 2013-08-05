@@ -1,9 +1,19 @@
 #include "cursesmainwindow.h"
+#include "cursesmenu.h"
 
 #include <signal.h>
 
 CursesMainWindow* CursesMainWindow::_current = 0;
 CursesBase* CursesBase::_focusBase = 0;
+QHash<char, CursesAction*> CursesAction::shortcuts;
+
+void CursesMenu::showImpl() {
+    CursesMainWindow::current()->showWindow(this);
+}
+
+void CursesMenu::closeImpl() {
+    CursesMainWindow::current()->closeWindow(this);
+}
 
 void resetScreen(int) {
     if(CursesMainWindow::current())

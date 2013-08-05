@@ -155,7 +155,7 @@ class CursesWindow : public CursesContainer
 protected:
     inline CursesWindow(WINDOW* window =0) : CursesContainer(window) {}
 
-    inline virtual bool isWindow() const{return false;}
+    inline virtual bool isWindow() const{return true;}
 };
 
 class CursesScreen : public CursesWindow
@@ -173,6 +173,7 @@ protected:
         keypad(hnd(), true);
         meta(hnd(), true);
         curs_set(0);
+        noecho();
     }
 
     inline void processMouseEvent(MEVENT& mEvent) {

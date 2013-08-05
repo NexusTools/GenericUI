@@ -3,6 +3,26 @@
 
 #include <QEvent>
 
+int GUIWidget::screenX() const{
+    int x = _geom.x();
+    GUIContainer* par = parentContainer();
+    while(par) {
+        x += par->x();
+        par = par->parentContainer();
+    }
+    return x;
+}
+
+int GUIWidget::screenY() const{
+    int y = _geom.y();
+    GUIContainer* par = parentContainer();
+    while(par) {
+        y += par->y();
+        par = par->parentContainer();
+    }
+    return y;
+}
+
 void GUIWidget::setParent(GUIContainer* par) {
     QObject::setParent(par);
     if(isWindow())

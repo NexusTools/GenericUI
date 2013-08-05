@@ -37,8 +37,11 @@ public:
     inline void resize(int w, int h) {setSize(QSize(w, h));}
     inline void resize(QSize s) {setSize(s);}
 
+    int screenX() const;
+    int screenY() const;
     inline int x() const{return _geom.x();}
     inline int y() const{return _geom.y();}
+
     inline int width() const{return _geom.width();}
     inline int height() const{return _geom.height();}
 
@@ -64,7 +67,7 @@ public:
     virtual void* handlePtr() =0;
 
 protected:
-    inline GUIWidget(GUIContainer* parent =0) {setParent(parent);_attr=Normal;}
+    inline GUIWidget(GUIContainer* parent =0) : _geom(0, 0, 1, 1) {setParent(parent);_attr=Normal;}
 
     inline void setWAttr(WAttrs attr) {
         _attr = attr;

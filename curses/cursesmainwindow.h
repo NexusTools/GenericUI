@@ -4,7 +4,7 @@
 #include <guimainwindow.h>
 #include <QTimer>
 
-#include "cursesbase.h"
+#include "cursesaction.h"
 
 class CursesMainWindow : public GUIMainWindow, public CursesScreen
 {
@@ -43,10 +43,31 @@ public:
         repaintTimer.start();
     }
 
+    inline void showWindow(GUIWindow* window) {
+        if(!_windowStack.contains(window)) {
+            _windowStack << window;
+            notifyDirty();
+        }
+    }
+
+    inline void closeWindow(GUIWindow* window) {
+        _windowStack.removeOne(window);
+        notifyDirty();
+    }
+
     inline void parentChanged() {CursesBase::updateParent((CursesBase*)parentContainer());}
 
     virtual void mouseClicked(QPoint p) {
-        GUIChildren::Iterator i = children().end();
+        GUIChildren::Iterator i = _windowStack.end();
+        while(i != _windowStack.begin()) {
+            i--;
+            if((*i)->geom().contains(p)) {
+                (*i)->internal<CursesWindow>()->mouseClicked(p - (*i)->geom().topLeft());
+                return;
+            }
+        }
+
+        i = children().end();
         while(i != children().begin()) {
             i--;
             if((*i)->geom().contains(p)) {
@@ -64,6 +85,11 @@ protected:
     }
 
     inline void drawChildren() {
+        foreach(GUIWidget* child, _windowStack) {
+            CursesBase* base = dynamic_cast<CursesBase*>(child);
+            if(base)
+                base->render(this);
+        }
         foreach(GUIWidget* child, children()) {
             CursesBase* base = dynamic_cast<CursesBase*>(child);
             if(base)
@@ -98,8 +124,10 @@ protected slots:
                     break;
 
                 default:
-                    if(ch > 0 && ch < KEY_MAX) {
-                        //TODO: Process normal keys
+                    if(ch < 27)
+                        CursesAction::callShortcut(ch);
+                    else if(ch > 0 && ch < KEY_MAX) {
+                        qWarning() << "Unknown key" << ch;
                     } else
                         qWarning() << "Unknown key" << ch;
                     break;
@@ -113,6 +141,7 @@ private:
     static void init();
     static CursesMainWindow* _current;
 
+    GUIChildren _windowStack;
     QTimer repaintTimer;
     QTimer inputTimer;
 };

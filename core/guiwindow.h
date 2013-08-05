@@ -20,8 +20,18 @@ public slots:
         titleChanged();
     }
 
+    inline void show(QPoint p){
+        move(p);
+        show();
+    }
+    inline void show(){showImpl();}
+    inline void close(){closeImpl();}
+
 protected:
     virtual void titleChanged() {}
+
+    virtual void showImpl() {}
+    virtual void closeImpl() {}
 
 private:
     GUIWindow* _parent;
