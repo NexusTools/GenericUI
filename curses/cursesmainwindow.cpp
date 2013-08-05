@@ -1,6 +1,8 @@
 #include "cursesmainwindow.h"
 #include "cursesmenu.h"
 
+#include <QCoreApplication>
+
 #include <stdio.h>
 #include <signal.h>
 
@@ -108,14 +110,14 @@ void resetScreen(int) {
 
 void crash(int sig) {
     endwin();
-    printf("Unrecoverable signal %i received.\nNexusCoordinator Terminated.\n\n", sig);
+    printf("Unrecoverable signal %i received.\n%s Terminated.\n\n", sig, qPrintable(QCoreApplication::instance()->applicationName()));
 
     exit(0);
 }
 
 void end(int sig) {
     endwin();
-    printf("Shutdown signal %i received.\nNexusCoordinator Terminated.\n\n", sig);
+    printf("Shutdown signal %i received.\n%s Terminated.\n\n", sig, qPrintable(QCoreApplication::instance()->applicationName()));
 
     exit(0);
 }
