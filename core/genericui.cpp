@@ -3,6 +3,13 @@
 
 #include <QEvent>
 
+void GUIWidget::setWAttr(WAttrs attr) {
+    _attr = attr;
+    GUIContainer* con = parentContainer();
+    if(con)
+        con->markLayoutDirty();
+}
+
 int GUIWidget::screenX() const{
     int x = _geom.x();
     GUIContainer* par = parentContainer();

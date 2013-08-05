@@ -19,8 +19,8 @@ public:
         textChanged();
     }
 
-    inline void fitToContent() {
-        setSize(sizeForString(text()));
+    virtual QSize preferredSize() {
+        return sizeForString(text());
     }
 
     inline QString text() const{return _text;}

@@ -62,6 +62,9 @@ public:
     inline QSize size() const{return _geom.size();}
     inline QRect geom() const{return _geom;}
 
+    virtual QSize preferredSize() {return QSize(1,1);}
+    inline void fitToContent() {resize(preferredSize());}
+
     inline virtual bool isWindow() const{return false;}
     virtual void processXML(QDomNode&) {}
     void setParent(GUIContainer*);
@@ -82,9 +85,7 @@ public:
 protected:
     inline GUIWidget(GUIContainer* parent =0) : _geom(0, 0, 1, 1) {setParent(parent);_attr=Normal;}
 
-    inline void setWAttr(WAttrs attr) {
-        _attr = attr;
-    }
+    void setWAttr(WAttrs attr);
 
     // Events
     virtual void posChanged() {}

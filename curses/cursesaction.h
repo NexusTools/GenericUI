@@ -69,7 +69,8 @@ protected:
     void drawImpl();
     void clickFeedback();
 
-    inline void textChanged() {markDirty();}
+    virtual void textChanged() {markDirty();}
+    virtual void stateChanged() {markDirty();}
 
 protected slots:
     void blink() {

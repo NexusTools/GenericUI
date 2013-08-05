@@ -25,10 +25,8 @@ public:
     Q_INVOKABLE inline CursesLabel(QString text, GUIContainer* parent =0) : GUILabel(text, parent) {fitToContent();}
     Q_INVOKABLE inline CursesLabel(GUIContainer* parent =0) : GUILabel(parent) {}
 
-
     inline Attr attr() const{return _attr;}
     inline void setAttr(Attr attr) {if(_attr==attr)return;_attr=attr;markDirty();}
-
 
 protected:
     inline QSize sizeForString(QString text) {return QSize(text.size(), 1);}

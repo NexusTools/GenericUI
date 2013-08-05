@@ -28,7 +28,7 @@ public:
             if(con)
                 maxWidth = con->width() - x();
             else
-                maxWidth = 1000;
+                maxWidth = 80;
         }
 
         QSize size;
@@ -39,20 +39,24 @@ public:
                 int h=0;
                 int lineHeight = 0;
                 foreach(GUIWidget* child, children()) {
-                    if(child->width() + w >= maxWidth) {
+                    if(child->isHidden())
+                        continue;
+
+                    QSize pref = child->preferredSize();
+                    if(pref.width() + w >= maxWidth) {
                         w = 0;
                         h += lineHeight;
                         lineHeight = 0;
                     }
 
-                    w += child->width();
-                    if(child->height() > lineHeight)
-                        lineHeight = child->height();
+                    w += pref.width();
+                    if(pref.height() > lineHeight)
+                        lineHeight = pref.height();
 
                     if(w > size.width())
                         size.setWidth(w);
                 }
-                size.setHeight(h);
+                size.setHeight(h + lineHeight);
 
                 break;
             }
@@ -61,10 +65,14 @@ public:
             {
                 int h=0;
                 foreach(GUIWidget* child, children()) {
-                    h += child->height();
+                    if(child->isHidden())
+                        continue;
 
-                    if(child->width() > size.width())
-                        size.setWidth(child->width());
+                    QSize pref = child->preferredSize();
+                    h += pref.height();
+
+                    if(pref.width() > size.width())
+                        size.setWidth(pref.width());
                 }
                 size.setHeight(h);
 
@@ -87,10 +95,7 @@ public:
         return size;
     }
 
-    inline void fitToContent() {
-        resize(sizeForLayout());
-    }
-
+    virtual QSize preferredSize() {return sizeForLayout();}
     inline GUIChildren children() const{return _children;}
 
 protected:
@@ -109,6 +114,7 @@ protected:
         connect(&layoutTimer, SIGNAL(timeout()), this, SLOT(fixLayout()));
     }
     inline void sizeChanged() {GUIWidget::sizeChanged();markLayoutDirty();}
+    virtual void layoutBecameDirty() {}
     virtual void fixLayoutImpl() {
         if(!_dirtyLayout)
             return;
@@ -157,6 +163,7 @@ protected slots:
         fixLayoutImpl();
     }
     inline void markLayoutDirty() {
+        layoutBecameDirty();
         if(_dirtyLayout)
             return;
 

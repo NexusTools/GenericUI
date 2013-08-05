@@ -15,6 +15,10 @@ class CursesMenuSeparator : public GUIWidget, public CursesBase
 public:
     inline CursesMenuSeparator(GUIMenu* menu) : GUIWidget((GUIContainer*)menu) {}
 
+    virtual QSize preferredSize() {
+        return QSize(5, 1);
+    }
+
 protected:
     inline void drawImpl() {
         wmove(hnd(), 0, 2);

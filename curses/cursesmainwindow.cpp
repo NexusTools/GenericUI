@@ -32,10 +32,8 @@ void CursesMenu::hideChain() {
 
 void CursesAction::activate() {
     blinkTimer.stop();
-    if(_blink) {
-        _blink = false;
-        markDirty();
-    }
+    _blink = false;
+    markDirty();
 
     if(!_activateWait)
         return;
@@ -70,24 +68,29 @@ void CursesAction::drawImpl() {
     int attr = standout ? A_STANDOUT : A_NORMAL;
     if(_activateWait || menuOpen)
         attr |= A_BOLD;
+    else if(isDisabled())
+        attr |= A_DIM;
 
     wattrset(hnd(), attr);
     wmove(hnd(), 0, 0);
-    waddch(hnd(), ' ');
+    waddch(hnd(), isDisabled() ? ACS_CKBOARD : ' ');
     foreach(char c, text().toLocal8Bit()) {
         if(c == '_') {
-            wattron(hnd(), A_UNDERLINE);
+            if(!isDisabled())
+                wattron(hnd(), A_UNDERLINE);
             continue;
+        } else if(isDisabled() && c == ' ')
+            waddch(hnd(), ACS_CKBOARD);
+        else {
+            waddch(hnd(), c);
+            wattroff(hnd(), A_UNDERLINE);
         }
-
-        waddch(hnd(), c);
-        wattroff(hnd(), A_UNDERLINE);
     }
-    waddch(hnd(), ' ');
+    waddch(hnd(), isDisabled() ? ACS_CKBOARD : ' ');
 
     int left = width() - 2 - text().length();
     while(left > 0) {
-        waddch(hnd(), ' ');
+        waddch(hnd(), isDisabled() ? ACS_CKBOARD : ' ');
         left--;
     }
 }
@@ -99,6 +102,9 @@ void CursesMenu::mouseClicked(QPoint p) {
         i.toBack();
         while(i.hasPrevious()) {
            GUIWidget* child = i.previous();
+           if(child->isHidden() || child->isDisabled())
+               continue;
+
            CursesBase* curses = child ? child->internal<CursesBase>() : 0;
            if(curses && child->geom().contains(p)) {
                curses->mouseClicked(p - child->geom().topLeft());

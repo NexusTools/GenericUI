@@ -38,9 +38,13 @@ public:
         int h = 0;
         int w = 0;
         foreach(GUIWidget* child, children()) {
-            h+=child->height();
-            if(child->width() > w)
-                w = child->width();
+            if(child->isHidden())
+                continue;
+
+            QSize pref = child->preferredSize();
+            h+=pref.height();
+            if(pref.width() > w)
+                w = pref.width();
         }
 
         return QSize(2+w,2+h);
@@ -49,6 +53,10 @@ public:
     bool isOpen();
 
 protected:
+    virtual void layoutBecameDirty() {
+        fitToContent();
+    }
+
     virtual void visibilityChanged() {
         if(isHidden())
             hideImpl();
@@ -71,6 +79,9 @@ protected:
     virtual void fixLayoutImpl() {
         int y = 1;
         foreach(GUIWidget* child, children()) {
+            if(child->isHidden())
+                continue;
+
             child->move(1, y);
             child->resize(width()-2, 1);
             y+=child->height();
@@ -104,6 +115,9 @@ protected:
 
     inline void drawChildren(QRect clip, QPoint off) {
         foreach(GUIWidget* child, children()) {
+            if(child->isHidden())
+                continue;
+
             CursesBase* base = dynamic_cast<CursesBase*>(child);
             if(base)
                 drawChild(base, clip, off);
