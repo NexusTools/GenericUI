@@ -55,9 +55,10 @@ protected:
             wclear(hnd());
             drawImpl();
             _dirty=false;
-        }
+        } else
+            touchwin(hnd());
 
-        pnoutrefresh(hnd(), 0, 0, geom().y() + off.y(), geom().x() + off.x(), geom().height(), geom().width());
+        pnoutrefresh(hnd(), clip.y(), clip.x(), off.y(), off.x(), clip.height() + off.y(), clip.width() + off.x());
     }
 
     virtual void drawImpl() =0;
@@ -86,13 +87,14 @@ protected:
 
     inline void draw(QRect clip, QPoint off) {
         CursesBase::draw(clip, off);
-        drawChildren(clip, off + geom().topLeft());
+        drawChildren(clip, off);
     }
     inline void drawChild(CursesBase* child, QRect clip, QPoint off) {
-        //clip &= child->geom();
-        //if(clip.isEmpty())
-        //   return;
-        child->draw(clip, off);
+        clip &= child->geom();
+        if(clip.isEmpty())
+            return;
+
+        child->draw(QRect(clip.topLeft() - child->geom().topLeft(), clip.size()), off + child->geom().topLeft());
     }
 
     virtual void drawChildren(QRect clip, QPoint off) =0;
@@ -118,7 +120,8 @@ public:
     }
 
 protected:
-    inline CursesScreen(QSize s) : CursesWindow(s) {}
+    inline CursesScreen(QSize s) : CursesWindow(s) {
+    }
 
     inline void processMouseEvent(MEVENT& mEvent) {
         if(_cursor.isNull())
