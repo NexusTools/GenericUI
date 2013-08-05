@@ -109,6 +109,9 @@ protected:
     inline CursesWindow(QSize size =QSize(1,1)) : CursesContainer(size) {}
 
     inline virtual bool isWindow() const{return true;}
+
+    virtual void showImpl();
+    virtual void hideImpl();
 };
 
 class CursesScreen : public CursesWindow
@@ -174,5 +177,13 @@ protected: \
     inline void sizeChanged() {GUIContainer::sizeChanged();CursesBase::setSize(size());}
 
 #define CURSES_CONTAINER CURSES_CONTAINER_CORE CURSES_IMPL
+
+#define CURSES_WINDOW CURSES_CONTAINER \
+    void visibilityChanged() { \
+        if(isHidden()) \
+            hideImpl(); \
+        else \
+            showImpl(); \
+    }
 
 #endif // CURSESWINDOW_H

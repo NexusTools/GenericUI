@@ -25,11 +25,24 @@ public:
         ExpandWidth,
 
         Focused,
+        Disabled,
         Hidden
     };
     Q_DECLARE_FLAGS(WAttrs, WAttr)
 
     inline WAttrs wattr() const{return _attr;}
+
+    inline bool testAttr(WAttr wattr) {
+        return _attr.testFlag(wattr);
+    }
+
+    inline bool isHidden() {
+        return _attr.testFlag(Hidden);
+    }
+
+    inline bool isDisabled() {
+        return _attr.testFlag(Disabled);
+    }
 
     inline void move(int x, int y) {setPos(QPoint(x, y));}
     inline void move(QPoint p) {setPos(p);}
@@ -76,6 +89,7 @@ protected:
     // Events
     virtual void posChanged() {}
     virtual void sizeChanged();
+    virtual void stateChanged() {}
     virtual void geometryChanged() {}
     virtual void visibilityChanged() {}
     virtual void parentChanged() {}
@@ -89,9 +103,17 @@ protected:
     inline void setGeometry(QRect r) {_geom=r;posChanged();sizeChanged();geometryChanged();}
 
 public slots:
+    void show(QPoint p){
+        move(p);
+        show();
+    }
     void show() {setVisible(true);}
     void hide() {setVisible(false);}
-    void setVisible(bool vis) {if(_attr.testFlag(Hidden) != vis)return;if(vis)_attr^=Hidden;else{_attr&=Hidden;}visibilityChanged();}
+    void setVisible(bool vis) {if(_attr.testFlag(Hidden) != vis)return;if(vis)_attr^=Hidden;else{_attr|=Hidden;}visibilityChanged();}
+
+    void enable() {setEnabled(true);}
+    void disable() {setEnabled(false);}
+    void setEnabled(bool dis) {if(_attr.testFlag(Disabled) != dis)return;if(dis)_attr^=Disabled;else{_attr|=Disabled;}stateChanged();}
 
 signals:
     void focusGained();

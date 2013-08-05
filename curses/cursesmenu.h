@@ -16,8 +16,7 @@ class CursesMenu : public GUIMenu, public CursesWindow
 
     friend class CursesAction;
 public:
-    inline CursesMenu(QString title, GUIWindow* parent) : GUIMenu(title, parent) {_action=0;}
-
+    inline CursesMenu(QString title, GUIWindow* parent) : GUIMenu(title, parent) {_action=0;setWAttr(Hidden);}
 
     virtual GUIAction* action(QString name =QString()) {
         if(name.isEmpty())
@@ -34,13 +33,20 @@ public:
     inline void addSeparator() {new CursesMenuSeparator(this);}
 
     virtual void mouseClicked(QPoint p) {
-        GUIChildren::Iterator i = children().end();
-        while(i != children().begin()) {
-            i--;
-            if((*i)->geom().contains(p)) {
-                (*i)->internal<CursesBase>()->mouseClicked(p - (*i)->geom().topLeft());
-                return;
+        if(QRect(QPoint(0,0),size()).contains(p)) {
+            QListIterator<GUIWidget*> i(children());
+
+            i.toBack();
+            while(i.hasPrevious()) {
+               GUIWidget* child = i.previous();
+               CursesBase* curses = child ? child->internal<CursesBase>() : 0;
+               if(curses && child->geom().contains(p)) {
+                   curses->mouseClicked(p - child->geom().topLeft());
+                   return;
+               }
             }
+            emit clicked();
+            return;
         }
 
         close();
@@ -61,7 +67,26 @@ public:
     bool isOpen();
 
 protected:
-    inline void fixLayoutImpl() {
+    virtual void visibilityChanged() {
+        if(isHidden())
+            hideImpl();
+        else
+            showImpl();
+    }
+
+    virtual void showImpl() {
+        CursesWindow::showImpl();
+        if(_action)
+            _action->markDirty();
+    }
+
+    virtual void hideImpl() {
+        CursesWindow::hideImpl();
+        if(_action)
+            _action->markDirty();
+    }
+
+    virtual void fixLayoutImpl() {
         int y = 1;
         foreach(GUIWidget* child, children()) {
             child->move(1, y);
@@ -103,8 +128,6 @@ protected:
         }
     }
 
-    void showImpl();
-    void closeImpl();
     void showChain();
 
 private:

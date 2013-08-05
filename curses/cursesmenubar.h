@@ -15,13 +15,15 @@ public:
     inline void addSeparator() {new CursesLabel("|", this);}
 
     virtual void mouseClicked(QPoint p) {
-        GUIChildren::Iterator i = children().end();
-        while(i != children().begin()) {
-            i--;
-            if((*i)->geom().contains(p)) {
-                (*i)->internal<CursesBase>()->mouseClicked(p - (*i)->geom().topLeft());
-                return;
-            }
+        QListIterator<GUIWidget*> i(children());
+        i.toBack();
+        while(i.hasPrevious()) {
+           GUIWidget* child = i.previous();
+           CursesBase* curses = child ? child->internal<CursesBase>() : 0;
+           if(curses && child->geom().contains(p)) {
+               curses->mouseClicked(p - child->geom().topLeft());
+               return;
+           }
         }
 
         emit clicked();

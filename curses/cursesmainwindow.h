@@ -43,36 +43,41 @@ public:
         repaintTimer.start();
     }
 
-    inline void showWindow(GUIWindow* window) {
+    inline void showWindow(CursesWindow* window) {
         if(!_windowStack.contains(window)) {
             _windowStack << window;
             scheduleRepaint();
         }
     }
 
-    inline bool isWindowOpen(GUIWindow* window) {
+    inline bool isWindowOpen(CursesWindow* window) {
         return _windowStack.contains(window);
     }
 
-    inline void closeWindow(GUIWindow* window) {
+    inline void hideWindow(CursesWindow* window) {
         _windowStack.removeOne(window);
         scheduleRepaint();
     }
 
     virtual void mouseClicked(QPoint p) {
         if(!_windowStack.isEmpty()) {
-            _windowStack.last()->internal<CursesWindow>()->mouseClicked(p - _windowStack.last()->geom().topLeft());
+            CursesWindow* lastWin = _windowStack.last();
+
+            lastWin->mouseClicked(p - lastWin->geom().topLeft());
             return;
         }
 
-        GUIChildren::Iterator i = children().end();
-        while(i != children().begin()) {
-            i--;
-            if((*i)->geom().contains(p)) {
-                (*i)->internal<CursesBase>()->mouseClicked(p - (*i)->geom().topLeft());
-                return;
-            }
+        QListIterator<GUIWidget*> i(children());
+        i.toBack();
+        while(i.hasPrevious()) {
+           GUIWidget* child = i.previous();
+           CursesBase* curses = child ? child->internal<CursesBase>() : 0;
+           if(curses && child->geom().contains(p)) {
+               curses->mouseClicked(p - child->geom().topLeft());
+               return;
+           }
         }
+
 
         emit clicked();
     }
@@ -83,10 +88,8 @@ protected:
     }
 
     inline void drawChildren(QRect clip, QPoint off) {
-        foreach(GUIWidget* child, _windowStack) {
-            CursesBase* base = dynamic_cast<CursesBase*>(child);
-            if(base)
-                drawChild(base, clip, off);
+        foreach(CursesWindow* child, _windowStack) {
+            drawChild(child, clip, off);
         }
         foreach(GUIWidget* child, children()) {
             CursesBase* base = dynamic_cast<CursesBase*>(child);
@@ -122,6 +125,14 @@ protected slots:
                     break;
 
                 default:
+                    if(!_windowStack.isEmpty()) {
+                        //CursesWindow* lastWin = _windowStack.last();
+
+                        // Give key to window for processing
+                        return;
+                    }
+
+
                     if(ch < 27)
                         CursesAction::callShortcut(ch);
                     else if(ch > 0 && ch < KEY_MAX) {
@@ -139,7 +150,7 @@ private:
     static QSize init();
     static CursesMainWindow* _current;
 
-    GUIChildren _windowStack;
+    QList<CursesWindow*> _windowStack;
     QTimer repaintTimer;
     QTimer inputTimer;
 };

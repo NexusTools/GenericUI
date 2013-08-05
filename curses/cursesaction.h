@@ -79,9 +79,6 @@ protected slots:
 
     void activate();
 
-signals:
-    void clickedAt(QPoint);
-
 private:
     bool _blink;
     bool _activateWait;

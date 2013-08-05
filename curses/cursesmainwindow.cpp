@@ -39,16 +39,12 @@ void CursesAction::activate() {
     emit activated();
 }
 
-void CursesMenu::showImpl() {
+void CursesWindow::showImpl() {
     CursesMainWindow::current()->showWindow(this);
-    if(_action)
-        _action->markDirty();
 }
 
-void CursesMenu::closeImpl() {
-    CursesMainWindow::current()->closeWindow(this);
-    if(_action)
-        _action->markDirty();
+void CursesWindow::hideImpl() {
+    CursesMainWindow::current()->hideWindow(this);
 }
 
 bool CursesMenu::isOpen() {
