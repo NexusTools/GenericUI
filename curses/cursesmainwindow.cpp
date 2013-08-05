@@ -5,10 +5,11 @@
 
 #include <stdio.h>
 #include <signal.h>
+#include <sys/prctl.h>
 
 CursesMainWindow* CursesMainWindow::_current = 0;
-CursesBase* CursesBase::_focusBase = 0;
 QHash<char, CursesAction*> CursesAction::shortcuts;
+CursesBase* CursesBase::_focusBase = 0;
 
 void CursesMenu::showChain() {
     if(_action) {
@@ -172,11 +173,15 @@ QSize CursesMainWindow::init() {
         initialized = true;
         signal(SIGWINCH, resetScreen);
 
+        prctl(PR_SET_PDEATHSIG, SIGTERM);
+
+        signal(SIGILL, crash);
+        signal(SIGKILL, crash);
         signal(SIGSEGV, crash);
         signal(SIGABRT, crash);
         signal(SIGTERM, crash);
+        signal(SIGHUP, crash);
 
-        signal(SIGKILL, tryTerminate);
         signal(SIGQUIT, tryTerminate);
         signal(SIGINT, tryTerminate);
 
