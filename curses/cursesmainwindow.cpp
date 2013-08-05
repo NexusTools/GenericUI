@@ -1,6 +1,7 @@
 #include "cursesmainwindow.h"
 #include "cursesmenu.h"
 
+#include <stdio.h>
 #include <signal.h>
 
 CursesMainWindow* CursesMainWindow::_current = 0;
@@ -105,12 +106,34 @@ void resetScreen(int) {
     }
 }
 
+void crash(int sig) {
+    endwin();
+    printf("Unrecoverable signal %i received.\nNexusCoordinator Terminated.\n\n", sig);
+
+    exit(0);
+}
+
+void end(int sig) {
+    endwin();
+    printf("Shutdown signal %i received.\nNexusCoordinator Terminated.\n\n", sig);
+
+    exit(0);
+}
+
 void CursesMainWindow::init() {
     static bool initialized = false;
     if(initialized)
         return;
     initialized = true;
     signal(SIGWINCH, resetScreen);
+
+    signal(SIGSEGV, crash);
+    signal(SIGABRT, crash);
+    signal(SIGTERM, crash);
+
+    signal(SIGKILL, end);
+    signal(SIGQUIT, end);
+    signal(SIGINT, end);
 }
 
 void cursesDirtyMainWindow() {
