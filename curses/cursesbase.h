@@ -50,12 +50,14 @@ protected:
         markDirty();
     }
 
-    inline virtual void draw(WINDOW*, QRect, QPoint) {
+    inline virtual void draw(QRect clip, QPoint off) {
         if(_dirty) {
             wclear(hnd());
             drawImpl();
             _dirty=false;
         }
+
+        pnoutrefresh(hnd(), 0, 0, geom().y() + off.y(), geom().x() + off.x(), geom().height(), geom().width());
     }
 
     virtual void drawImpl() =0;
@@ -82,12 +84,18 @@ public:
 protected:
     inline CursesContainer(QSize size =QSize(1,1)) : CursesBase(size) {}
 
-    inline void draw(WINDOW* buffer, QRect clip, QPoint off) {
-        CursesBase::draw(buffer, clip, off);
-        drawChildren(buffer, clip, off);
+    inline void draw(QRect clip, QPoint off) {
+        CursesBase::draw(clip, off);
+        drawChildren(clip, off + geom().topLeft());
     }
-    inline void drawChild(CursesBase*, WINDOW*, QRect, QPoint) {}
-    virtual void drawChildren(WINDOW* buffer, QRect clip, QPoint off) =0;
+    inline void drawChild(CursesBase* child, QRect clip, QPoint off) {
+        //clip &= child->geom();
+        //if(clip.isEmpty())
+        //   return;
+        child->draw(clip, off);
+    }
+
+    virtual void drawChildren(QRect clip, QPoint off) =0;
     virtual void drawImpl() {}
 
 private:
@@ -106,22 +114,11 @@ class CursesScreen : public CursesWindow
 public:
     inline bool isScreen() const{return true;}
     inline void render() {
-        CursesBase::draw(0, QRect(), QPoint());
-        overwrite(_window, _buffer);
-
-        wnoutrefresh(stdscr);
-        wnoutrefresh(_buffer);
-        //pnoutrefresh(_window, 0, 0, 0, 0, geom().height(), geom().width());
-
-        doupdate();
-        //qDebug() << geom() << getmaxx(hnd()) << getmaxy(hnd());
+        draw(QRect(QPoint(0,0),geom().size()), QPoint(0,0));
     }
 
 protected:
-    inline CursesScreen(QSize s) : CursesWindow(s) {
-        _window = newwin(0, 0, 0, 0);
-        _buffer = newwin(0, 0, 0, 0);
-    }
+    inline CursesScreen(QSize s) : CursesWindow(s) {}
 
     inline void processMouseEvent(MEVENT& mEvent) {
         if(_cursor.isNull())
@@ -136,8 +133,10 @@ protected:
         return QSize(getmaxx(stdscr), getmaxy(stdscr));
     }
 
-    inline void draw(WINDOW* buffer, QRect clip, QPoint off) {
-        CursesContainer::draw(buffer, clip, off);
+    inline void draw(QRect clip, QPoint off) {
+        wnoutrefresh(stdscr);
+
+        CursesContainer::draw(clip, off);
         if(!_cursor.isNull())
             move(_cursor.y(), _cursor.x());
 
@@ -146,7 +145,6 @@ protected:
 
 private:
     QPoint _cursor;
-    WINDOW* _buffer;
 };
 
 #define CURSES_IMPL  \
@@ -168,10 +166,10 @@ protected: \
 public: \
     inline void mouseClicked(QPoint) {emit clicked();focus();}
 
-#define CURSES_CONTAINER_CORE CURSES_CORE
-
-
-#define CURSES_CONTAINER CURSES_CONTAINER_CORE CURSES_IMPL \
+#define CURSES_CONTAINER_CORE CURSES_CORE  \
+protected: \
     inline void sizeChanged() {GUIContainer::sizeChanged();CursesBase::setSize(size());}
+
+#define CURSES_CONTAINER CURSES_CONTAINER_CORE CURSES_IMPL
 
 #endif // CURSESWINDOW_H

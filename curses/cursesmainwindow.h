@@ -82,16 +82,16 @@ protected:
         fixLayoutImpl();
     }
 
-    inline void drawChildren(WINDOW* buffer, QRect clip, QPoint off) {
+    inline void drawChildren(QRect clip, QPoint off) {
         foreach(GUIWidget* child, _windowStack) {
             CursesBase* base = dynamic_cast<CursesBase*>(child);
             if(base)
-                drawChild(base, buffer, clip, off);
+                drawChild(base, clip, off);
         }
         foreach(GUIWidget* child, children()) {
             CursesBase* base = dynamic_cast<CursesBase*>(child);
             if(base)
-                drawChild(base, buffer, clip, off);
+                drawChild(base, clip, off);
         }
     }
 
