@@ -40,7 +40,7 @@ public:
     inline void* thisBasePtr() {return (void*)static_cast<CursesBase*>(this);}
 
 protected:
-    inline explicit CursesBase(QSize size =QSize(1, 1)) {_window=newpad(size.height(), size.width());if(!_window)throw "Unable to allocate pad";_dirty=true;}
+    inline explicit CursesBase(QSize size =QSize(1, 1)) {_window=newpad(size.height(), size.width());wbkgd(_window, COLOR_PAIR(1));if(!_window)throw "Unable to allocate pad";_dirty=true;}
 
     virtual void focusTaken() =0;
     virtual void focusGiven() =0;
@@ -123,8 +123,7 @@ public:
     }
 
 protected:
-    inline CursesScreen(QSize s) : CursesWindow(s) {
-    }
+    inline CursesScreen(QSize s) : CursesWindow(s) {}
 
     inline void processMouseEvent(MEVENT& mEvent) {
         if(_cursor.isNull())
