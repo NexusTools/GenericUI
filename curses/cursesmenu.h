@@ -12,7 +12,7 @@
 class CursesMenu : public GUIMenu, public CursesWindow
 {
     Q_OBJECT
-    CURSES_CONTAINER
+    CURSES_CONTAINER(GUIContainer)
 
     friend class CursesAction;
 public:
@@ -32,7 +32,7 @@ public:
     inline void addMenu(GUIMenu* menu) {addAction(menu->action());}
     inline void addSeparator() {new CursesMenuSeparator(this);}
 
-    virtual void mouseClicked(QPoint p);
+    //virtual void mouseClicked(QPoint p);
 
     inline QSize sizeForLayout(int) {
         int h = 0;

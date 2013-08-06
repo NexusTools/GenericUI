@@ -9,7 +9,6 @@
 
 CursesMainWindow* CursesMainWindow::_current = 0;
 QHash<char, CursesAction*> CursesAction::shortcuts;
-CursesBase* CursesBase::_focusBase = 0;
 
 void CursesMenu::showChain() {
     if(_action) {
@@ -96,7 +95,7 @@ void CursesAction::drawImpl() {
     }
 }
 
-void CursesMenu::mouseClicked(QPoint p) {
+/*void CursesMenu::mouseClicked(QPoint p) {
     if(QRect(QPoint(0,0),size()).contains(p)) {
         QListIterator<GUIWidget*> i(children());
 
@@ -118,7 +117,7 @@ void CursesMenu::mouseClicked(QPoint p) {
 
     close();
     CursesMainWindow::current()->mouseClicked(p + geom().topLeft());
-}
+}*/
 
 void CursesAction::clickFeedback() {
     if(_menu)

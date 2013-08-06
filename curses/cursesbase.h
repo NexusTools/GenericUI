@@ -2,6 +2,7 @@
 #define CURSESWINDOW_H
 
 #include <ncurses.h>
+#include <guievent.h>
 
 #include <QDebug>
 #include <QRect>
@@ -26,28 +27,17 @@ public:
     inline bool isDirty() const{return _dirty;}
     inline void markDirty() {_dirty=true;cursesDirtyMainWindow();}
 
-    inline void focus() {
-        if(_focusBase)
-            _focusBase->focusTaken();
-        _focusBase = static_cast<CursesBase*>(this);
-        _focusBase->focusGiven();
-    }
-
     virtual QRect geom() const =0;
     virtual bool isScreen() const{return false;}
     virtual bool isWindow() const{return false;}
-    virtual void mouseClicked(QPoint) =0;
 
     inline void* thisBasePtr() {return (void*)static_cast<CursesBase*>(this);}
 
 protected:
     inline explicit CursesBase(QSize size =QSize(1, 1)) {_window=newpad(size.height(), size.width());wbkgd(_window, COLOR_PAIR(1));if(!_window)throw "Unable to allocate pad";_dirty=true;}
 
-    virtual void processEvent(GUIWidget*, QEvent*);
-    virtual void processEventFilter(GUIWidget*, QEvent*);
-
-    virtual void focusTaken() =0;
-    virtual void focusGiven() =0;
+    virtual bool processEvent(QObject*, QEvent*);
+    virtual bool processEventFilter(QObject*, QEvent*) {return false;}
 
     inline void setSize(QSize s) {
         wresize(hnd(), s.height(), s.width());
@@ -118,6 +108,26 @@ protected:
     virtual void hideImpl();
 };
 
+class CursesEvent : public GUIEvent
+{
+public:
+    enum CursesType {
+        CursesTypeBase = GUIUserType,
+
+
+
+        CursesUserType = CursesTypeBase + 50
+    };
+};
+
+class CursesMouseEvent : public GUIEvent
+{
+public:
+    enum CursesType {
+
+    };
+};
+
 class CursesScreen : public CursesWindow
 {
 public:
@@ -133,9 +143,8 @@ protected:
         if(_cursor.isNull())
             curs_set(1);
         _cursor = QPoint(mEvent.x, mEvent.y);
-        if(mEvent.bstate & BUTTON1_CLICKED)
-            mouseClicked(_cursor);
-        markDirty();
+        //if(mEvent.bstate & BUTTON1_CLICKED)
+        //    mouseClicked(_cursor);
     }
 
     inline QSize checkSize() {
@@ -156,25 +165,23 @@ private:
     QPoint _cursor;
 };
 
-#define CURSES_IMPL(SUPER) \
-    virtual bool event(QEvent* ev) {bool ret = processEvent(this, ev);if(ret)return ret;return SUPER->event(ev);} \
-    virtual bool eventFilter(QObject* obj, QEvent* ev) {bool ret = processEventFilter(obj, ev);if(ret)return ret;return SUPER->eventFilter(ev);}
+#define CURSES_IMPL(SUPER, FILTERCLASS)
 
 #define CURSES_CORE public:\
     virtual void* internalPtr() {return (void*)thisBasePtr();} \
     virtual void* handlePtr() {return (void*)hnd();} \
     inline QRect geom() const{return GUIWidget::geom();}
 
-#define BASIC_CURSES_OBJECT CURSES_CORE CURSES_IMPL
+#define BASIC_CURSES_OBJECT(SUPER) CURSES_CORE CURSES_IMPL(SUPER, GUIWidget)
 
-#define CURSES_OBJECT BASIC_CURSES_OBJECT  \
+#define CURSES_OBJECT(SUPER) BASIC_CURSES_OBJECT(SUPER)  \
 public:
 
 #define CURSES_CONTAINER_CORE CURSES_CORE  \
 protected:
 
-#define CURSES_CONTAINER CURSES_CONTAINER_CORE CURSES_IMPL
+#define CURSES_CONTAINER(SUPER) CURSES_CONTAINER_CORE CURSES_IMPL(SUPER, GUIContainer)
 
-#define CURSES_WINDOW CURSES_CONTAINER
+#define CURSES_WINDOW(SUPER) CURSES_CONTAINER(SUPER)
 
 #endif // CURSESWINDOW_H

@@ -9,7 +9,7 @@ class GUIContainer;
 class CursesLabel : public GUILabel, public CursesBase
 {
     Q_OBJECT
-    CURSES_OBJECT
+    CURSES_OBJECT(QObject)
 
 public:
     enum AttrFlag {

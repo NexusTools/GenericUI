@@ -12,7 +12,7 @@ class CursesMenu;
 class CursesAction : public GUIAction, public CursesBase
 {
     Q_OBJECT
-    BASIC_CURSES_OBJECT
+    BASIC_CURSES_OBJECT(QObject)
 
     friend class CursesMenu;
 public:
@@ -57,7 +57,7 @@ public:
     inline void mouseClicked(QPoint) {
         clickFeedback();
         emit clicked();
-        focus();
+        //focus();
 
         if(_activateWait)
             return;

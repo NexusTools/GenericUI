@@ -10,7 +10,7 @@ class GUIMenu;
 class CursesMenuSeparator : public GUIWidget, public CursesBase
 {
     Q_OBJECT
-    CURSES_OBJECT
+    CURSES_OBJECT(QObject)
 
 public:
     inline CursesMenuSeparator(GUIMenu* menu) : GUIWidget((GUIContainer*)menu) {}

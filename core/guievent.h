@@ -34,7 +34,7 @@ public:
         GUIPositionChanged,
         GUISizeChanged,
 
-        GUIUserType = GUITypeBase + 5000
+        GUIUserType = GUITypeBase + 500
     };
 
     inline explicit GUIEvent(GUIType t) : QEvent((Type)t) {}

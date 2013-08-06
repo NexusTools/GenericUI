@@ -20,7 +20,8 @@ LIBS += -lncurses
 
 
 SOURCES += \
-    cursesmainwindow.cpp
+    cursesmainwindow.cpp \
+    cursesbase.cpp
 
 HEADERS += \
     global.h \

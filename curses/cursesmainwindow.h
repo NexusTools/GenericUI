@@ -60,7 +60,7 @@ public:
         scheduleRepaint();
     }
 
-    virtual void mouseClicked(QPoint p) {
+    /*virtual void mouseClicked(QPoint p) {
         if(!_windowStack.isEmpty()) {
             CursesWindow* lastWin = _windowStack.last();
 
@@ -81,9 +81,22 @@ public:
 
 
         emit clicked();
+    }*/
+
+    virtual bool event(QEvent* ev) {
+        bool ret = processEvent(this, ev);
+        if(ret)
+            return ret;
+        return GUIWidget::event(ev);
+    }
+protected:
+    virtual bool eventFilter(QObject* obj, QEvent* ev) {
+        bool ret = processEventFilter(obj, ev);
+        if(ret)
+            return ret;
+        return GUIContainer::eventFilter(obj, ev);
     }
 
-protected:
     inline virtual void drawImpl() {
         fixLayoutImpl();
     }

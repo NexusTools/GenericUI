@@ -8,13 +8,13 @@
 class CursesMenuBar : public GUIMenuBar, public CursesContainer
 {
     Q_OBJECT
-    CURSES_CONTAINER
+    CURSES_CONTAINER(GUIContainer)
 
 public:
     inline CursesMenuBar(GUIContainer* parent) : GUIMenuBar(parent) {}
     inline void addSeparator() {new CursesLabel("|", this);}
 
-    virtual void mouseClicked(QPoint p) {
+    /*virtual void mouseClicked(QPoint p) {
         QListIterator<GUIWidget*> i(children());
         i.toBack();
         while(i.hasPrevious()) {
@@ -27,7 +27,7 @@ public:
         }
 
         emit clicked();
-    }
+    }*/
 
 protected:
     inline void drawImpl() {
