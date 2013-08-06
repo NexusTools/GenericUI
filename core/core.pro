@@ -24,7 +24,10 @@ HEADERS += genericui.h \
     guidialog.h \
     guiaction.h \
     guimenubar.h \
-    guimenu.h
+    guimenu.h \
+    guimessagelog.h \
+    guiscrollview.h \
+    guiscrollbar.h
 
 unix:!symbian {
     maemo5 {
