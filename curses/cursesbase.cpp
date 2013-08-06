@@ -8,6 +8,10 @@ bool CursesBase::processEvent(QObject*, QEvent* ev) {
             setSize(geom().size());
             break;
 
+        case GUIEvent::GUIPositionChanged:
+            cursesDirtyMainWindow();
+            break;
+
         default:
             break;
     }

@@ -83,7 +83,7 @@ protected:
     inline GUIWidget(GUIContainer* parent =0) : _geom(0, 0, 1, 1) {setParent((QObject*)parent);_attr=Normal;}
 
     inline void setWAttr(WAttrs attr) {_attr=attr;pushEvent(GUIEvent::GUIWAttrChanged);}
-    inline void pushEvent(GUIEvent::GUIType t) {GUIEvent ev(t);event(&ev);}
+    inline void pushEvent(GUIEvent::GUIType t) {metaObject()->invokeMethod(this, "simEvent", Qt::QueuedConnection, Q_ARG(GUIEvent::GUIType, t));}
 
     // Internals
     void setPos(QPoint p);
@@ -119,6 +119,7 @@ public slots:
     // Simulate
     inline void click() {pushEvent(GUIEvent::GUIMouseClicked);}
     inline void activate() {pushEvent(GUIEvent::GUIActivated);}
+    inline void simEvent(GUIEvent::GUIType t) {GUIEvent ev(t);event(&ev);}
 
 private:
     void stateChanged();

@@ -203,3 +203,8 @@ GUIWindow* GUIWidget::window() {
 
     return (GUIWindow*)widget;
 }
+
+GUIMainWindow::GUIMainWindow(QString title) : GUIWindow(title, 0)
+{
+    qRegisterMetaType<GUIEvent::GUIType>("GUIEvent::GUIType");
+}

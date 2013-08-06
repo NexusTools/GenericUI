@@ -7,7 +7,8 @@ class GUIMainWindow : public GUIWindow
 {
     Q_OBJECT
 public:
-    inline GUIMainWindow(QString title) : GUIWindow(title, 0) {}
+    GUIMainWindow(QString title);
+
 };
 
 #endif // GUIMAINWINDOW_H

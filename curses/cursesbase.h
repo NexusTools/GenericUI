@@ -44,7 +44,7 @@ protected:
         markDirty();
     }
 
-    inline virtual void draw(QRect clip, QPoint off) {
+    virtual void draw(QRect clip, QPoint off) {
         if(_dirty) {
             wclear(hnd());
             drawImpl();
@@ -79,7 +79,7 @@ public:
 protected:
     inline CursesContainer(QSize size =QSize(1,1)) : CursesBase(size) {}
 
-    inline void draw(QRect clip, QPoint off) {
+    virtual void draw(QRect clip, QPoint off) {
         CursesBase::draw(clip, off);
         drawChildren(clip, off);
     }
@@ -151,7 +151,7 @@ protected:
         return QSize(getmaxx(stdscr), getmaxy(stdscr));
     }
 
-    inline void draw(QRect clip, QPoint off) {
+    virtual void draw(QRect clip, QPoint off) {
         wnoutrefresh(stdscr);
 
         CursesContainer::draw(clip, off);
