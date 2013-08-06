@@ -2,6 +2,7 @@
 #define GENERICUI_H
 
 #include "global.h"
+#include "guievent.h"
 
 #include <QObject>
 #include <QDomNode>
@@ -44,12 +45,7 @@ public:
         return _attr.testFlag(Disabled);
     }
 
-    inline void move(int x, int y) {setPos(QPoint(x, y));}
-    inline void move(QPoint p) {setPos(p);}
-
-    inline void resize(int w, int h) {setSize(QSize(w, h));}
-    inline void resize(QSize s) {setSize(s);}
-
+    // Query Geometry
     int screenX() const;
     int screenY() const;
     inline int x() const{return _geom.x();}
@@ -62,18 +58,19 @@ public:
     inline QSize size() const{return _geom.size();}
     inline QRect geom() const{return _geom;}
 
+    // Preferred Size
     virtual QSize preferredSize() {return QSize(1,1);}
-    inline void fitToContent() {resize(preferredSize());}
 
     inline virtual bool isWindow() const{return false;}
     virtual void processXML(QDomNode&) {}
     void setParent(GUIContainer*);
-    bool event(QEvent *);
 
+    // Heirarchies
     GUIContainer* parentContainer() const;
     GUIMainWindow* mainWindow();
     GUIWindow* window();
 
+    // Implementation Class Helpers
     template <class T>
     inline T* internal() {return static_cast<T*>(internalPtr());}
     template <class T>
@@ -82,47 +79,60 @@ public:
     virtual void* internalPtr() =0;
     virtual void* handlePtr() =0;
 
+    virtual bool event(QEvent *);
+
 protected:
     inline GUIWidget(GUIContainer* parent =0) : _geom(0, 0, 1, 1) {setParent(parent);_attr=Normal;}
 
-    void setWAttr(WAttrs attr);
-
-    // Events
-    virtual void posChanged() {}
-    virtual void sizeChanged();
-    virtual void stateChanged() {}
-    virtual void geometryChanged() {}
-    virtual void visibilityChanged() {}
-    virtual void parentChanged() {}
+    inline void setWAttr(WAttrs attr) {_attr=attr;pushEvent(GUIEvent::GUIWAttrChanged);}
+    inline void pushEvent(GUIEvent::GUIType t) {GUIEvent ev(t);event(&ev);}
 
     // Internals
-    void setFocused(bool);
-    void pushTypedKey(char c);
-
-    inline void setPos(QPoint p) {if(p==pos())return;_geom=QRect(p,size());posChanged();geometryChanged();}
-    inline void setSize(QSize s) {if(s==size())return;_geom=QRect(pos(),s);sizeChanged();geometryChanged();}
-    inline void setGeometry(QRect r) {_geom=r;posChanged();sizeChanged();geometryChanged();}
+    void setPos(QPoint p);
+    void setSize(QSize s);
+    void setGeom(QRect r);
 
 public slots:
+    // Modify Geometry
+    inline void fitToContent() {resize(preferredSize());}
+
+    inline void move(int x, int y) {setPos(QPoint(x, y));}
+    inline void move(QPoint p) {setPos(p);}
+
+    inline void resize(int w, int h) {setSize(QSize(w, h));}
+    inline void resize(QSize s) {setSize(s);}
+
+    // Visibility
     void show(QPoint p){
         move(p);
         show();
     }
     void show() {setVisible(true);}
     void hide() {setVisible(false);}
-    void setVisible(bool vis) {if(_attr.testFlag(Hidden) != vis)return;if(vis)_attr^=Hidden;else{_attr|=Hidden;}visibilityChanged();}
+    void setVisible(bool vis) {setHidden(!vis);}
+    void setHidden(bool hdn);
 
+    // State
     void enable() {setEnabled(true);}
     void disable() {setEnabled(false);}
-    void setEnabled(bool dis) {if(_attr.testFlag(Disabled) != dis)return;if(dis)_attr^=Disabled;else{_attr|=Disabled;}stateChanged();}
+    void setEnabled(bool en) {setDisabled(!en);}
+    void setDisabled(bool dis);
 
 signals:
+    void stateChanged();
+
+    void posChanged();
+    void sizeChanged();
+    void geomChanged();
+
     void focusGained();
     void focusLost();
 
-    void shown();
+    void visibilityChanged();
     void hidden();
+    void shown();
 
+    void activated();
     void clicked();
 
 private:

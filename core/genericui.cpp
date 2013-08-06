@@ -1,14 +1,6 @@
-#include "guicontainer.h"
 #include "guimainwindow.h"
 
 #include <QEvent>
-
-void GUIWidget::setWAttr(WAttrs attr) {
-    _attr = attr;
-    GUIContainer* con = parentContainer();
-    if(con)
-        con->markLayoutDirty();
-}
 
 int GUIWidget::screenX() const{
     int x = _geom.x();
@@ -37,7 +29,7 @@ void GUIWidget::setParent(GUIContainer* par) {
 
     if(par) {
         par->_children.append(this);
-        parentChanged();
+        //parentChanged();
     }
 }
 
@@ -50,7 +42,7 @@ bool GUIWidget::event(QEvent *ev) {
                 GUIContainer* par = parentContainer();
                 if(par) {
                     par->_children.removeOne(this);
-                    parentChanged();
+                    //parentChanged();
                 }
                 break;
             }
@@ -60,7 +52,7 @@ bool GUIWidget::event(QEvent *ev) {
                 GUIContainer* par = parentContainer();
                 if(par) {
                     par->_children.append(this);
-                    parentChanged();
+                    //parentChanged();
                 }
                 break;
             }
@@ -73,10 +65,58 @@ bool GUIWidget::event(QEvent *ev) {
     return QObject::event(ev);
 }
 
-void GUIWidget::sizeChanged() {
-    GUIContainer* con = parentContainer();
-    if(con)
-        con->markLayoutDirty();
+void GUIWidget::setPos(QPoint p) {
+    if(p == pos())
+        return;
+
+    _geom = QRect(p, size());
+    pushEvent(GUIEvent::GUISizeChanged);
+    pushEvent(GUIEvent::GUIGeometryChanged);
+}
+
+void GUIWidget::setSize(QSize s) {
+    if(s == size())
+        return;
+
+    _geom.setSize(s);
+    pushEvent(GUIEvent::GUISizeChanged);
+    pushEvent(GUIEvent::GUIGeometryChanged);
+}
+
+void GUIWidget::setGeom(QRect r) {
+    bool s = r.size() == size();
+    bool p = r.topLeft() == pos();
+    if(s && p)
+        return;
+
+    _geom = r;
+    if(!p)
+        pushEvent(GUIEvent::GUIPositionChanged);
+    if(!s)
+        pushEvent(GUIEvent::GUISizeChanged);
+    pushEvent(GUIEvent::GUIGeometryChanged);
+}
+
+void GUIWidget::setDisabled(bool dis) {
+    if(wattr().testFlag(Disabled) == dis)
+        return;
+
+    if(dis)
+        setWAttr(wattr() |= Disabled);
+    else
+        setWAttr(wattr() ^= Disabled);
+    pushEvent(GUIEvent::GUIStateChanged);
+}
+
+void GUIWidget::setHidden(bool hdn) {
+    if(wattr().testFlag(Hidden) == hdn)
+        return;
+
+    if(hdn)
+        setWAttr(wattr() |= Hidden);
+    else
+        setWAttr(wattr() ^= Hidden);
+    pushEvent(GUIEvent::GUIVisibilityChanged);
 }
 
 GUIContainer* GUIWidget::parentContainer() const{

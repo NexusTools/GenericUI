@@ -113,7 +113,6 @@ protected:
         layoutTimer.setSingleShot(true);
         connect(&layoutTimer, SIGNAL(timeout()), this, SLOT(fixLayout()));
     }
-    inline void sizeChanged() {GUIWidget::sizeChanged();markLayoutDirty();}
     virtual void layoutBecameDirty() {}
     virtual void fixLayoutImpl() {
         if(!_dirtyLayout)
