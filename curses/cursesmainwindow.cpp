@@ -186,7 +186,7 @@ QSize CursesMainWindow::init() {
         signal(SIGINT, tryTerminate);
 
         initscr();
-        //start_color();
+        start_color();
 
         //_window = newwin(0, 0, 0, 0);
         mousemask(ALL_MOUSE_EVENTS, NULL);
