@@ -143,6 +143,8 @@ protected:
         if(_cursor.isNull())
             curs_set(1);
         _cursor = QPoint(mEvent.x, mEvent.y);
+        cursesDirtyMainWindow();
+
         //if(mEvent.bstate & BUTTON1_CLICKED)
         //    mouseClicked(_cursor);
     }
@@ -170,7 +172,7 @@ private:
         bool ret = processEvent(this, ev); \
         if(ret) \
             return ret; \
-        return QObject::event(ev); \
+        return GUIWidget::event(ev); \
     } \
         \
 protected: \

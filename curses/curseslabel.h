@@ -30,7 +30,6 @@ public:
 
 protected:
     inline QSize sizeForString(QString text) {return QSize(text.size(), 1);}
-    inline void textChanged() {markDirty();}
 
     inline void drawImpl() {
         wattrset(hnd(), _attr);

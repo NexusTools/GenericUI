@@ -40,6 +40,32 @@ void GUIWidget::setSize(QSize s) {
     pushEvent(GUIEvent::GUIGeometryChanged);
 }
 
+bool GUIWidget::event(QEvent * ev) {
+    switch(ev->type()) {
+        case QEvent::ParentAboutToChange:
+        {
+            GUIContainer* c = parentContainer();
+            if(c)
+                removeEventFilter(c);
+            break;
+        }
+
+        case QEvent::ParentChange:
+        {
+            GUIContainer* c = parentContainer();
+            if(c)
+                installEventFilter(c);
+            break;
+        }
+
+        default:
+            break;
+
+    }
+
+    return QObject::event(ev);
+}
+
 void GUIWidget::setGeom(QRect r) {
     bool s = r.size() == size();
     bool p = r.topLeft() == pos();

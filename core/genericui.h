@@ -79,6 +79,8 @@ public:
     virtual void* internalPtr() =0;
     virtual void* handlePtr() =0;
 
+    virtual bool event(QEvent *);
+
 protected:
     inline GUIWidget(GUIContainer* parent =0) : _geom(0, 0, 1, 1) {setParent((QObject*)parent);_attr=Normal;}
 

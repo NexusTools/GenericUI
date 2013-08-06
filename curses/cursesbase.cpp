@@ -12,6 +12,11 @@ bool CursesBase::processEvent(QObject*, QEvent* ev) {
             cursesDirtyMainWindow();
             break;
 
+        case GUIEvent::GUITextChanged:
+        case GUIEvent::GUIWAttrChanged:
+            markDirty();
+            break;
+
         default:
             break;
     }
