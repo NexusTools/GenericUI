@@ -171,19 +171,15 @@ QSize CursesMainWindow::init() {
     static bool initialized = false;
     if(!initialized) {
         initialized = true;
-        signal(SIGWINCH, resetScreen);
 
-        prctl(PR_SET_PDEATHSIG, SIGTERM);
+        signal(SIGWINCH, resetScreen);
+        signal(SIGINT, tryTerminate);
 
         signal(SIGILL, crash);
-        signal(SIGKILL, crash);
         signal(SIGSEGV, crash);
         signal(SIGABRT, crash);
-        signal(SIGTERM, crash);
+        signal(SIGQUIT, crash);
         signal(SIGHUP, crash);
-
-        signal(SIGQUIT, tryTerminate);
-        signal(SIGINT, tryTerminate);
 
         initscr();
         start_color();
