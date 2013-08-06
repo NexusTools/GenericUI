@@ -42,19 +42,19 @@ void GUIWidget::setSize(QSize s) {
 
 bool GUIWidget::event(QEvent * ev) {
     switch(ev->type()) {
-        case QEvent::ParentAboutToChange:
-        {
-            GUIContainer* c = parentContainer();
-            if(c)
-                removeEventFilter(c);
-            break;
-        }
-
         case QEvent::ParentChange:
         {
             GUIContainer* c = parentContainer();
             if(c)
                 installEventFilter(c);
+            break;
+        }
+
+        case QEvent::ParentAboutToChange:
+        {
+            GUIContainer* c = parentContainer();
+            if(c)
+                removeEventFilter(c);
             break;
         }
 
@@ -64,6 +64,21 @@ bool GUIWidget::event(QEvent * ev) {
     }
 
     return QObject::event(ev);
+}
+
+bool GUIContainer::event(QEvent * ev) {
+    switch(ev->type()) {
+        case QEvent::ChildAdded:
+        case QEvent::ChildRemoved:
+            markLayoutDirty();
+            break;
+
+        default:
+            break;
+
+    }
+
+    return GUIWidget::event(ev);
 }
 
 void GUIWidget::setGeom(QRect r) {

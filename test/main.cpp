@@ -1,13 +1,15 @@
 #include <QCoreApplication>
 
-#include <unistd.h>
-#include "genericuitest.h"
-
+#include <QFileInfo>
 #include <QDateTime>
 #include <QThread>
 #include <QRegExp>
 #include <QFile>
 
+#include <unistd.h>
+#include <stdio.h>
+
+#include "genericuitest.h"
 
 void __msgOutput(QtMsgType type, const QMessageLogContext &ctx, const QString &msg)
 {
@@ -74,9 +76,16 @@ void __msgOutput(QtMsgType type, const QMessageLogContext &ctx, const QString &m
 
 
     // Ensure messages don't get merged due to threading
-    static QFile log("output.log");
-    if(!log.isOpen())
+    static QFile log(QFileInfo("output.log").absoluteFilePath());
+    if(!log.isOpen()) {
+        endwin();
+        printf("Redirecting log to %s", log.fileName().toLocal8Bit().data());
+        fflush(stdout);
+
         log.open(QFile::WriteOnly);
+        sleep(5);
+        refresh();
+    }
     log.write(streamData);
     log.flush();
 }
@@ -84,11 +93,9 @@ void __msgOutput(QtMsgType type, const QMessageLogContext &ctx, const QString &m
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
-
     qInstallMessageHandler(__msgOutput);
+    qDebug() << "Started";
 
-
-    GenericUITest genericUITest;
-    
+    new GenericUITest();
     return a.exec();
 }

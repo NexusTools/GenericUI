@@ -113,7 +113,7 @@ protected:
         waddch(hnd(), ACS_LRCORNER);
     }
 
-    inline void drawChildren(QRect clip, QPoint off) {
+    virtual void drawChildren(QRect clip, QPoint off) {
         foreach(GUIWidget* child, childWidgets()) {
             if(child->isHidden())
                 continue;

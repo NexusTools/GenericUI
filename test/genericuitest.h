@@ -6,6 +6,8 @@
 #include <QTimer>
 #include <QDebug>
 
+#include <cursesaction.h>
+#include <cursesmenubar.h>
 #include <cursesmainwindow.h>
 #include <curseslabel.h>
 
@@ -13,11 +15,16 @@ class GenericUITest : public QObject
 {
     Q_OBJECT
 public:
-    inline explicit GenericUITest() : mainWindow("Generic UI Test"), label1("Testing your love!", &mainWindow), label2("One day at a time...", &mainWindow), dateLabel("Loading...", &mainWindow) {
+    inline explicit GenericUITest() : mainWindow("Generic UI Test"), label1("Testing your love!", 0), label2("One day at a time...", 0), dateLabel("Loading...", 0) {
         label1.move(QPoint(5, 3));
         label2.move(QPoint(7, 5));
         move1 = true;
         move2 = true;
+
+        CursesMenuBar* menuBar = new CursesMenuBar(&mainWindow);
+        new CursesAction("_Test", menuBar);
+        new CursesAction("_Help", menuBar);
+        menuBar->fitToContent();
 
         animation.setInterval(50);
         connect(&animation, SIGNAL(timeout()), this, SLOT(move()));

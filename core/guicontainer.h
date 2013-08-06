@@ -3,8 +3,9 @@
 
 #include "genericui.h"
 
-#include <QTimer>
 #include <QPair>
+#include <QTimer>
+#include <QDebug>
 
 class GUIContainer : public GUIWidget
 {
@@ -23,26 +24,33 @@ public:
         BlockElements
     };
 
+    virtual QSize preferredSize();
     virtual QSize sizeForLayout(int maxWidth =0);
-    virtual QSize preferredSize() {return sizeForLayout();}
     inline Children childWidgets() const{return findChildren<GUIWidget*>("", Qt::FindDirectChildrenOnly);}
+
+    virtual bool event(QEvent *);
 
 protected:
     explicit GUIContainer(Spacing margin, Padding padding, LayoutType layout =FreeformLayout, GUIContainer *parent =0);
     explicit GUIContainer(Spacing margin, Padding padding, GUIContainer *parent);
     explicit GUIContainer(LayoutType layout, GUIContainer *parent =0);
     explicit GUIContainer(GUIContainer *parent =0);
+
     virtual bool eventFilter(QObject *, QEvent *);
     virtual void fixLayoutImpl();
 
 protected slots:
     inline void fixLayout() {
+        qDebug() << this << "Fixing layout";
+
         fixLayoutImpl();
     }
     inline void markLayoutDirty() {
         if(_dirtyLayout)
             return;
 
+        qDebug() << this << "Marked layout dirty";
+        _preferredSize = QSize();
         layoutTimer.start();
         _dirtyLayout = true;
     }
@@ -50,6 +58,7 @@ protected slots:
 private:
     bool _dirtyLayout;
     LayoutType _layout;
+    QSize _preferredSize;
 
     QTimer layoutTimer;
     Padding _padding;

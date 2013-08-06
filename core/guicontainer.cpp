@@ -41,7 +41,7 @@ GUIContainer::GUIContainer(GUIContainer *parent) : GUIWidget(parent) {
 }
 
 bool GUIContainer::eventFilter(QObject* obj, QEvent* ev) {
-    if(obj->parent() == this && qobject_cast<GUIContainer*>(obj))
+    if(obj->parent() == this && qobject_cast<GUIWidget*>(obj))
         switch(ev->type()) {
             case GUIEvent::GUIGeometryChanged:
             case GUIEvent::GUIWAttrChanged:
@@ -58,6 +58,13 @@ bool GUIContainer::eventFilter(QObject* obj, QEvent* ev) {
     return false;
 }
 
+QSize GUIContainer::preferredSize() {
+    if(_preferredSize.width() < 1 || _preferredSize.height() < 1)
+        _preferredSize = sizeForLayout();
+
+    return _preferredSize;
+}
+
 GUIContainer* GUIWidget::parentContainer() const{
     return qobject_cast<GUIContainer*>(parent());
 }
@@ -65,13 +72,8 @@ GUIContainer* GUIWidget::parentContainer() const{
 QSize GUIContainer::sizeForLayout(int maxWidth)  {
     if(maxWidth == -1)
         maxWidth = width();
-    else if(maxWidth == 0) {
-        GUIContainer* con = parentContainer();
-        if(con)
-            maxWidth = con->width() - x();
-        else
-            maxWidth = 80;
-    }
+    else if(maxWidth == 0)
+        maxWidth = 1000;
 
     QSize size;
     switch(_layout) {
@@ -181,6 +183,8 @@ void GUIContainer::fixLayoutImpl() {
         case FreeformLayout:
             return;
     }
+
+    setSize(preferredSize());
 }
 
 template <class T>

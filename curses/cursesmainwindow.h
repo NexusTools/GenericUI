@@ -87,11 +87,14 @@ public:
         fixLayoutImpl();
     }
 
-    inline void drawChildren(QRect clip, QPoint off) {
+    virtual void drawChildren(QRect clip, QPoint off) {
         foreach(CursesWindow* child, _windowStack) {
             drawChild(child, clip, off);
         }
         foreach(GUIWidget* child, childWidgets()) {
+            if(child->isHidden())
+                continue;
+
             CursesBase* base = dynamic_cast<CursesBase*>(child);
             if(base)
                 drawChild(base, clip, off);

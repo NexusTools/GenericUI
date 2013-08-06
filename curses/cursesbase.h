@@ -49,8 +49,7 @@ protected:
             wclear(hnd());
             drawImpl();
             _dirty=false;
-        } else
-            touchwin(hnd());
+        }
 
         pnoutrefresh(hnd(), clip.y(), clip.x(), off.y(), off.x(), clip.height() + off.y(), clip.width() + off.x());
     }
@@ -167,12 +166,12 @@ private:
     QPoint _cursor;
 };
 
-#define CURSES_IMPL(FILTERCLASS) \
+#define CURSES_IMPL(EVENTCLASS, FILTERCLASS) \
     virtual bool event(QEvent* ev) { \
         bool ret = processEvent(this, ev); \
         if(ret) \
             return ret; \
-        return GUIWidget::event(ev); \
+        return EVENTCLASS::event(ev); \
     } \
         \
 protected: \
@@ -188,7 +187,7 @@ protected: \
     virtual void* handlePtr() {return (void*)hnd();} \
     inline QRect geom() const{return GUIWidget::geom();}
 
-#define BASIC_CURSES_OBJECT CURSES_CORE CURSES_IMPL(GUIWidget)
+#define BASIC_CURSES_OBJECT CURSES_CORE CURSES_IMPL(GUIWidget, QObject)
 
 #define CURSES_OBJECT BASIC_CURSES_OBJECT  \
 public:
@@ -196,7 +195,7 @@ public:
 #define CURSES_CONTAINER_CORE CURSES_CORE  \
 protected:
 
-#define CURSES_CONTAINER CURSES_CONTAINER_CORE CURSES_IMPL(GUIContainer)
+#define CURSES_CONTAINER CURSES_CONTAINER_CORE CURSES_IMPL(GUIContainer, GUIContainer)
 
 #define CURSES_WINDOW CURSES_CONTAINER
 
