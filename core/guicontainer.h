@@ -25,9 +25,7 @@ public:
 
     virtual QSize sizeForLayout(int maxWidth =0);
     virtual QSize preferredSize() {return sizeForLayout();}
-    inline Children children() const{return _children;}
-
-    virtual bool event(QEvent *);
+    inline Children childWidgets() const{return findChildren<GUIWidget*>("", Qt::FindDirectChildrenOnly);}
 
 protected:
     explicit GUIContainer(Spacing margin, Padding padding, LayoutType layout =FreeformLayout, GUIContainer *parent =0);
@@ -52,7 +50,6 @@ protected slots:
 private:
     bool _dirtyLayout;
     LayoutType _layout;
-    Children _children;
 
     QTimer layoutTimer;
     Padding _padding;

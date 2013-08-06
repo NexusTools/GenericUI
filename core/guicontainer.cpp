@@ -41,70 +41,21 @@ GUIContainer::GUIContainer(GUIContainer *parent) : GUIWidget(parent) {
 }
 
 bool GUIContainer::eventFilter(QObject* obj, QEvent* ev) {
-    if(ev->type() == QEvent::Destroy) {
-        Children::Iterator i = _children.begin();
-        while(i != _children.end()) {
-            if(((QObject*)*i) == obj) {
-                _children.erase(i);
+    if(obj->parent() == this && qobject_cast<GUIContainer*>(obj))
+        switch(ev->type()) {
+            case GUIEvent::GUIGeometryChanged:
+            case GUIEvent::GUIWAttrChanged:
+            {
+                markLayoutDirty();
                 break;
             }
-            i++;
-        }
-    } else {
-        GUIWidget* child = qobject_cast<GUIContainer*>(obj);
-        if(child) {
-            switch(ev->type()) {
-                case GUIEvent::GUIGeometryChanged:
-                case GUIEvent::GUIWAttrChanged:
-                    markLayoutDirty();
-                    break;
 
-                default:
-                    break;
+            default:
+                break;
 
-            }
         }
-    }
 
     return false;
-}
-
-bool GUIContainer::event(QEvent *ev) {
-    switch(ev->type()) {
-        case QEvent::ChildAdded:
-        {
-            QChildEvent* cEv = dynamic_cast<QChildEvent*>(ev);
-            if(cEv) {
-                GUIWidget* child = qobject_cast<GUIContainer*>(cEv->child());
-                if(child) {
-                    _children.append(child);
-                    child->installEventFilter(this);
-                }
-            }
-
-            break;
-        }
-
-        case QEvent::ChildRemoved:
-        {
-            QChildEvent* cEv = dynamic_cast<QChildEvent*>(ev);
-            if(cEv) {
-                GUIWidget* child = qobject_cast<GUIContainer*>(cEv->child());
-                if(child) {
-                    child->removeEventFilter(this);
-                    _children.removeOne(child);
-                }
-            }
-
-            break;
-        }
-
-        default:
-            break;
-
-    }
-
-    return QObject::event(ev);
 }
 
 GUIContainer* GUIWidget::parentContainer() const{
@@ -129,7 +80,7 @@ QSize GUIContainer::sizeForLayout(int maxWidth)  {
             int w=0;
             int h=0;
             int lineHeight = 0;
-            foreach(GUIWidget* child, children()) {
+            foreach(GUIWidget* child, childWidgets()) {
                 if(child->isHidden())
                     continue;
 
@@ -155,7 +106,7 @@ QSize GUIContainer::sizeForLayout(int maxWidth)  {
         case BlockElements:
         {
             int h=0;
-            foreach(GUIWidget* child, children()) {
+            foreach(GUIWidget* child, childWidgets()) {
                 if(child->isHidden())
                     continue;
 
@@ -171,7 +122,7 @@ QSize GUIContainer::sizeForLayout(int maxWidth)  {
         }
 
         case FreeformLayout:
-            foreach(GUIWidget* child, children()) {
+            foreach(GUIWidget* child, childWidgets()) {
                 int w = child->x() + child->width();
                 int h = child->y() + child->height();
 
@@ -197,7 +148,7 @@ void GUIContainer::fixLayoutImpl() {
             int x=0;
             int y=0;
             int lineHeight = 0;
-            foreach(GUIWidget* child, children()) {
+            foreach(GUIWidget* child, childWidgets()) {
                 if(child->width() + x >= width()) {
                     x = 0;
                     y += lineHeight;
@@ -216,7 +167,7 @@ void GUIContainer::fixLayoutImpl() {
         case BlockElements:
         {
             int y=0;
-            foreach(GUIWidget* child, children()) {
+            foreach(GUIWidget* child, childWidgets()) {
                 if(child->isHidden())
                     continue;
 

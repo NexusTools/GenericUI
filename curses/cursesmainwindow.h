@@ -87,7 +87,7 @@ public:
         bool ret = processEvent(this, ev);
         if(ret)
             return ret;
-        return GUIWidget::event(ev);
+        return QObject::event(ev);
     }
 protected:
     virtual bool eventFilter(QObject* obj, QEvent* ev) {
@@ -105,7 +105,7 @@ protected:
         foreach(CursesWindow* child, _windowStack) {
             drawChild(child, clip, off);
         }
-        foreach(GUIWidget* child, children()) {
+        foreach(GUIWidget* child, childWidgets()) {
             CursesBase* base = dynamic_cast<CursesBase*>(child);
             if(base)
                 drawChild(base, clip, off);

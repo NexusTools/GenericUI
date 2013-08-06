@@ -37,7 +37,7 @@ public:
     inline QSize sizeForLayout(int) {
         int h = 0;
         int w = 0;
-        foreach(GUIWidget* child, children()) {
+        foreach(GUIWidget* child, childWidgets()) {
             if(child->isHidden())
                 continue;
 
@@ -78,7 +78,7 @@ protected:
 
     virtual void fixLayoutImpl() {
         int y = 1;
-        foreach(GUIWidget* child, children()) {
+        foreach(GUIWidget* child, childWidgets()) {
             if(child->isHidden())
                 continue;
 
@@ -114,7 +114,7 @@ protected:
     }
 
     inline void drawChildren(QRect clip, QPoint off) {
-        foreach(GUIWidget* child, children()) {
+        foreach(GUIWidget* child, childWidgets()) {
             if(child->isHidden())
                 continue;
 

@@ -35,7 +35,7 @@ protected:
     }
 
     inline void drawChildren(QRect clip, QPoint off) {
-        foreach(GUIWidget* child, children()) {
+        foreach(GUIWidget* child, childWidgets()) {
             CursesBase* base = dynamic_cast<CursesBase*>(child);
             if(base)
                 drawChild(base, clip, off);
