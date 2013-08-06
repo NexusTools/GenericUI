@@ -7,6 +7,7 @@
 #include <QRect>
 #include <QList>
 
+class GUIWidget;
 class GUIMainWindow;
 
 void cursesDirtyMainWindow();
@@ -41,6 +42,9 @@ public:
 
 protected:
     inline explicit CursesBase(QSize size =QSize(1, 1)) {_window=newpad(size.height(), size.width());wbkgd(_window, COLOR_PAIR(1));if(!_window)throw "Unable to allocate pad";_dirty=true;}
+
+    virtual void processEvent(GUIWidget*, QEvent*);
+    virtual void processEventFilter(GUIWidget*, QEvent*);
 
     virtual void focusTaken() =0;
     virtual void focusGiven() =0;
@@ -152,37 +156,25 @@ private:
     QPoint _cursor;
 };
 
-#define CURSES_IMPL  \
-protected: \
-    inline void posChanged() {cursesDirtyMainWindow();} \
-    inline void focusTaken() {if(!wattr().testFlag(GUIWidget::Focused))return;setWAttr(GUIWidget::Normal);markDirty();} \
-    inline void focusGiven() {if(wattr().testFlag(GUIWidget::Focused))return;setWAttr(GUIWidget::Focused);markDirty();}
-
+#define CURSES_IMPL(SUPER) \
+    virtual bool event(QEvent* ev) {bool ret = processEvent(this, ev);if(ret)return ret;return SUPER->event(ev);} \
+    virtual bool eventFilter(QObject* obj, QEvent* ev) {bool ret = processEventFilter(obj, ev);if(ret)return ret;return SUPER->eventFilter(ev);}
 
 #define CURSES_CORE public:\
     virtual void* internalPtr() {return (void*)thisBasePtr();} \
     virtual void* handlePtr() {return (void*)hnd();} \
     inline QRect geom() const{return GUIWidget::geom();}
 
-#define BASIC_CURSES_OBJECT CURSES_CORE CURSES_IMPL \
-    inline void sizeChanged() {GUIWidget::sizeChanged();CursesBase::setSize(size());}
+#define BASIC_CURSES_OBJECT CURSES_CORE CURSES_IMPL
 
 #define CURSES_OBJECT BASIC_CURSES_OBJECT  \
-public: \
-    inline void mouseClicked(QPoint) {emit clicked();focus();}
+public:
 
 #define CURSES_CONTAINER_CORE CURSES_CORE  \
-protected: \
-    inline void sizeChanged() {GUIContainer::sizeChanged();CursesBase::setSize(size());}
+protected:
 
 #define CURSES_CONTAINER CURSES_CONTAINER_CORE CURSES_IMPL
 
-#define CURSES_WINDOW CURSES_CONTAINER \
-    void visibilityChanged() { \
-        if(isHidden()) \
-            hideImpl(); \
-        else \
-            showImpl(); \
-    }
+#define CURSES_WINDOW CURSES_CONTAINER
 
 #endif // CURSESWINDOW_H

@@ -13,7 +13,9 @@ TEMPLATE = lib
 DEFINES += GENERICUI_LIBRARY
 
 SOURCES += \
-    genericui.cpp
+    genericui.cpp \
+    guicontainer.cpp \
+    guiscrollview.cpp
 
 HEADERS += genericui.h \
     global.h \
@@ -28,7 +30,9 @@ HEADERS += genericui.h \
     guimessagelog.h \
     guiscrollview.h \
     guiscrollbar.h \
-    guievent.h
+    guievent.h \
+    guibutton.h \
+    guislider.h
 
 unix:!symbian {
     maemo5 {

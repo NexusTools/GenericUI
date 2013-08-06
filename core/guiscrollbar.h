@@ -1,7 +1,7 @@
 #ifndef GUISCROLLBAR_H
 #define GUISCROLLBAR_H
 
-#include "guiscrollbar.h"
+#include "guislider.h"
 
 class GUIScrollBar : public GUIWidget
 {

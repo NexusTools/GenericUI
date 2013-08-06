@@ -15,6 +15,7 @@ class GUIWindow;
 class GENERICUISHARED_EXPORT GUIWidget : public QObject
 {
     Q_OBJECT
+
 public:
     enum WAttr {
         Normal,
@@ -58,12 +59,11 @@ public:
     inline QSize size() const{return _geom.size();}
     inline QRect geom() const{return _geom;}
 
-    // Preferred Size
     virtual QSize preferredSize() {return QSize(1,1);}
+
 
     inline virtual bool isWindow() const{return false;}
     virtual void processXML(QDomNode&) {}
-    void setParent(GUIContainer*);
 
     // Heirarchies
     GUIContainer* parentContainer() const;
@@ -79,10 +79,8 @@ public:
     virtual void* internalPtr() =0;
     virtual void* handlePtr() =0;
 
-    virtual bool event(QEvent *);
-
 protected:
-    inline GUIWidget(GUIContainer* parent =0) : _geom(0, 0, 1, 1) {setParent(parent);_attr=Normal;}
+    inline GUIWidget(GUIContainer* parent =0) : _geom(0, 0, 1, 1) {setParent((QObject*)parent);_attr=Normal;}
 
     inline void setWAttr(WAttrs attr) {_attr=attr;pushEvent(GUIEvent::GUIWAttrChanged);}
     inline void pushEvent(GUIEvent::GUIType t) {GUIEvent ev(t);event(&ev);}
@@ -118,7 +116,11 @@ public slots:
     void setEnabled(bool en) {setDisabled(!en);}
     void setDisabled(bool dis);
 
-signals:
+    // Simulate
+    inline void click() {pushEvent(GUIEvent::GUIMouseClicked);}
+    inline void activate() {pushEvent(GUIEvent::GUIActivated);}
+
+private:
     void stateChanged();
 
     void posChanged();
@@ -132,6 +134,7 @@ signals:
     void hidden();
     void shown();
 
+signals:
     void activated();
     void clicked();
 

@@ -9,14 +9,25 @@ public:
     enum GUIType {
         GUITypeBase = User + 10000,
 
-        // Heirarchy
-        GUIParentAboutToChange,
-        GUIParentChanged,
-
         // State
+        GUIWAttrChanged,
+
         GUIStateChanged,
         GUIVisibilityChanged,
-        GUIWAttrChanged,
+
+        GUIFocusChanged,
+        GUIFocusGained,
+        GUIFocusLost,
+
+        // Input
+        GUIKeyTyped, // Raw entry fields
+        GUITextChanged, // Input boxes and labels
+
+        GUIMouseClicked,
+        GUIMousePressed,
+        GUIMouseReleased,
+
+        GUIActivated,
 
         // Geometry
         GUIGeometryChanged,

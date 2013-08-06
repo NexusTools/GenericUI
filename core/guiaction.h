@@ -10,12 +10,8 @@ public:
     inline GUIAction(QString text, GUIContainer* parent =0) : GUILabel(text, parent) {}
     inline GUIAction(GUIContainer* parent =0) : GUILabel(parent) {}
 
-
-protected:
-    virtual void actionActivated() {}
-
-signals:
-    void activated();
+private:
+    char shortcut;
 
 };
 

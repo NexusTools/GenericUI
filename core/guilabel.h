@@ -16,7 +16,7 @@ public:
 
         _text=text;
         fitToContent();
-        textChanged();
+        pushEvent(GUIEvent::GUITextChanged);
     }
 
     virtual QSize preferredSize() {
@@ -27,7 +27,6 @@ public:
 
 protected:
     virtual QSize sizeForString(QString) =0;
-    virtual void textChanged() =0;
 
 private:
     QString _text;
