@@ -51,7 +51,7 @@ public:
     }
 
     QSize sizeForString(QString str) {
-        return QSize(2 + str.size(), 1);
+        return QSize((str.contains('_') ? 1 : 2) + str.size(), 1);
     }
 
     inline void mouseClicked(QPoint) {
