@@ -8,7 +8,7 @@
 class CursesMenuBar : public GUIMenuBar, public CursesContainer
 {
     Q_OBJECT
-    CURSES_CONTAINER(GUIContainer)
+    CURSES_CONTAINER
 
 public:
     inline CursesMenuBar(GUIContainer* parent) : GUIMenuBar(parent) {}

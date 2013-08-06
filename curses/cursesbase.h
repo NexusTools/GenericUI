@@ -165,23 +165,37 @@ private:
     QPoint _cursor;
 };
 
-#define CURSES_IMPL(SUPER, FILTERCLASS)
+#define CURSES_IMPL(FILTERCLASS) \
+    virtual bool event(QEvent* ev) { \
+        bool ret = processEvent(this, ev); \
+        if(ret) \
+            return ret; \
+        return QObject::event(ev); \
+    } \
+        \
+protected: \
+    virtual bool eventFilter(QObject* obj, QEvent* ev) { \
+        bool ret = processEventFilter(obj, ev); \
+        if(ret) \
+            return ret; \
+        return FILTERCLASS::eventFilter(obj, ev); \
+    }
 
 #define CURSES_CORE public:\
     virtual void* internalPtr() {return (void*)thisBasePtr();} \
     virtual void* handlePtr() {return (void*)hnd();} \
     inline QRect geom() const{return GUIWidget::geom();}
 
-#define BASIC_CURSES_OBJECT(SUPER) CURSES_CORE CURSES_IMPL(SUPER, GUIWidget)
+#define BASIC_CURSES_OBJECT CURSES_CORE CURSES_IMPL(GUIWidget)
 
-#define CURSES_OBJECT(SUPER) BASIC_CURSES_OBJECT(SUPER)  \
+#define CURSES_OBJECT BASIC_CURSES_OBJECT  \
 public:
 
 #define CURSES_CONTAINER_CORE CURSES_CORE  \
 protected:
 
-#define CURSES_CONTAINER(SUPER) CURSES_CONTAINER_CORE CURSES_IMPL(SUPER, GUIContainer)
+#define CURSES_CONTAINER CURSES_CONTAINER_CORE CURSES_IMPL(GUIContainer)
 
-#define CURSES_WINDOW(SUPER) CURSES_CONTAINER(SUPER)
+#define CURSES_WINDOW CURSES_CONTAINER
 
 #endif // CURSESWINDOW_H

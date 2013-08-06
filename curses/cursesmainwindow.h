@@ -9,7 +9,7 @@
 class CursesMainWindow : public GUIMainWindow, public CursesScreen
 {
     Q_OBJECT
-    CURSES_CONTAINER_CORE
+    CURSES_WINDOW
 
 public:
     inline explicit CursesMainWindow(QString title) : GUIMainWindow(title), CursesScreen(init()) {
@@ -82,20 +82,6 @@ public:
 
         emit clicked();
     }*/
-
-    virtual bool event(QEvent* ev) {
-        bool ret = processEvent(this, ev);
-        if(ret)
-            return ret;
-        return QObject::event(ev);
-    }
-protected:
-    virtual bool eventFilter(QObject* obj, QEvent* ev) {
-        bool ret = processEventFilter(obj, ev);
-        if(ret)
-            return ret;
-        return GUIContainer::eventFilter(obj, ev);
-    }
 
     inline virtual void drawImpl() {
         fixLayoutImpl();

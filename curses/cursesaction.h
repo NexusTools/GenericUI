@@ -12,7 +12,7 @@ class CursesMenu;
 class CursesAction : public GUIAction, public CursesBase
 {
     Q_OBJECT
-    BASIC_CURSES_OBJECT(QObject)
+    BASIC_CURSES_OBJECT
 
     friend class CursesMenu;
 public:
