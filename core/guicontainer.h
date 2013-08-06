@@ -26,7 +26,7 @@ public:
 
     virtual QSize preferredSize();
     virtual QSize sizeForLayout(int maxWidth =0);
-    inline Children childWidgets() const{return findChildren<GUIWidget*>("", Qt::FindDirectChildrenOnly);}
+    Children childWidgets() const;
 
     virtual bool event(QEvent *);
 

@@ -18,17 +18,17 @@ class GENERICUISHARED_EXPORT GUIWidget : public QObject
 
 public:
     enum WAttr {
-        Normal,
+        Normal = 0x0,
 
-        FloatRight,
-        FloatCenter,
+        FloatRight = 0x1,
+        FloatCenter = 0x2,
 
-        ExpandHeight,
-        ExpandWidth,
+        ExpandHeight = 0x4,
+        ExpandWidth = 0x8,
 
-        Focused,
-        Disabled,
-        Hidden
+        Focused = 0x10,
+        Disabled = 0x20,
+        Hidden = 0x40
     };
     Q_DECLARE_FLAGS(WAttrs, WAttr)
 

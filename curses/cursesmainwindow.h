@@ -41,6 +41,7 @@ public:
     }
 
     inline void scheduleRepaint() {
+        qDebug() << "Scheduled repaint";
         repaintTimer.start();
     }
 
@@ -83,16 +84,14 @@ public:
         emit clicked();
     }*/
 
-    inline virtual void drawImpl() {
-        fixLayoutImpl();
-    }
-
     virtual void drawChildren(QRect clip, QPoint off) {
         foreach(CursesWindow* child, _windowStack) {
             drawChild(child, clip, off);
         }
-        foreach(GUIWidget* child, childWidgets()) {
-            if(child->isHidden())
+
+        Children children = childWidgets();
+        foreach(GUIWidget* child, children) {
+            if(child->isHidden() || child->isWindow())
                 continue;
 
             CursesBase* base = dynamic_cast<CursesBase*>(child);

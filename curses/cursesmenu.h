@@ -114,14 +114,18 @@ protected:
     }
 
     virtual void drawChildren(QRect clip, QPoint off) {
-        foreach(GUIWidget* child, childWidgets()) {
-            if(child->isHidden())
+        Children children = childWidgets();
+        foreach(GUIWidget* child, children) {
+            if(child->isHidden() || child->isWindow())
                 continue;
 
             CursesBase* base = dynamic_cast<CursesBase*>(child);
             if(base)
                 drawChild(base, clip, off);
+
+            ;
         }
+
     }
 
     void showChain();

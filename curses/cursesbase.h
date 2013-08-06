@@ -19,7 +19,7 @@ class CursesBase
     friend class CursesScreen;
 
 public:
-    virtual ~CursesBase() {clear();if(_focusBase == this)_focusBase=0;}
+    virtual ~CursesBase() {destroy();if(_focusBase == this)_focusBase=0;}
 
     inline WINDOW* hnd() const{return _window;}
 
@@ -60,7 +60,7 @@ private:
     WINDOW* _window;
     bool _dirty;
 
-    inline void clear() {
+    inline void destroy() {
         if(_window) {
             delwin(_window);
             _window = 0;
@@ -87,6 +87,7 @@ protected:
         if(clip.isEmpty())
             return;
 
+        qDebug() << "Drawing child" << child;
         child->draw(QRect(clip.topLeft() - child->geom().topLeft(), clip.size()), off + child->geom().topLeft());
     }
 
@@ -132,6 +133,7 @@ class CursesScreen : public CursesWindow
 public:
     inline bool isScreen() const{return true;}
     inline void render() {
+        qDebug() << "Rendering" << this;
         draw(QRect(QPoint(0,0),geom().size()), QPoint(0,0));
     }
 

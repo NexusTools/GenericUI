@@ -65,6 +65,12 @@ QSize GUIContainer::preferredSize() {
     return _preferredSize;
 }
 
+GUIContainer::Children GUIContainer::childWidgets() const{
+    Children children = findChildren<GUIWidget*>("", Qt::FindDirectChildrenOnly);
+
+    return children;
+}
+
 GUIContainer* GUIWidget::parentContainer() const{
     return qobject_cast<GUIContainer*>(parent());
 }
