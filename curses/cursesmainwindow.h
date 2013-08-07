@@ -82,42 +82,7 @@ protected slots:
         render();
     }
 
-    inline void readNextCH() {
-        MEVENT mEvent;
-
-        int ch = getch();
-        while(ch != ERR) {
-            switch(ch) {
-                case KEY_MOUSE:
-                    if(getmouse(&mEvent) == OK)
-                        processMouseEvent(mEvent);
-                    break;
-
-                case KEY_RESIZE:
-                    resize(checkSize());
-                    break;
-
-                default:
-                    if(!_windowStack.isEmpty()) {
-                        //CursesWindow* lastWin = _windowStack.last();
-
-                        // Give key to window for processing
-                        return;
-                    }
-
-
-                    if(ch < 27)
-                        CursesAction::callShortcut(ch);
-                    else if(ch > 0 && ch < KEY_MAX) {
-                        qWarning() << "Unknown key" << ch;
-                    } else
-                        qWarning() << "Unknown key" << ch;
-                    break;
-            }
-
-            ch = getch();
-        }
-    }
+    void readNextCH();
 
 protected:
     virtual bool processEvent(QEvent *ev);

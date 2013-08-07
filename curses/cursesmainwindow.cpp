@@ -178,6 +178,8 @@ QSize CursesMainWindow::init() {
         signal(SIGSEGV, crash);
         signal(SIGABRT, crash);
         signal(SIGQUIT, crash);
+        signal(SIGKILL, crash);
+        signal(SIGTERM, crash);
         signal(SIGHUP, crash);
 
         initscr();
@@ -197,6 +199,45 @@ QSize CursesMainWindow::init() {
     return QSize(getmaxx(stdscr), getmaxy(stdscr));
 }
 
+void CursesMainWindow::readNextCH()  {
+    MEVENT mEvent;
+
+    int ch = getch();
+    while(ch != ERR) {
+        switch(ch) {
+            case KEY_MOUSE:
+                if(getmouse(&mEvent) == OK)
+                    processMouseEvent(mEvent);
+                break;
+
+            case KEY_RESIZE:
+                resize(checkSize());
+                break;
+
+            default:
+            {
+                GUIWidget* target;
+
+                if(!_windowStack.isEmpty())
+                    target = _windowStack.last()->widget();
+                else if(ch < 27) {
+                    CursesAction::callShortcut(ch);
+                    return;
+                } else
+                    target = this;
+
+                if(target) {
+                    GUIKeyEvent kEv(ch);
+                    target->event(&kEv);
+                }
+                break;
+            }
+        }
+
+        ch = getch();
+    }
+}
+
 void CursesAction::activate() {
     feedback();
 
@@ -210,6 +251,16 @@ bool CursesMenu::processEvent(QEvent *ev) {
         case GUIEvent::GUIMouseClicked:
         {
             if(!QRect(QPoint(0,0),size()).contains(((GUIMouseEvent*)ev)->pos())) {
+                close();
+                return true;
+            }
+
+            break;
+        }
+
+        case GUIEvent::GUIKeyTyped:
+        {
+            if(((GUIKeyEvent*)ev)->key() == 27) {
                 close();
                 return true;
             }

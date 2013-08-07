@@ -68,4 +68,14 @@ private:
     QList<QPoint> stack;
 };
 
+class GUIKeyEvent : public GUIEvent
+{
+public:
+    inline GUIKeyEvent(int key) : GUIEvent(GUIEvent::GUIKeyTyped) {_key=key;}
+    inline int key() const{return _key;}
+
+private:
+    int _key;
+};
+
 #endif // GUIEVENT_H
