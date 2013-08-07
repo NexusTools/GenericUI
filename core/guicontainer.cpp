@@ -103,9 +103,6 @@ QSize GUIContainer::sizeForLayout()  {
 }
 
 void GUIContainer::fixLayoutImpl() {
-    if(!wattr().testFlag(DirtyLayout))
-        return;
-
     switch(_layout) {
         case HorizontalLayout:
         {

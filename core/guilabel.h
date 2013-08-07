@@ -16,7 +16,7 @@ public:
 
         _text=text;
         fitToContent();
-        pushEvent(GUIEvent::GUITextChanged);
+        simEvent(GUIEvent::GUITextChanged);
     }
 
     virtual QSize preferredSize() {

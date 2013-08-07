@@ -83,6 +83,7 @@ public:
 
 protected:
     inline CursesContainer(QSize size =QSize(1,1)) : CursesBase(size) {}
+    virtual bool processEvent(QEvent*);
 
     virtual void draw(QRect clip, QPoint off) {
         CursesBase::draw(clip, off);

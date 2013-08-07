@@ -19,19 +19,17 @@ public:
         init();
         resize(checkSize());
 
-        repaintTimer.setInterval(0);
+        repaintTimer.setInterval(20);
         repaintTimer.setSingleShot(true);
         connect(&repaintTimer, SIGNAL(timeout()), this, SLOT(drawNow()));
-        repaintTimer.start();
 
-        inputTimer.setInterval(30);
+        inputTimer.setInterval(20);
         connect(&inputTimer, SIGNAL(timeout()), this, SLOT(readNextCH()));
         inputTimer.start();
     }
     virtual ~CursesMainWindow() {_current=0;}
 
     virtual void repaint() {
-        qDebug() << "Scheduled repaint";
         repaintTimer.start();
     }
 
@@ -101,10 +99,6 @@ public:
     }
 
     inline void titleChanged() {printf("\033]0;%s\007", qPrintable(title()));}
-    inline virtual void fixLayoutImpl() {GUIContainer::fixLayoutImpl();markDirty();}
-
-    inline void focusTaken() {setWAttr(wattr() ^ GUIWidget::Focused);markDirty();} \
-    inline void focusGiven() {setWAttr(wattr() & GUIWidget::Focused);markDirty();}
 
 protected slots:
     inline void drawNow() {
@@ -153,6 +147,7 @@ private:
     static CursesMainWindow* _current;
 
     QList<CursesWindow*> _windowStack;
+    bool _repaintScheduled;
     QTimer repaintTimer;
     QTimer inputTimer;
 

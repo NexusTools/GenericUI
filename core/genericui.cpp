@@ -27,8 +27,8 @@ void GUIWidget::setPos(QPoint p) {
         return;
 
     _geom = QRect(p, size());
-    pushEvent(GUIEvent::GUISizeChanged);
-    pushEvent(GUIEvent::GUIGeometryChanged);
+    simEvent(GUIEvent::GUISizeChanged);
+    simEvent(GUIEvent::GUIGeometryChanged);
 }
 
 void GUIWidget::setSize(QSize s) {
@@ -36,8 +36,8 @@ void GUIWidget::setSize(QSize s) {
         return;
 
     _geom.setSize(s);
-    pushEvent(GUIEvent::GUISizeChanged);
-    pushEvent(GUIEvent::GUIGeometryChanged);
+    simEvent(GUIEvent::GUISizeChanged);
+    simEvent(GUIEvent::GUIGeometryChanged);
 }
 
 bool GUIContainer::event(QEvent * ev) {
@@ -63,10 +63,10 @@ void GUIWidget::setGeom(QRect r) {
 
     _geom = r;
     if(!p)
-        pushEvent(GUIEvent::GUIPositionChanged);
+        simEvent(GUIEvent::GUIPositionChanged);
     if(!s)
-        pushEvent(GUIEvent::GUISizeChanged);
-    pushEvent(GUIEvent::GUIGeometryChanged);
+        simEvent(GUIEvent::GUISizeChanged);
+    simEvent(GUIEvent::GUIGeometryChanged);
 }
 
 void GUIWidget::setDisabled(bool dis) {
@@ -77,7 +77,7 @@ void GUIWidget::setDisabled(bool dis) {
         setWAttr(wattr() |= Disabled);
     else
         setWAttr(wattr() ^= Disabled);
-    pushEvent(GUIEvent::GUIStateChanged);
+    simEvent(GUIEvent::GUIStateChanged);
 }
 
 void GUIWidget::setHidden(bool hdn) {
@@ -88,5 +88,5 @@ void GUIWidget::setHidden(bool hdn) {
         setWAttr(wattr() |= Hidden);
     else
         setWAttr(wattr() ^= Hidden);
-    pushEvent(GUIEvent::GUIVisibilityChanged);
+    simEvent(GUIEvent::GUIVisibilityChanged);
 }

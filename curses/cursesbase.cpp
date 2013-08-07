@@ -50,7 +50,6 @@ bool CursesBase::processEvent(QEvent* ev) {
 
         case GUIEvent::GUIPositionChanged:
         case GUIEvent::GUIVisibilityChanged:
-        case GUIEvent::GUILayoutBecameDirty:
             repaint();
             break;
 
@@ -59,6 +58,19 @@ bool CursesBase::processEvent(QEvent* ev) {
     }
 
     return false;
+}
+
+bool CursesContainer::processEvent(QEvent* ev) {
+    switch(ev->type()) {
+        case GUIEvent::GUISizeChanged:
+            ((GUIContainer*)widget())->markLayoutDirty();
+            break;
+
+        default:
+            break;
+    }
+
+    return CursesBase::processEvent(ev);
 }
 
 

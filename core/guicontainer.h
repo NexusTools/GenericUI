@@ -36,7 +36,7 @@ public:
         layoutTimer.start();
 
         setWAttr(wattr() | DirtyLayout);
-        pushEvent(GUIEvent::GUILayoutBecameDirty);
+        simEvent(GUIEvent::GUILayoutBecameDirty);
     }
 
     virtual bool event(QEvent *);
@@ -51,6 +51,9 @@ protected:
 
 protected slots:
     inline void fixLayout() {
+        if(!wattr().testFlag(DirtyLayout))
+            return;
+
         fixLayoutImpl();
 
         if(wattr().testFlag(DirtyLayout))

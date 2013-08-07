@@ -30,10 +30,6 @@ public:
     }*/
 
 protected:
-    inline void drawImpl() {
-        fixLayoutImpl();
-    }
-
     virtual void drawChildren(QRect clip, QPoint off) {
         Children children = childWidgets();
 

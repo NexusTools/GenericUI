@@ -32,9 +32,7 @@ public:
     inline void addMenu(GUIMenu* menu) {addAction(menu->action());}
     inline void addSeparator() {new CursesMenuSeparator(this);}
 
-    //virtual void mouseClicked(QPoint p);
-
-    inline QSize sizeForLayout(int) {
+    virtual QSize sizeForLayout(int) {
         int h = 0;
         int w = 0;
         foreach(GUIWidget* child, childWidgets()) {
@@ -53,17 +51,6 @@ public:
     bool isOpen();
 
 protected:
-    virtual void layoutBecameDirty() {
-        fitToContent();
-    }
-
-    virtual void visibilityChanged() {
-        if(isHidden())
-            hideImpl();
-        else
-            showImpl();
-    }
-
     virtual void showImpl() {
         CursesWindow::showImpl();
         if(_action)
