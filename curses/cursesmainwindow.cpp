@@ -344,6 +344,14 @@ bool CursesMainWindow::processEvent(QEvent *ev) {
             break;
         }
 
+        case GUIEvent::GUISizeChanged:
+        {
+            foreach(CursesWindow* win, _windowStack)
+                win->widget()->metaObject()->invokeMethod(win->widget(), "center");
+
+            break;
+        }
+
         default:
             break;
     }

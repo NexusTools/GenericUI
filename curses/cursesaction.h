@@ -16,9 +16,8 @@ class CursesAction : public GUIAction, public CursesBase
 
     friend class CursesMenu;
 public:
-    inline CursesAction(QString text, GUIContainer* par =0) : GUIAction(text, par) {
+    inline CursesAction(QString text, GUIContainer* par =0) : GUIAction(text, GUIWidget::ExpandWidth, par) {
         fitToContent();
-        setWAttr(ExpandWidth);
 
         int pos = text.indexOf('_');
         if(pos > -1) {

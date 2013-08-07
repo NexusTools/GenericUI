@@ -7,8 +7,8 @@ class GUIAction : public GUILabel
 {
     Q_OBJECT
 public:
-    inline GUIAction(QString text, GUIContainer* parent =0) : GUILabel(text, parent) {setWAttr(Focusable);}
-    inline GUIAction(GUIContainer* parent =0) : GUILabel(parent) {setWAttr(Focusable);}
+    inline GUIAction(QString text, WAttrs attr, GUIContainer* parent =0) : GUILabel(text, parent) {setWAttr(attr | Focusable);}
+    inline GUIAction(WAttrs attr, GUIContainer* parent =0) : GUILabel(parent) {setWAttr(attr | Focusable);}
 
 signals:
     void activated();
