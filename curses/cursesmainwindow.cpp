@@ -114,6 +114,7 @@ void CursesAction::feedback() {
 
     blinkTimer.start();
     activateTimer.start(300);
+    CursesMainWindow::current()->setCursor(screenX() + 1, screenY());
 }
 
 void resetScreen(int) {
@@ -265,7 +266,7 @@ bool CursesDialog::processEvent(QEvent *ev) {
         {
             if(!QRect(QPoint(0,0),size()).contains(((GUIMouseEvent*)ev)->pos())) {
                 if(_closable)
-                    close();
+                    answer("Okay");
                 else {
                     flash();
                     beep();
@@ -281,7 +282,7 @@ bool CursesDialog::processEvent(QEvent *ev) {
         {
             if(((GUIKeyEvent*)ev)->key() == 27) {
                 if(_closable)
-                    close();
+                    answer("Okay");
                 else {
                     flash();
                     beep();

@@ -125,6 +125,21 @@ public:
         draw(QRect(QPoint(0,0),geom().size()), QPoint(0,0));
     }
 
+    inline void setCursor(int x, int y) {
+        setCursor(QPoint(x, y));
+    }
+
+    inline void setCursor(QPoint p) {
+        _cursor = p;
+        if(p.x() >= 0 && p.y() >= 0) {
+            curs_set(1);
+            repaint();
+        } else {
+            curs_set(0);
+            repaint();
+        }
+    }
+
 protected:
     inline CursesScreen(QSize s) : CursesWindow(s) {}
 

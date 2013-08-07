@@ -13,10 +13,10 @@ CursesBase::CursesBase(QSize size, int colorPair) {
 }
 
 void CursesScreen::processMouseEvent(MEVENT &mEvent)  {
-    _cursor = QPoint(mEvent.x, mEvent.y);
+    QPoint cur = QPoint(mEvent.x, mEvent.y);
 
     if(mEvent.bstate & BUTTON1_CLICKED) {
-        GUIMouseEvent mEv(GUIEvent::GUIMouseClicked, GUIMouseEvent::LeftButton, _cursor);
+        GUIMouseEvent mEv(GUIEvent::GUIMouseClicked, GUIMouseEvent::LeftButton, cur);
         widget()->event(&mEv);
     }
 }

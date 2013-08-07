@@ -3,6 +3,7 @@
 
 #include <QTimer>
 #include <QEventLoop>
+#include <QStringList>
 
 #include <guidialog.h>
 
@@ -36,6 +37,38 @@ public:
         diag->show();
         return;
     }
+
+    inline static QString options(QStringList options, QString text ="Select an option.", QString title ="Options") {
+        CursesDialog* diag = new CursesDialog(title, CursesMainWindow::current());
+        connect(diag, SIGNAL(finished()), diag, SLOT(deleteLater()));
+
+        new CursesLabel(text, diag);
+        foreach(QString option, options) {
+            CursesAction* act = new CursesAction(QString("[ %1 ]").arg(option), diag);
+            connect(act, SIGNAL(activated()), diag, SLOT(close()));
+        }
+
+        diag->setLayout(GUIContainer::VerticalLayout);
+        diag->show();
+
+        QEventLoop eventLoop;
+        while(!diag->hasValue())
+            eventLoop.processEvents(QEventLoop::WaitForMoreEvents);
+
+        return diag->value<QString>();
+    }
+
+    inline bool hasValue() const{
+        return _value.isValid();
+    }
+
+    template <class T>
+    inline T value() {
+        return _value.value<T>();
+    }
+
+public slots:
+    void answer(QVariant val) {_value=val;close();}
 
 protected:
     virtual void drawChildren(QRect clip, QPoint off) {
@@ -123,6 +156,8 @@ protected slots:
                 _size = 0;
                 CursesWindow::hideImpl();
                 _animationTimer.stop();
+                if(hasValue())
+                    emit finished(_value);
                 emit finished();
                 return;
             }
@@ -141,12 +176,14 @@ protected slots:
 
 signals:
     void finished();
+    void finished(QVariant value);
 
 private:
     bool _open;
     bool _closable;
     float _size;
 
+    QVariant _value;
     QTimer _animationTimer;
 
 };
