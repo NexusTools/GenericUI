@@ -21,7 +21,9 @@ LIBS += -lncurses
 
 SOURCES += \
     cursesmainwindow.cpp \
-    cursesbase.cpp
+    cursesbase.cpp \
+    cursesaction.cpp \
+    cursesbutton.cpp
 
 HEADERS += \
     global.h \
@@ -32,7 +34,8 @@ HEADERS += \
     cursesmenubar.h \
     cursesmenu.h \
     cursesmenuseparator.h \
-    cursesdialog.h
+    cursesdialog.h \
+    cursesbutton.h
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../core/release/ -lGenericUI
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../core/debug/ -lGenericUI

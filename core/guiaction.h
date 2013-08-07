@@ -6,7 +6,7 @@
 class GUIAction : public GUILabel
 {
     Q_OBJECT
-public:
+protected:
     inline GUIAction(QString text, WAttrs attr, GUIContainer* parent =0) : GUILabel(text, parent) {setWAttr(attr | Focusable);}
     inline GUIAction(WAttrs attr, GUIContainer* parent =0) : GUILabel(parent) {setWAttr(attr | Focusable);}
 

@@ -8,6 +8,7 @@
 #include <guidialog.h>
 
 #include "cursesmainwindow.h"
+#include "cursesbutton.h"
 #include "curseslabel.h"
 
 class CursesDialog : public GUIDialog, public CursesWindow
@@ -27,15 +28,7 @@ public:
     virtual ~CursesDialog() {hideImpl();}
 
     inline static void alert(QString text, QString title ="Alert") {
-        CursesDialog* diag = new CursesDialog(title, CursesMainWindow::current());
-        connect(diag, SIGNAL(finished()), diag, SLOT(deleteLater()));
-
-        new CursesLabel(text, diag);
-        CursesAction* act = new CursesAction("[ Okay ]", diag);
-        connect(act, SIGNAL(activated()), diag, SLOT(close()));
-        diag->setLayout(GUIContainer::VerticalLayout);
-        diag->show();
-        return;
+        options(QStringList() << "O_kay", text, title);
     }
 
     inline static QString options(QStringList options, QString text ="Select an option.", QString title ="Options") {
@@ -44,8 +37,8 @@ public:
 
         new CursesLabel(text, diag);
         foreach(QString option, options) {
-            CursesAction* act = new CursesAction(QString("[ %1 ]").arg(option), diag);
-            connect(act, SIGNAL(activated()), diag, SLOT(close()));
+            CursesButton* act = new CursesButton(option, GUIWidget::FloatCenter, diag);
+            connect(act, SIGNAL(selected(QVariant)), diag, SLOT(answer(QVariant)));
         }
 
         diag->setLayout(GUIContainer::VerticalLayout);
@@ -84,7 +77,7 @@ protected:
     }
 
     inline virtual void drawImpl() {
-        wmove(hnd(), 1, 1);
+        wmove(hnd(), 1, 2);
         waddstr(hnd(), qPrintable(title()));
 
         if(_closable) {

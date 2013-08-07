@@ -5,8 +5,9 @@
 
 class GUIButton : public GUIAction
 {
-public:
-    inline GUIButton(QString text, GUIContainer* parent =0);
+protected:
+    inline GUIButton(QString text, WAttrs wattr, GUIContainer* parent =0) : GUIAction(text, wattr, parent) {}
+    inline GUIButton(WAttrs wattr, GUIContainer* parent =0) : GUIAction(wattr, parent) {}
 
 };
 
