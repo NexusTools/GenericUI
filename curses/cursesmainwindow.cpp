@@ -103,30 +103,6 @@ void CursesAction::drawImpl() {
     }
 }
 
-/*void CursesMenu::mouseClicked(QPoint p) {
-    if(QRect(QPoint(0,0),size()).contains(p)) {
-        QListIterator<GUIWidget*> i(children());
-
-        i.toBack();
-        while(i.hasPrevious()) {
-           GUIWidget* child = i.previous();
-           if(child->isHidden() || child->isDisabled())
-               continue;
-
-           CursesBase* curses = child ? child->internal<CursesBase>() : 0;
-           if(curses && child->geom().contains(p)) {
-               curses->mouseClicked(p - child->geom().topLeft());
-               return;
-           }
-        }
-        emit clicked();
-        return;
-    }
-
-    close();
-    CursesMainWindow::current()->mouseClicked(p + geom().topLeft());
-}*/
-
 void CursesAction::feedback() {
     if(_menu)
         _menu->show(QPoint(screenX(), screenY()+1));

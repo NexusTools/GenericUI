@@ -29,10 +29,11 @@ public:
 
         Focused = 0x10,
         Disabled = 0x20,
+        Focusable = 0x80,
         Hidden = 0x40,
 
-        DirtyLayout = 0x80,
-        NoAutoResize = 0x100
+        DirtyLayout = 0x100,
+        NoAutoResize = 0x200
     };
     Q_DECLARE_FLAGS(WAttrs, WAttr)
 

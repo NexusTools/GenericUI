@@ -97,9 +97,9 @@ protected slots:
         }
 
         QSize pref = preferredSize();
-        pref = QSize(pref.width()*_size, pref.height()*_size);
-        if(pref.width() > 0 && pref.height() > 0)
-            resize(pref);
+        pref = QSize((pref.width()-2)*_size, (pref.height()-2)*_size);
+        if(pref.height() >= 0 || pref.width() >= 0)
+        resize(pref + QSize(2, 2));
     }
 
     inline virtual void drawImpl() {
@@ -128,6 +128,9 @@ protected slots:
     }
 
     virtual void drawChildren(QRect clip, QPoint off) {
+        Padding pad = padding();
+        clip &= QRect(pad.first, QPoint(width()-1, height()) - (pad.second+pad.first));
+
         Children children = childWidgets();
         foreach(GUIWidget* child, children) {
             if(child->isHidden() || child->isWindow())
@@ -136,8 +139,6 @@ protected slots:
             CursesBase* base = dynamic_cast<CursesBase*>(child);
             if(base)
                 drawChild(base, clip, off);
-
-            ;
         }
 
     }

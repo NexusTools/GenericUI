@@ -39,6 +39,9 @@ public:
         simEvent(GUIEvent::GUILayoutBecameDirty);
     }
 
+    inline Spacing spacing() const{return _spacing;}
+    inline Padding padding() const{return _padding;}
+
     virtual bool event(QEvent *);
 
 protected:
