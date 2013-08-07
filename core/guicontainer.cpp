@@ -128,7 +128,8 @@ void GUIContainer::fixLayoutImpl() {
                     continue;
 
                 child->setGeom(QRect(QPoint(x, _padding.first.y()),
-                         QSize(child->preferredSize().width(), size)));
+                         QSize(child->preferredSize().width(),
+                         child->wattr().testFlag(GUIWidget::ExpandHeight) ? size : child->height())));
                 x += child->width();
             }
 
@@ -143,8 +144,9 @@ void GUIContainer::fixLayoutImpl() {
                 if(child->isHidden())
                     continue;
 
-                child->setGeom(QRect(QPoint(_padding.first.x(), y),
-                         QSize(size, child->preferredSize().height())));
+                child->setGeom(QRect(QPoint(_padding.first.x(), y), QSize(
+                     child->wattr().testFlag(GUIWidget::ExpandWidth) ? size : child->width(),
+                     child->preferredSize().height())));
                 y += child->height();
             }
 

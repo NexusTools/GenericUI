@@ -18,6 +18,7 @@ class CursesAction : public GUIAction, public CursesBase
 public:
     inline CursesAction(QString text, GUIContainer* par =0) : GUIAction(text, par) {
         fitToContent();
+        setWAttr(ExpandWidth);
 
         int pos = text.indexOf('_');
         if(pos > -1) {

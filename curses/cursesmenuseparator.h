@@ -13,7 +13,7 @@ class CursesMenuSeparator : public GUIWidget, public CursesBase
     CURSES_OBJECT
 
 public:
-    inline CursesMenuSeparator(GUIMenu* menu) : GUIWidget((GUIContainer*)menu) {}
+    inline CursesMenuSeparator(GUIMenu* menu) : GUIWidget((GUIContainer*)menu) {setWAttr(ExpandWidth);}
 
     virtual QSize preferredSize() {
         return QSize(5, 1);

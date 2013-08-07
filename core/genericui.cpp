@@ -112,23 +112,21 @@ void GUIWidget::setGeom(QRect r) {
 }
 
 void GUIWidget::setDisabled(bool dis) {
-    if(wattr().testFlag(Disabled) == dis)
-        return;
-
-    if(dis)
-        setWAttr(wattr() |= Disabled);
-    else
-        setWAttr(wattr() ^= Disabled);
-    simEvent(GUIEvent::GUIStateChanged);
+    if(setWAttr(Disabled, dis))
+        simEvent(GUIEvent::GUIStateChanged);
 }
 
 void GUIWidget::setHidden(bool hdn) {
-    if(wattr().testFlag(Hidden) == hdn)
-        return;
+    if(setWAttr(Hidden, hdn))
+        simEvent(GUIEvent::GUIVisibilityChanged);
+}
 
-    if(hdn)
-        setWAttr(wattr() |= Hidden);
+bool GUIWidget::setWAttr(WAttr attr, bool on) {
+    if(wattr().testFlag(attr) == on)
+        return false;
+
+    if(on)
+        return setWAttr(wattr() | attr);
     else
-        setWAttr(wattr() ^= Hidden);
-    simEvent(GUIEvent::GUIVisibilityChanged);
+        return setWAttr(wattr() ^ attr);
 }

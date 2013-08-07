@@ -90,7 +90,8 @@ public:
 protected:
     inline GUIWidget(GUIContainer* parent =0) : _geom(0, 0, 1, 1) {setParent((QObject*)parent);_attr=Normal;}
 
-    inline void setWAttr(WAttrs attr) {if(_attr==attr)return;_attr=attr;simEvent(GUIEvent::GUIWAttrChanged);}
+    inline bool setWAttr(WAttrs attr) {if(_attr==attr)return false;_attr=attr;simEvent(GUIEvent::GUIWAttrChanged);return true;}
+    bool setWAttr(WAttr attr, bool on =true);
 
     // Internals
     void setPos(QPoint p);
