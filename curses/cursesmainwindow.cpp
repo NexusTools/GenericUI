@@ -202,8 +202,10 @@ QSize CursesMainWindow::init() {
 void CursesMainWindow::readNextCH()  {
     MEVENT mEvent;
 
-    int ch = getch();
-    while(ch != ERR) {
+    int ch;
+    while((ch = getch()) > 0) {
+        qDebug() << "Processing Event" << ch;
+
         switch(ch) {
             case KEY_MOUSE:
                 if(getmouse(&mEvent) == OK)
@@ -227,14 +229,14 @@ void CursesMainWindow::readNextCH()  {
                     target = this;
 
                 if(target) {
+                    qDebug() << target << ch;
+
                     GUIKeyEvent kEv(ch);
                     target->event(&kEv);
                 }
                 break;
             }
         }
-
-        ch = getch();
     }
 }
 
@@ -251,7 +253,7 @@ bool CursesMenu::processEvent(QEvent *ev) {
         case GUIEvent::GUIMouseClicked:
         {
             if(!QRect(QPoint(0,0),size()).contains(((GUIMouseEvent*)ev)->pos())) {
-                close();
+                hideChain();
                 return true;
             }
 
@@ -261,7 +263,7 @@ bool CursesMenu::processEvent(QEvent *ev) {
         case GUIEvent::GUIKeyTyped:
         {
             if(((GUIKeyEvent*)ev)->key() == 27) {
-                close();
+                hideChain();
                 return true;
             }
 

@@ -19,11 +19,11 @@ public:
         init();
         resize(checkSize());
 
-        repaintTimer.setInterval(20);
+        repaintTimer.setInterval(0);
         repaintTimer.setSingleShot(true);
         connect(&repaintTimer, SIGNAL(timeout()), this, SLOT(drawNow()));
 
-        inputTimer.setInterval(20);
+        inputTimer.setInterval(50);
         connect(&inputTimer, SIGNAL(timeout()), this, SLOT(readNextCH()));
         inputTimer.start();
     }

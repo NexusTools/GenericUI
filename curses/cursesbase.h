@@ -92,12 +92,9 @@ protected:
     }
     inline void drawChild(CursesBase* child, QRect clip, QPoint off) {
         QRect nclip = clip & child->geom();
-        if(nclip.isEmpty()) {
-            qDebug() << "Child obstructed" << child->geom() << nclip << clip << off;
+        if(nclip.isEmpty())
             return;
-        }
 
-        qDebug() << "Drawing child" << child << clip << off;
         child->draw(QRect(nclip.topLeft() - child->geom().topLeft(), nclip.size()), off + child->geom().topLeft());
     }
 
