@@ -46,6 +46,14 @@ bool GUIWidget::event(QEvent * ev) {
             emit clicked();
             break;
 
+        case GUIEvent::GUIVisibilityChanged:
+        {
+            GUIContainer* con = parentContainer();
+            if(con)
+                con->markLayoutDirty();
+            break;
+        }
+
         default:
             break;
 
@@ -67,7 +75,7 @@ bool GUIContainer::event(QEvent * ev) {
             i.toBack();
             while(i.hasPrevious()) {
                GUIWidget* child = i.previous();
-               if(child->isWindow())
+               if(child->isWindow() || child->isHidden() || child->isDisabled())
                    continue;
 
                if(child->geom().contains(((GUIMouseEvent*)ev)->pos())) {

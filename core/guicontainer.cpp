@@ -117,11 +117,12 @@ QSize GUIContainer::sizeForLayout()  {
 }
 
 void GUIContainer::fixLayoutImpl() {
+    QSize prefSize = preferredSize();
     switch(_layout) {
         case HorizontalLayout:
         {
             int x=_padding.first.x();
-            int size = height()-_padding.first.y()-_padding.second.y();
+            int size = prefSize.height()-_padding.first.y()-_padding.second.y();
             foreach(GUIWidget* child, childWidgets()) {
                 if(child->isHidden())
                     continue;
@@ -137,7 +138,7 @@ void GUIContainer::fixLayoutImpl() {
         case VerticalLayout:
         {
             int y=_padding.first.y();
-            int size = width()-_padding.first.x()-_padding.second.x();
+            int size = prefSize.width()-_padding.first.x()-_padding.second.x();
             foreach(GUIWidget* child, childWidgets()) {
                 if(child->isHidden())
                     continue;
@@ -154,7 +155,7 @@ void GUIContainer::fixLayoutImpl() {
             return;
     }
 
-    setSize(preferredSize());
+    setSize(prefSize);
 }
 
 template <class T>
