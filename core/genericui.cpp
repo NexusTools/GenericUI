@@ -40,32 +40,6 @@ void GUIWidget::setSize(QSize s) {
     pushEvent(GUIEvent::GUIGeometryChanged);
 }
 
-bool GUIWidget::event(QEvent * ev) {
-    switch(ev->type()) {
-        case QEvent::ParentChange:
-        {
-            GUIContainer* c = parentContainer();
-            if(c)
-                installEventFilter(c);
-            break;
-        }
-
-        case QEvent::ParentAboutToChange:
-        {
-            GUIContainer* c = parentContainer();
-            if(c)
-                removeEventFilter(c);
-            break;
-        }
-
-        default:
-            break;
-
-    }
-
-    return QObject::event(ev);
-}
-
 bool GUIContainer::event(QEvent * ev) {
     switch(ev->type()) {
         case QEvent::ChildAdded:

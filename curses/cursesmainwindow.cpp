@@ -200,5 +200,5 @@ QSize CursesMainWindow::init() {
 void cursesDirtyMainWindow() {
     CursesMainWindow* main;
     if((main = CursesMainWindow::current()))
-        main->scheduleRepaint();
+        main->repaint();
 }

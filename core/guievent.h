@@ -14,6 +14,7 @@ public:
 
         GUIStateChanged,
         GUIVisibilityChanged,
+        GUILayoutBecameDirty,
 
         GUIFocusChanged,
         GUIFocusGained,

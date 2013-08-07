@@ -20,13 +20,24 @@ public:
     enum LayoutType {
         FreeformLayout,
 
-        InlineElements,
-        BlockElements
+        HorizontalLayout,
+        VerticalLayout
     };
 
     virtual QSize preferredSize();
-    virtual QSize sizeForLayout(int maxWidth =0);
+    virtual QSize sizeForLayout();
     Children childWidgets() const;
+    virtual void markLayoutDirty() {
+        if(wattr().testFlag(DirtyLayout))
+            return;
+
+        qDebug() << this << "Marked layout dirty";
+        _preferredSize = QSize();
+        layoutTimer.start();
+
+        setWAttr(wattr() | DirtyLayout);
+        pushEvent(GUIEvent::GUILayoutBecameDirty);
+    }
 
     virtual bool event(QEvent *);
 
@@ -36,27 +47,17 @@ protected:
     explicit GUIContainer(LayoutType layout, GUIContainer *parent =0);
     explicit GUIContainer(GUIContainer *parent =0);
 
-    virtual bool eventFilter(QObject *, QEvent *);
     virtual void fixLayoutImpl();
 
 protected slots:
     inline void fixLayout() {
-        qDebug() << this << "Fixing layout";
-
         fixLayoutImpl();
-    }
-    inline void markLayoutDirty() {
-        if(_dirtyLayout)
-            return;
 
-        qDebug() << this << "Marked layout dirty";
-        _preferredSize = QSize();
-        layoutTimer.start();
-        _dirtyLayout = true;
+        if(wattr().testFlag(DirtyLayout))
+            setWAttr(wattr() ^ DirtyLayout);
     }
 
 private:
-    bool _dirtyLayout;
     LayoutType _layout;
     QSize _preferredSize;
 

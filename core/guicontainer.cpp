@@ -5,7 +5,6 @@ GUIContainer::GUIContainer(Spacing spacing, Padding padding, LayoutType layout, 
     _spacing = spacing;
     _layout = layout;
 
-    _dirtyLayout = false;
     layoutTimer.setInterval(0);
     layoutTimer.setSingleShot(true);
     connect(&layoutTimer, SIGNAL(timeout()), this, SLOT(fixLayout()));
@@ -16,7 +15,6 @@ GUIContainer::GUIContainer(Spacing spacing, Padding padding, GUIContainer *paren
     _padding = padding;
     _spacing = spacing;
 
-    _dirtyLayout = false;
     layoutTimer.setInterval(0);
     layoutTimer.setSingleShot(true);
     connect(&layoutTimer, SIGNAL(timeout()), this, SLOT(fixLayout()));
@@ -25,7 +23,6 @@ GUIContainer::GUIContainer(Spacing spacing, Padding padding, GUIContainer *paren
 GUIContainer::GUIContainer(LayoutType layout, GUIContainer *parent) : GUIWidget(parent) {
     _layout = layout;
 
-    _dirtyLayout = false;
     layoutTimer.setInterval(0);
     layoutTimer.setSingleShot(true);
     connect(&layoutTimer, SIGNAL(timeout()), this, SLOT(fixLayout()));
@@ -34,28 +31,9 @@ GUIContainer::GUIContainer(LayoutType layout, GUIContainer *parent) : GUIWidget(
 GUIContainer::GUIContainer(GUIContainer *parent) : GUIWidget(parent) {
     _layout = FreeformLayout;
 
-    _dirtyLayout = false;
     layoutTimer.setInterval(0);
     layoutTimer.setSingleShot(true);
     connect(&layoutTimer, SIGNAL(timeout()), this, SLOT(fixLayout()));
-}
-
-bool GUIContainer::eventFilter(QObject* obj, QEvent* ev) {
-    if(obj->parent() == this && qobject_cast<GUIWidget*>(obj))
-        switch(ev->type()) {
-            case GUIEvent::GUIGeometryChanged:
-            case GUIEvent::GUIWAttrChanged:
-            {
-                markLayoutDirty();
-                break;
-            }
-
-            default:
-                break;
-
-        }
-
-    return false;
 }
 
 QSize GUIContainer::preferredSize() {
@@ -75,56 +53,35 @@ GUIContainer* GUIWidget::parentContainer() const{
     return qobject_cast<GUIContainer*>(parent());
 }
 
-QSize GUIContainer::sizeForLayout(int maxWidth)  {
-    if(maxWidth == -1)
-        maxWidth = width();
-    else if(maxWidth == 0)
-        maxWidth = 1000;
-
-    QSize size;
+QSize GUIContainer::sizeForLayout()  {
+    QSize size(0, 0);
     switch(_layout) {
-        case InlineElements:
+        case HorizontalLayout:
         {
-            int w=0;
-            int h=0;
-            int lineHeight = 0;
             foreach(GUIWidget* child, childWidgets()) {
                 if(child->isHidden())
                     continue;
 
                 QSize pref = child->preferredSize();
-                if(pref.width() + w >= maxWidth) {
-                    w = 0;
-                    h += lineHeight;
-                    lineHeight = 0;
-                }
-
-                w += pref.width();
-                if(pref.height() > lineHeight)
-                    lineHeight = pref.height();
-
-                if(w > size.width())
-                    size.setWidth(w);
+                size.setWidth(size.width() + pref.width());
+                if(pref.height() > size.height())
+                    size.setHeight(pref.height());
             }
-            size.setHeight(h + lineHeight);
 
             break;
         }
 
-        case BlockElements:
+        case VerticalLayout:
         {
-            int h=0;
             foreach(GUIWidget* child, childWidgets()) {
                 if(child->isHidden())
                     continue;
 
                 QSize pref = child->preferredSize();
-                h += pref.height();
-
+                size.setHeight(size.height() + pref.height());
                 if(pref.width() > size.width())
                     size.setWidth(pref.width());
             }
-            size.setHeight(h);
 
             break;
         }
@@ -146,40 +103,32 @@ QSize GUIContainer::sizeForLayout(int maxWidth)  {
 }
 
 void GUIContainer::fixLayoutImpl() {
-    if(!_dirtyLayout)
+    if(!wattr().testFlag(DirtyLayout))
         return;
-    _dirtyLayout = false;
 
     switch(_layout) {
-        case InlineElements:
+        case HorizontalLayout:
         {
             int x=0;
-            int y=0;
-            int lineHeight = 0;
             foreach(GUIWidget* child, childWidgets()) {
-                if(child->width() + x >= width()) {
-                    x = 0;
-                    y += lineHeight;
-                    lineHeight = 0;
-                }
-                child->move(x, y);
+                if(child->isHidden())
+                    continue;
 
+                child->setGeom(QRect(QPoint(x, 0), child->preferredSize()));
                 x += child->width();
-                if(child->height() > lineHeight)
-                    lineHeight = child->height();
             }
 
             break;
         }
 
-        case BlockElements:
+        case VerticalLayout:
         {
             int y=0;
             foreach(GUIWidget* child, childWidgets()) {
                 if(child->isHidden())
                     continue;
 
-                child->move(0, y);
+                child->setGeom(QRect(QPoint(0, y), child->preferredSize()));
                 y += child->height();
             }
 

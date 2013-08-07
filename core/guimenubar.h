@@ -11,7 +11,7 @@ class GUIMenuBar : public GUIContainer
 {
     Q_OBJECT
 public:
-    inline GUIMenuBar(GUIContainer* parent) : GUIContainer(InlineElements, parent) {}
+    inline GUIMenuBar(GUIContainer* parent) : GUIContainer(HorizontalLayout, parent) {}
 
     inline void addAction(GUIAction* action) {action->setParent(this);}
     inline void addMenu(GUIMenu* menu, QString text) {addAction(menu->action(text));}

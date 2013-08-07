@@ -12,7 +12,7 @@
 class CursesMenu : public GUIMenu, public CursesWindow
 {
     Q_OBJECT
-    CURSES_CONTAINER
+    CURSES_WINDOW
 
     friend class CursesAction;
 public:

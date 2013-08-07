@@ -25,7 +25,8 @@ public:
 
     inline bool isValid() const{return _window;}
     inline bool isDirty() const{return _dirty;}
-    inline void markDirty() {_dirty=true;cursesDirtyMainWindow();}
+    virtual void markDirty();
+    virtual void repaint();
 
     virtual QRect geom() const =0;
     virtual bool isScreen() const{return false;}
@@ -35,9 +36,7 @@ public:
 
 protected:
     inline explicit CursesBase(QSize size =QSize(1, 1)) {_window=newpad(size.height(), size.width());wbkgd(_window, COLOR_PAIR(1));if(!_window)throw "Unable to allocate pad";_dirty=true;}
-
-    virtual bool processEvent(QObject*, QEvent*);
-    virtual bool processEventFilter(QObject*, QEvent*) {return false;}
+    virtual bool processEvent(QEvent*);
 
     inline void setSize(QSize s) {
         wresize(hnd(), s.height(), s.width());
@@ -55,6 +54,7 @@ protected:
     }
 
     virtual void drawImpl() =0;
+    virtual GUIWidget* widget() =0;
 
 private:
     WINDOW* _window;
@@ -70,6 +70,12 @@ private:
     static CursesBase* _focusBase;
 };
 
+class CursesBaseAction : public CursesBase
+{
+protected:
+    virtual bool processEvent(QEvent*);
+};
+
 class CursesContainer : public CursesBase
 {
     friend class CursesScreen;
@@ -83,12 +89,14 @@ protected:
         drawChildren(clip, off);
     }
     inline void drawChild(CursesBase* child, QRect clip, QPoint off) {
-        clip &= child->geom();
-        if(clip.isEmpty())
+        QRect nclip = clip & child->geom();
+        if(nclip.isEmpty()) {
+            qDebug() << "Child obstructed" << child->geom() << nclip << clip << off;
             return;
+        }
 
-        qDebug() << "Drawing child" << child;
-        child->draw(QRect(clip.topLeft() - child->geom().topLeft(), clip.size()), off + child->geom().topLeft());
+        qDebug() << "Drawing child" << child << clip << off;
+        child->draw(QRect(nclip.topLeft() - child->geom().topLeft(), nclip.size()), off + child->geom().topLeft());
     }
 
     virtual void drawChildren(QRect clip, QPoint off) =0;
@@ -104,6 +112,7 @@ protected:
 
     inline virtual bool isWindow() const{return true;}
 
+    virtual bool processEvent(QEvent *ev);
     virtual void showImpl();
     virtual void hideImpl();
 };
@@ -140,11 +149,15 @@ public:
 protected:
     inline CursesScreen(QSize s) : CursesWindow(s) {}
 
+    virtual bool processEvent(QEvent *ev) {
+        return CursesContainer::processEvent(ev);
+    }
+
     inline void processMouseEvent(MEVENT& mEvent) {
         if(_cursor.isNull())
             curs_set(1);
         _cursor = QPoint(mEvent.x, mEvent.y);
-        cursesDirtyMainWindow();
+        repaint();
 
         //if(mEvent.bstate & BUTTON1_CLICKED)
         //    mouseClicked(_cursor);
@@ -168,36 +181,30 @@ private:
     QPoint _cursor;
 };
 
-#define CURSES_IMPL(EVENTCLASS, FILTERCLASS) \
+#define CURSES_IMPL(EVENTCLASS) \
+public: \
     virtual bool event(QEvent* ev) { \
-        bool ret = processEvent(this, ev); \
+        bool ret = processEvent(ev); \
         if(ret) \
             return ret; \
         return EVENTCLASS::event(ev); \
-    } \
-        \
-protected: \
-    virtual bool eventFilter(QObject* obj, QEvent* ev) { \
-        bool ret = processEventFilter(obj, ev); \
-        if(ret) \
-            return ret; \
-        return FILTERCLASS::eventFilter(obj, ev); \
     }
 
 #define CURSES_CORE public:\
     virtual void* internalPtr() {return (void*)thisBasePtr();} \
-    virtual void* handlePtr() {return (void*)hnd();} \
-    inline QRect geom() const{return GUIWidget::geom();}
+    virtual void* handlePtr() const{return (void*)hnd();} \
+    inline QRect geom() const{return GUIWidget::geom();} \
+\
+protected: \
+    virtual GUIWidget* widget() {return this;}
 
-#define BASIC_CURSES_OBJECT CURSES_CORE CURSES_IMPL(GUIWidget, QObject)
+#define BASIC_CURSES_OBJECT CURSES_CORE CURSES_IMPL(QObject)
 
-#define CURSES_OBJECT BASIC_CURSES_OBJECT  \
-public:
+#define CURSES_OBJECT BASIC_CURSES_OBJECT
 
-#define CURSES_CONTAINER_CORE CURSES_CORE  \
-protected:
+#define CURSES_CONTAINER_CORE CURSES_CORE
 
-#define CURSES_CONTAINER CURSES_CONTAINER_CORE CURSES_IMPL(GUIContainer, GUIContainer)
+#define CURSES_CONTAINER CURSES_CONTAINER_CORE CURSES_IMPL(GUIContainer)
 
 #define CURSES_WINDOW CURSES_CONTAINER
 

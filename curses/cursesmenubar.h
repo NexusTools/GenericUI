@@ -36,15 +36,15 @@ protected:
 
     virtual void drawChildren(QRect clip, QPoint off) {
         Children children = childWidgets();
+
+        qDebug() << children;
         foreach(GUIWidget* child, children) {
-            if(child->isHidden() || child->isWindow())
-                continue;
+            qDebug() << child;
 
-            CursesBase* base = dynamic_cast<CursesBase*>(child);
+            CursesBase* base = child->internal<CursesBase>();
             if(base)
-                drawChild(base, clip, off);
-
-            ;
+                drawChild((CursesBase*)base, clip, off);
+            qDebug() << child << base;
         }
     }
 };

@@ -16,6 +16,7 @@ class GENERICUISHARED_EXPORT GUIWidget : public QObject
 {
     Q_OBJECT
 
+    friend class GUIContainer;
 public:
     enum WAttr {
         Normal = 0x0,
@@ -28,7 +29,9 @@ public:
 
         Focused = 0x10,
         Disabled = 0x20,
-        Hidden = 0x40
+        Hidden = 0x40,
+
+        DirtyLayout = 0x80
     };
     Q_DECLARE_FLAGS(WAttrs, WAttr)
 
@@ -74,17 +77,17 @@ public:
     template <class T>
     inline T* internal() {return static_cast<T*>(internalPtr());}
     template <class T>
-    inline T* handle() {return static_cast<T*>(handlePtr());}
+    inline T* parentInternal() {GUIWidget* container=(GUIWidget*)parentContainer();if(!container)return 0;return static_cast<T*>(container->internalPtr());}
+    template <class T>
+    inline T* handle() const{return static_cast<T*>(handlePtr());}
 
     virtual void* internalPtr() =0;
-    virtual void* handlePtr() =0;
-
-    virtual bool event(QEvent *);
+    virtual void* handlePtr() const=0;
 
 protected:
     inline GUIWidget(GUIContainer* parent =0) : _geom(0, 0, 1, 1) {setParent((QObject*)parent);_attr=Normal;}
 
-    inline void setWAttr(WAttrs attr) {_attr=attr;pushEvent(GUIEvent::GUIWAttrChanged);}
+    inline void setWAttr(WAttrs attr) {if(_attr==attr)return;_attr=attr;pushEvent(GUIEvent::GUIWAttrChanged);}
     inline void pushEvent(GUIEvent::GUIType t) {metaObject()->invokeMethod(this, "simEvent", Qt::QueuedConnection, Q_ARG(GUIEvent::GUIType, t));}
 
     // Internals

@@ -30,6 +30,11 @@ public:
     }
     virtual ~CursesMainWindow() {_current=0;}
 
+    virtual void repaint() {
+        qDebug() << "Scheduled repaint";
+        repaintTimer.start();
+    }
+
     static inline CursesMainWindow* current() {return _current;}
     virtual void terminateRequested(int);
 
@@ -40,15 +45,10 @@ public:
         resize(checkSize());
     }
 
-    inline void scheduleRepaint() {
-        qDebug() << "Scheduled repaint";
-        repaintTimer.start();
-    }
-
     inline void showWindow(CursesWindow* window) {
         if(!_windowStack.contains(window)) {
             _windowStack << window;
-            scheduleRepaint();
+            repaint();
         }
     }
 
@@ -58,7 +58,7 @@ public:
 
     inline void hideWindow(CursesWindow* window) {
         _windowStack.removeOne(window);
-        scheduleRepaint();
+        repaint();
     }
 
     /*virtual void mouseClicked(QPoint p) {
@@ -155,6 +155,7 @@ private:
     QList<CursesWindow*> _windowStack;
     QTimer repaintTimer;
     QTimer inputTimer;
+
 };
 
 #endif // CURSESMAINWINDOW_H

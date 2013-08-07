@@ -1,20 +1,57 @@
+#include <guicontainer.h>
+
 #include "cursesbase.h"
 
 CursesBase* CursesBase::_focusBase = 0;
 
-bool CursesBase::processEvent(QObject*, QEvent* ev) {
+bool CursesWindow::processEvent(QEvent *ev) {
+    if(ev->type() == GUIEvent::GUIVisibilityChanged) {
+        if(widget()->isHidden())
+            hideImpl();
+        else
+            showImpl();
+    }
+
+    return CursesContainer::processEvent(ev);
+}
+
+void CursesBase::repaint() {
+    CursesContainer* container = widget()->parentInternal<CursesContainer>();
+    if(container)
+        container->repaint();
+}
+
+void CursesBase::markDirty() {
+    repaint();
+
+    if(_dirty)
+        return;
+
+    _dirty = true;
+}
+
+bool CursesBase::processEvent(QEvent* ev) {
     switch(ev->type()) {
         case GUIEvent::GUISizeChanged:
             setSize(geom().size());
             break;
 
-        case GUIEvent::GUIPositionChanged:
-            cursesDirtyMainWindow();
+        case GUIEvent::GUIGeometryChanged:
+        {
+            GUIContainer* container = widget()->parentContainer();
+            if(container)
+                container->markLayoutDirty();
             break;
+        }
 
         case GUIEvent::GUITextChanged:
-        case GUIEvent::GUIWAttrChanged:
             markDirty();
+            break;
+
+        case GUIEvent::GUIPositionChanged:
+        case GUIEvent::GUIVisibilityChanged:
+        case GUIEvent::GUILayoutBecameDirty:
+            repaint();
             break;
 
         default:
