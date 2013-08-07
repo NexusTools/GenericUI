@@ -72,36 +72,6 @@ protected:
         _animationTimer.start();
     }
 
-protected slots:
-    void animate() {
-        if(_open) {
-            _size += (1-_size+0.4)/4;
-
-            if(_size >= 1) {
-                _size = 1;
-                _animationTimer.stop();
-            }
-        } else {
-            _size -= (_size+0.4)/4;
-
-            if(_size <= 0) {
-                _size = 0;
-                CursesWindow::hideImpl();
-
-                if(_action)
-                    _action->markDirty();
-
-                _animationTimer.stop();
-                return;
-            }
-        }
-
-        QSize pref = preferredSize();
-        pref = QSize((pref.width()-2)*_size, (pref.height()-2)*_size);
-        if(pref.height() >= 0 || pref.width() >= 0)
-        resize(pref + QSize(2, 2));
-    }
-
     inline virtual void drawImpl() {
         wmove(hnd(), 0, 0);
         waddch(hnd(), ACS_ULCORNER);
@@ -146,6 +116,36 @@ protected slots:
     virtual bool processEvent(QEvent*);
     void showChain();
     void hideChain();
+
+protected slots:
+    void animate() {
+        if(_open) {
+            _size += (1-_size+0.4)/4;
+
+            if(_size >= 1) {
+                _size = 1;
+                _animationTimer.stop();
+            }
+        } else {
+            _size -= (_size+0.4)/4;
+
+            if(_size <= 0) {
+                _size = 0;
+                CursesWindow::hideImpl();
+
+                if(_action)
+                    _action->markDirty();
+
+                _animationTimer.stop();
+                return;
+            }
+        }
+
+        QSize pref = preferredSize();
+        pref = QSize((pref.width()-2)*_size, (pref.height()-2)*_size);
+        if(pref.height() >= 0 || pref.width() >= 0)
+        resize(pref + QSize(2, 2));
+    }
 
 private:
     bool _open;

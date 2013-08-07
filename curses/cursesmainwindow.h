@@ -60,10 +60,6 @@ public:
     }
 
     virtual void drawChildren(QRect clip, QPoint off) {
-        foreach(CursesWindow* child, _windowStack) {
-            drawChild(child, clip, off);
-        }
-
         Children children = childWidgets();
         foreach(GUIWidget* child, children) {
             if(child->isHidden() || child->isWindow())
@@ -73,6 +69,9 @@ public:
             if(base)
                 drawChild(base, clip, off);
         }
+
+        foreach(CursesWindow* child, _windowStack)
+            drawChild(child, clip, off);
     }
 
     inline void titleChanged() {printf("\033]0;%s\007", qPrintable(title()));}

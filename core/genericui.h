@@ -33,7 +33,8 @@ public:
         Hidden = 0x40,
 
         DirtyLayout = 0x100,
-        NoAutoResize = 0x200
+        NoAutoResize = 0x200,
+        LayoutDecor = 0x400
     };
     Q_DECLARE_FLAGS(WAttrs, WAttr)
 

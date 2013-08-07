@@ -13,10 +13,7 @@ CursesBase::CursesBase(QSize size, int colorPair) {
 }
 
 void CursesScreen::processMouseEvent(MEVENT &mEvent)  {
-    if(_cursor.isNull())
-        curs_set(1);
     _cursor = QPoint(mEvent.x, mEvent.y);
-    repaint();
 
     if(mEvent.bstate & BUTTON1_CLICKED) {
         GUIMouseEvent mEv(GUIEvent::GUIMouseClicked, GUIMouseEvent::LeftButton, _cursor);
