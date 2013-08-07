@@ -6,6 +6,7 @@
 #include <QTimer>
 #include <QDebug>
 
+#include <cursesdialog.h>
 #include <cursesaction.h>
 #include <cursesmenubar.h>
 #include <cursesmainwindow.h>
@@ -17,9 +18,14 @@ class GenericUITest : public QObject
 public:
     inline explicit GenericUITest() : mainWindow("Generic UI Test") {
         CursesMenuBar* menuBar = new CursesMenuBar(&mainWindow);
-        new CursesAction("_Test", menuBar);
-        new CursesAction("_Help", menuBar);
-        menuBar->fitToContent();
+
+        CursesAction* act = new CursesAction("He_llo", menuBar);
+        connect(act, SIGNAL(activated()), this, SLOT(testDiag()));
+    }
+
+public slots:
+    void testDiag() {
+        CursesDialog::alert("Pumpkin Pie!");
     }
 
 private:

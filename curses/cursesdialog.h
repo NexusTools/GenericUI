@@ -2,17 +2,19 @@
 #define CURSESDIALOG_H
 
 #include <QTimer>
+#include <QEventLoop>
 
 #include <guidialog.h>
 
-#include "cursesbase.h"
+#include "cursesmainwindow.h"
+#include "curseslabel.h"
 
 class CursesDialog : public GUIDialog, public CursesWindow
 {
     Q_OBJECT
     CURSES_WINDOW
 public:
-    inline explicit CursesDialog(QString title, GUIContainer *parent) : GUIDialog(title, Padding(QPoint(2, 3), QPoint(2, 1)), parent) {
+    inline explicit CursesDialog(QString title, GUIContainer *parent) : GUIDialog(title, Spacing(1, 0), Padding(QPoint(2, 3), QPoint(2, 1)), parent) {
         _size = 0;
         _open = false;
         _closable=true;
@@ -21,12 +23,22 @@ public:
         _animationTimer.setInterval(40);
         connect(&_animationTimer, SIGNAL(timeout()), this, SLOT(animate()));
     }
+    virtual ~CursesDialog() {hideImpl();}
+
+    inline static void alert(QString text, QString title ="Alert") {
+        CursesDialog* diag = new CursesDialog(title, CursesMainWindow::current());
+        connect(diag, SIGNAL(finished()), diag, SLOT(deleteLater()));
+
+        new CursesLabel(text, diag);
+        CursesAction* act = new CursesAction("[ Okay ]", diag);
+        connect(act, SIGNAL(activated()), diag, SLOT(close()));
+        diag->setLayout(GUIContainer::VerticalLayout);
+        diag->show();
+        return;
+    }
 
 protected:
     virtual void drawChildren(QRect clip, QPoint off) {
-        Padding pad = padding();
-        clip &= QRect(pad.first, QPoint(width(), height()) - (pad.second+pad.first));
-
         Children children = childWidgets();
         foreach(GUIWidget* child, children) {
             if(child->isHidden() || child->isWindow())
@@ -42,20 +54,27 @@ protected:
         wmove(hnd(), 1, 1);
         waddstr(hnd(), qPrintable(title()));
 
+        if(_closable) {
+            wmove(hnd(), 1, width()-3);
+            waddch(hnd(), ACS_VLINE);
+            waddch(hnd(), 'X');
+        }
+        wmove(hnd(), 2, 1);
+        int left = width()-2;
+        while(left > 0) {
+            waddch(hnd(), left == 2 && _closable ? ACS_BTEE : ACS_HLINE);
+            left--;
+        }
+
+
         wmove(hnd(), 0, 0);
         waddch(hnd(), ACS_ULCORNER);
-        int left = width()-2;
+        left = width()-2;
         while(left > 0) {
             waddch(hnd(), left == 2 && _closable ? ACS_TTEE : ACS_HLINE);
             left--;
         }
         waddch(hnd(), ACS_URCORNER);
-        wmove(hnd(), 2, 1);
-        left = width()-2;
-        while(left > 0) {
-            waddch(hnd(), left == 2 && _closable ? ACS_BTEE : ACS_HLINE);
-            left--;
-        }
 
         for(int y=1; y<height()-1; y++) {
             mvwaddch(hnd(), y, 0, y == 2 ? ACS_LTEE : ACS_VLINE);
@@ -70,12 +89,6 @@ protected:
             left--;
         }
         waddch(hnd(), ACS_LRCORNER);
-
-        if(!_closable)
-            return;
-        wmove(hnd(), 1, width()-3);
-        waddch(hnd(), ACS_VLINE);
-        waddch(hnd(), 'X');
     }
 
     virtual void showImpl() {
@@ -109,8 +122,8 @@ protected slots:
             if(_size <= 0) {
                 _size = 0;
                 CursesWindow::hideImpl();
-
                 _animationTimer.stop();
+                emit finished();
                 return;
             }
         }
@@ -125,6 +138,9 @@ protected slots:
     }
 
     void center();
+
+signals:
+    void finished();
 
 private:
     bool _open;
