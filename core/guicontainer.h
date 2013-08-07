@@ -39,6 +39,12 @@ public:
         simEvent(GUIEvent::GUILayoutBecameDirty);
     }
 
+    inline void setLayout(LayoutType l) {
+        if(l != FreeformLayout)
+            markLayoutDirty();
+        _layout = l;
+    }
+
     inline Spacing spacing() const{return _spacing;}
     inline Padding padding() const{return _padding;}
 

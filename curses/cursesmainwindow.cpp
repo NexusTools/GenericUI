@@ -1,4 +1,5 @@
 #include "cursesmainwindow.h"
+#include "cursesdialog.h"
 #include "cursesmenu.h"
 
 #include <QCoreApplication>
@@ -241,6 +242,62 @@ void CursesAction::activate() {
     if(_activateWait)
         return;
     _activateWait = true;
+}
+
+void CursesDialog::center() {
+    GUIMainWindow* win = qobject_cast<GUIMainWindow*>(parent());
+    if(!win)
+        win = mainWindow();
+    if(win) // Center this window's content in the main window
+        move(win->width()/2 - width()/2,
+             win->height()/2 - height()/2 - 2);
+}
+
+bool CursesDialog::processEvent(QEvent *ev) {
+    switch(ev->type()) {
+        case GUIEvent::GUISizeChanged:
+        {
+            center();
+            break;
+        }
+
+        case GUIEvent::GUIMouseClicked:
+        {
+            if(!QRect(QPoint(0,0),size()).contains(((GUIMouseEvent*)ev)->pos())) {
+                if(_closable)
+                    close();
+                else {
+                    flash();
+                    beep();
+                }
+
+                return true;
+            }
+
+            break;
+        }
+
+        case GUIEvent::GUIKeyTyped:
+        {
+            if(((GUIKeyEvent*)ev)->key() == 27) {
+                if(_closable)
+                    close();
+                else {
+                    flash();
+                    beep();
+                }
+
+                return true;
+            }
+
+            break;
+        }
+
+        default:
+            break;
+    }
+
+    return CursesWindow::processEvent(ev);
 }
 
 bool CursesMenu::processEvent(QEvent *ev) {

@@ -35,7 +35,7 @@ GUIContainer::GUIContainer(GUIContainer *parent) : GUIWidget(parent) {
 void GUIContainer::init(Spacing spacing, Padding padding, LayoutType layout) {
     _padding = padding;
     _spacing = spacing;
-    _layout = layout;
+    setLayout(layout);
 
     layoutTimer.setInterval(0);
     layoutTimer.setSingleShot(true);
