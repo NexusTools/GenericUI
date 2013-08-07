@@ -15,6 +15,7 @@ void cursesDirtyMainWindow();
 
 class CursesBase
 {
+    friend class CursesMainWindow;
     friend class CursesContainer;
     friend class CursesScreen;
 
@@ -134,16 +135,7 @@ protected:
         return CursesContainer::processEvent(ev);
     }
 
-    inline void processMouseEvent(MEVENT& mEvent) {
-        if(_cursor.isNull())
-            curs_set(1);
-        _cursor = QPoint(mEvent.x, mEvent.y);
-        repaint();
-
-        //if(mEvent.bstate & BUTTON1_CLICKED)
-        //    mouseClicked(_cursor);
-    }
-
+    void processMouseEvent(MEVENT& mEvent);
     inline QSize checkSize() {
         return QSize(getmaxx(stdscr), getmaxy(stdscr));
     }
@@ -179,7 +171,7 @@ public: \
 protected: \
     virtual GUIWidget* widget() {return this;}
 
-#define BASIC_CURSES_OBJECT CURSES_CORE CURSES_IMPL(QObject)
+#define BASIC_CURSES_OBJECT CURSES_CORE CURSES_IMPL(GUIWidget)
 
 #define CURSES_OBJECT BASIC_CURSES_OBJECT
 

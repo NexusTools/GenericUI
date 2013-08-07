@@ -103,6 +103,7 @@ protected:
 
     }
 
+    virtual bool processEvent(QEvent*);
     void showChain();
     void hideChain();
 

@@ -122,8 +122,10 @@ public slots:
 
     // Simulate
     inline void click() {simEvent(GUIEvent::GUIMouseClicked);}
-    inline void activate() {simEvent(GUIEvent::GUIActivated);}
+    //inline void activate() {simEvent(GUIEvent::GUIActivated);}
     inline void simEvent(GUIEvent::GUIType t) {GUIEvent ev(t);event(&ev);}
+
+    virtual bool event(QEvent *);
 
 private:
     void stateChanged();
@@ -140,7 +142,6 @@ private:
     void shown();
 
 signals:
-    void activated();
     void clicked();
 
 private:

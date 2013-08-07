@@ -2,6 +2,8 @@
 #define GUIEVENT_H
 
 #include <QEvent>
+#include <QPoint>
+#include <QList>
 
 class GUIEvent : public QEvent
 {
@@ -39,6 +41,31 @@ public:
     };
 
     inline explicit GUIEvent(GUIType t) : QEvent((Type)t) {}
+};
+
+class GUIMouseEvent : public GUIEvent
+{
+    friend class GUIContainer;
+public:
+    enum Button {
+        LeftButton,
+        MiddleButton,
+        RightButton
+    };
+
+    inline GUIMouseEvent(GUIEvent::GUIType t, Button b, QPoint p) : GUIEvent(t) {btn=b;_pos=p;}
+
+    inline QPoint pos() const{return _pos;}
+    inline Button button() const{return btn;}
+
+protected:
+    inline void push(int x, int y) {stack << _pos; _pos += QPoint(x, y);}
+    inline void pop() {_pos = stack.takeLast();}
+
+private:
+    Button btn;
+    QPoint _pos;
+    QList<QPoint> stack;
 };
 
 #endif // GUIEVENT_H

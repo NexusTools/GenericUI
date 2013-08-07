@@ -40,12 +40,46 @@ void GUIWidget::setSize(QSize s) {
     simEvent(GUIEvent::GUIGeometryChanged);
 }
 
+bool GUIWidget::event(QEvent * ev) {
+    switch(ev->type()) {
+        case GUIEvent::GUIMouseClicked:
+            emit clicked();
+            break;
+
+        default:
+            break;
+
+    }
+
+    return QObject::event(ev);
+}
+
 bool GUIContainer::event(QEvent * ev) {
     switch(ev->type()) {
         case QEvent::ChildAdded:
         case QEvent::ChildRemoved:
             markLayoutDirty();
             break;
+
+        case GUIEvent::GUIMouseClicked:
+        {
+            QListIterator<GUIWidget*> i(childWidgets());
+            i.toBack();
+            while(i.hasPrevious()) {
+               GUIWidget* child = i.previous();
+               if(child->isWindow())
+                   continue;
+
+               if(child->geom().contains(((GUIMouseEvent*)ev)->pos())) {
+                   ((GUIMouseEvent*)ev)->push(-child->x(), -child->y());
+                   child->event(ev);
+                   ((GUIMouseEvent*)ev)->pop();
+                   return true;
+               }
+            }
+
+            break;
+        }
 
         default:
             break;

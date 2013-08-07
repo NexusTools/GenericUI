@@ -33,7 +33,7 @@ public:
         connect(&blinkTimer, SIGNAL(timeout()), this, SLOT(blink()));
 
         activateTimer.setSingleShot(true);
-        connect(&activateTimer, SIGNAL(timeout()), this, SLOT(activate()));
+        connect(&activateTimer, SIGNAL(timeout()), this, SLOT(activateCallback()));
 
         _activateWait = false;
         _blink = false;
@@ -42,7 +42,7 @@ public:
     static bool callShortcut(char s) {
         CursesAction* action = shortcuts.value(s);
         if(action)
-            action->mouseClicked(QPoint(0, 0));
+            action->activate();
         return action;
     }
 
@@ -54,23 +54,14 @@ public:
         return QSize((str.contains('_') ? 1 : 2) + str.size(), 1);
     }
 
-    inline void mouseClicked(QPoint) {
-        clickFeedback();
-        emit clicked();
-        //focus();
-
-        if(_activateWait)
-            return;
-
-        _activateWait = true;
-    }
-
 protected:
     void drawImpl();
-    void clickFeedback();
+    void feedback();
 
-    virtual void textChanged() {markDirty();}
-    virtual void stateChanged() {markDirty();}
+    virtual bool processEvent(QEvent* e);
+
+public slots:
+    void activate();
 
 protected slots:
     void blink() {
@@ -78,7 +69,7 @@ protected slots:
         markDirty();
     }
 
-    void activate();
+    void activateCallback();
 
 private:
     bool _blink;

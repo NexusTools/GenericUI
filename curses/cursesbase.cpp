@@ -4,6 +4,18 @@
 
 CursesBase* CursesBase::_focusBase = 0;
 
+void CursesScreen::processMouseEvent(MEVENT &mEvent)  {
+    if(_cursor.isNull())
+        curs_set(1);
+    _cursor = QPoint(mEvent.x, mEvent.y);
+    repaint();
+
+    if(mEvent.bstate & BUTTON1_CLICKED) {
+        GUIMouseEvent mEv(GUIEvent::GUIMouseClicked, GUIMouseEvent::LeftButton, _cursor);
+        widget()->event(&mEv);
+    }
+}
+
 bool CursesWindow::processEvent(QEvent *ev) {
     if(ev->type() == GUIEvent::GUIVisibilityChanged) {
         if(widget()->isHidden())

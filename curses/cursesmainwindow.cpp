@@ -30,7 +30,7 @@ void CursesMenu::hideChain() {
     hide();
 }
 
-void CursesAction::activate() {
+void CursesAction::activateCallback() {
     blinkTimer.stop();
     _blink = false;
     markDirty();
@@ -119,7 +119,7 @@ void CursesAction::drawImpl() {
     CursesMainWindow::current()->mouseClicked(p + geom().topLeft());
 }*/
 
-void CursesAction::clickFeedback() {
+void CursesAction::feedback() {
     if(_menu)
         _menu->show(QPoint(screenX(), screenY()+1));
 
@@ -195,6 +195,72 @@ QSize CursesMainWindow::init() {
     }
 
     return QSize(getmaxx(stdscr), getmaxy(stdscr));
+}
+
+void CursesAction::activate() {
+    feedback();
+
+    if(_activateWait)
+        return;
+    _activateWait = true;
+}
+
+bool CursesMenu::processEvent(QEvent *ev) {
+    switch(ev->type()) {
+        case GUIEvent::GUIMouseClicked:
+        {
+            if(!QRect(QPoint(0,0),size()).contains(((GUIMouseEvent*)ev)->pos())) {
+                close();
+                return true;
+            }
+
+            break;
+        }
+
+        default:
+            break;
+    }
+
+    return CursesWindow::processEvent(ev);
+}
+
+bool CursesMainWindow::processEvent(QEvent *ev) {
+    switch(ev->type()) {
+        case GUIEvent::GUIMouseClicked:
+        {
+            if(!_windowStack.isEmpty()) {
+                CursesWindow* lastWin = _windowStack.last();
+                GUIMouseEvent mEv((GUIEvent::GUIType)((GUIMouseEvent*)ev)->type(),
+                                  ((GUIMouseEvent*)ev)->button(), ((GUIMouseEvent*)ev)->pos() - lastWin->geom().topLeft());
+                lastWin->widget()->event(&mEv);
+                return true;
+            }
+
+            break;
+        }
+
+        default:
+            break;
+    }
+
+    return CursesScreen::processEvent(ev);
+}
+
+bool CursesAction::processEvent(QEvent *e) {
+    switch(e->type()) {
+        case GUIEvent::GUIMouseClicked:
+            activate();
+            break;
+
+        case GUIEvent::GUIStateChanged:
+            markDirty();
+            break;
+
+        default:
+            break;
+    }
+
+    return CursesBase::processEvent(e);
 }
 
 void cursesDirtyMainWindow() {

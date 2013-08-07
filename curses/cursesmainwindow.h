@@ -59,29 +59,6 @@ public:
         repaint();
     }
 
-    /*virtual void mouseClicked(QPoint p) {
-        if(!_windowStack.isEmpty()) {
-            CursesWindow* lastWin = _windowStack.last();
-
-            lastWin->mouseClicked(p - lastWin->geom().topLeft());
-            return;
-        }
-
-        QListIterator<GUIWidget*> i(children());
-        i.toBack();
-        while(i.hasPrevious()) {
-           GUIWidget* child = i.previous();
-           CursesBase* curses = child ? child->internal<CursesBase>() : 0;
-           if(curses && child->geom().contains(p)) {
-               curses->mouseClicked(p - child->geom().topLeft());
-               return;
-           }
-        }
-
-
-        emit clicked();
-    }*/
-
     virtual void drawChildren(QRect clip, QPoint off) {
         foreach(CursesWindow* child, _windowStack) {
             drawChild(child, clip, off);
@@ -141,6 +118,9 @@ protected slots:
             ch = getch();
         }
     }
+
+protected:
+    virtual bool processEvent(QEvent *ev);
 
 private:
     static QSize init();
