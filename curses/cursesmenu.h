@@ -16,7 +16,7 @@ class CursesMenu : public GUIMenu, public CursesWindow
 
     friend class CursesAction;
 public:
-    inline CursesMenu(QString title, GUIWindow* parent) : GUIMenu(title, parent) {_action=0;setWAttr(Hidden);}
+    inline CursesMenu(QString title, GUIWindow* parent) : GUIMenu(title, Padding(QPoint(1,1),QPoint(1,1)), parent) {_action=0;setWAttr(Hidden);}
 
     virtual GUIAction* action(QString name =QString()) {
         if(name.isEmpty())

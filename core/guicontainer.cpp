@@ -105,19 +105,22 @@ QSize GUIContainer::sizeForLayout()  {
 
     }
 
-    return size;
+    return size + QSize(_padding.first.x()+_padding.second.x(),
+                         _padding.first.y()+_padding.second.y());
 }
 
 void GUIContainer::fixLayoutImpl() {
     switch(_layout) {
         case HorizontalLayout:
         {
-            int x=0;
+            int x=_padding.first.x();
+            int size = height()-_padding.first.y()-_padding.second.y();
             foreach(GUIWidget* child, childWidgets()) {
                 if(child->isHidden())
                     continue;
 
-                child->setGeom(QRect(QPoint(x, 0), child->preferredSize()));
+                child->setGeom(QRect(QPoint(x, _padding.first.y()),
+                         QSize(child->preferredSize().width(), size)));
                 x += child->width();
             }
 
@@ -126,12 +129,14 @@ void GUIContainer::fixLayoutImpl() {
 
         case VerticalLayout:
         {
-            int y=0;
+            int y=_padding.first.y();
+            int size = width()-_padding.first.x()-_padding.second.x();
             foreach(GUIWidget* child, childWidgets()) {
                 if(child->isHidden())
                     continue;
 
-                child->setGeom(QRect(QPoint(0, y), child->preferredSize()));
+                child->setGeom(QRect(QPoint(_padding.first.x(), y),
+                         QSize(size, child->preferredSize().height())));
                 y += child->height();
             }
 
