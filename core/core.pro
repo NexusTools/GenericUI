@@ -7,6 +7,8 @@
 QT       -= gui
 QT		 += xml
 
+!greaterThan(QT_MAJOR_VERSION, 4): DEFINES += LEGACY_QT
+
 TARGET = GenericUI
 TEMPLATE = lib
 

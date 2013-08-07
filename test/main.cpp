@@ -11,7 +11,11 @@
 
 #include "genericuitest.h"
 
+#ifdef LEGACY_QT
+void __msgOutput(QtMsgType type, const char* msg)
+#else
 void __msgOutput(QtMsgType type, const QMessageLogContext &ctx, const QString &msg)
+#endif
 {
     QByteArray streamData;
     {
@@ -54,6 +58,7 @@ void __msgOutput(QtMsgType type, const QMessageLogContext &ctx, const QString &m
 
         textStream << "] ";
 
+#ifndef LEGACY_QT
         QString func(ctx.function);
         if(func.isEmpty())
             func = "anonymous";
@@ -71,11 +76,11 @@ void __msgOutput(QtMsgType type, const QMessageLogContext &ctx, const QString &m
             file = "Unknown";
 
         textStream << file << ':' << ctx.line << '\n';
+#endif
+
         textStream << msg << "\n";
     }
 
-
-    // Ensure messages don't get merged due to threading
     static QFile log(QFileInfo("output.log").absoluteFilePath());
     if(!log.isOpen()) {
         endwin();
@@ -93,7 +98,13 @@ void __msgOutput(QtMsgType type, const QMessageLogContext &ctx, const QString &m
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
+
+#ifdef LEGACY_QT
+    qInstallMsgHandler(__msgOutput);
+#else
     qInstallMessageHandler(__msgOutput);
+#endif
+
     qDebug() << "Started";
 
     new GenericUITest();

@@ -7,6 +7,8 @@
 QT       += core xml
 QT       -= gui
 
+!greaterThan(QT_MAJOR_VERSION, 4): DEFINES += LEGACY_QT
+
 TARGET = GenericUITest
 CONFIG   += console
 CONFIG   -= app_bundle

@@ -50,9 +50,16 @@ QSize GUIContainer::preferredSize() {
 }
 
 GUIContainer::Children GUIContainer::childWidgets() const{
-    Children children = findChildren<GUIWidget*>("", Qt::FindDirectChildrenOnly);
+    Children chilen;
+#ifdef LEGACY_QT
+    foreach(QObject* chd, children())
+        if(qobject_cast<GUIWidget*>(chd))
+            chilen << (GUIWidget*)chd;
+#else
+    chilen = findChildren<GUIWidget*>("", Qt::FindDirectChildrenOnly);
+#endif
 
-    return children;
+    return chilen;
 }
 
 GUIContainer* GUIWidget::parentContainer() const{
