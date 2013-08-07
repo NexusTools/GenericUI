@@ -31,6 +31,10 @@ public:
         options(QStringList() << "O_kay", text, title);
     }
 
+    inline static bool ensure(QString text, QString title ="Decide") {
+        return options(QStringList() << "_Yes" << "_No", text, title) == "Yes";
+    }
+
     inline static QString options(QStringList options, QString text ="Select an option.", QString title ="Options") {
         CursesDialog* diag = new CursesDialog(title, CursesMainWindow::current());
         connect(diag, SIGNAL(finished()), diag, SLOT(deleteLater()));
