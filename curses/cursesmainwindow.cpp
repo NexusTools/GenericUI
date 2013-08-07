@@ -169,11 +169,17 @@ QSize CursesMainWindow::initialScreen() {
         initscr();
         start_color();
 
-        init_color(COLOR_WHITE, 940, 940, 940);
-        init_color(COLOR_BLACK, 282, 314, 325);
-        init_color(COLOR_CYAN, 474, 530, 550);
-        init_pair(1, COLOR_BLACK, COLOR_WHITE);
-        init_pair(2, COLOR_BLACK, COLOR_CYAN);
+        if(can_change_color()) {
+            init_color(COLOR_WHITE, 940, 940, 940);
+            init_color(COLOR_BLACK, 282, 314, 325);
+            init_color(COLOR_CYAN, 474, 530, 550);
+            init_pair(1, COLOR_BLACK, COLOR_WHITE);
+            init_pair(2, COLOR_BLACK, COLOR_CYAN);
+        } else {
+            init_pair(1, COLOR_WHITE, COLOR_BLACK);
+            init_pair(2, COLOR_CYAN, COLOR_BLACK);
+        }
+
         wbkgd(stdscr, COLOR_PAIR(1));
 
         //_window = newwin(0, 0, 0, 0);
