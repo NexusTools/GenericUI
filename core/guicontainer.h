@@ -42,8 +42,15 @@ public:
     virtual bool event(QEvent *);
 
 protected:
-    explicit GUIContainer(Spacing margin, Padding padding, LayoutType layout =FreeformLayout, GUIContainer *parent =0);
+    explicit GUIContainer(Spacing margin, Padding padding =Padding(), LayoutType layout =FreeformLayout, GUIContainer *parent =0);
     explicit GUIContainer(Spacing margin, Padding padding, GUIContainer *parent);
+
+    explicit GUIContainer(Padding padding, LayoutType layout =FreeformLayout, GUIContainer *parent =0);
+    explicit GUIContainer(Padding padding, GUIContainer *parent);
+
+    explicit GUIContainer(Spacing margin, LayoutType layout, GUIContainer *parent =0);
+    explicit GUIContainer(Spacing margin, GUIContainer *parent);
+
     explicit GUIContainer(LayoutType layout, GUIContainer *parent =0);
     explicit GUIContainer(GUIContainer *parent =0);
 
@@ -61,6 +68,11 @@ protected slots:
     }
 
 private:
+    inline void init(LayoutType layout) {init(Spacing(), Padding(), layout);}
+    inline void init(Spacing margin, LayoutType layout) {init(margin, Padding(), layout);}
+    inline void init(Padding padding, LayoutType layout =FreeformLayout) {init(Spacing(), padding, layout);}
+    void init(Spacing margin =Spacing(), Padding padding =Padding(), LayoutType layout =FreeformLayout);
+
     LayoutType _layout;
     QSize _preferredSize;
 

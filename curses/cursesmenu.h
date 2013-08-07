@@ -63,18 +63,6 @@ protected:
             _action->markDirty();
     }
 
-    virtual void fixLayoutImpl() {
-        int y = 1;
-        foreach(GUIWidget* child, childWidgets()) {
-            if(child->isHidden())
-                continue;
-
-            child->move(1, y);
-            child->resize(width()-2, 1);
-            y+=child->height();
-        }
-    }
-
     inline virtual void drawImpl() {
         wmove(hnd(), 0, 0);
         waddch(hnd(), ACS_ULCORNER);

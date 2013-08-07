@@ -1,35 +1,41 @@
 #include "guimainwindow.h"
 
 GUIContainer::GUIContainer(Spacing spacing, Padding padding, LayoutType layout, GUIContainer *parent) : GUIWidget(parent) {
-    _padding = padding;
-    _spacing = spacing;
-    _layout = layout;
-
-    layoutTimer.setInterval(0);
-    layoutTimer.setSingleShot(true);
-    connect(&layoutTimer, SIGNAL(timeout()), this, SLOT(fixLayout()));
+    init(spacing, padding, layout);
 }
 
 GUIContainer::GUIContainer(Spacing spacing, Padding padding, GUIContainer *parent) : GUIWidget(parent) {
-    _layout = FreeformLayout;
-    _padding = padding;
-    _spacing = spacing;
+    init(spacing, padding);
+}
 
-    layoutTimer.setInterval(0);
-    layoutTimer.setSingleShot(true);
-    connect(&layoutTimer, SIGNAL(timeout()), this, SLOT(fixLayout()));
+GUIContainer::GUIContainer(Spacing spacing, LayoutType layout, GUIContainer *parent) : GUIWidget(parent) {
+    init(spacing, layout);
+}
+
+GUIContainer::GUIContainer(Spacing spacing, GUIContainer *parent) : GUIWidget(parent) {
+    init(spacing);
+}
+
+GUIContainer::GUIContainer(Padding padding, LayoutType layout, GUIContainer *parent) : GUIWidget(parent) {
+    init(padding, layout);
+}
+
+GUIContainer::GUIContainer(Padding padding, GUIContainer *parent) : GUIWidget(parent) {
+    init(padding);
 }
 
 GUIContainer::GUIContainer(LayoutType layout, GUIContainer *parent) : GUIWidget(parent) {
-    _layout = layout;
-
-    layoutTimer.setInterval(0);
-    layoutTimer.setSingleShot(true);
-    connect(&layoutTimer, SIGNAL(timeout()), this, SLOT(fixLayout()));
+    init(layout);
 }
 
 GUIContainer::GUIContainer(GUIContainer *parent) : GUIWidget(parent) {
-    _layout = FreeformLayout;
+    init();
+}
+
+void GUIContainer::init(Spacing spacing, Padding padding, LayoutType layout) {
+    _padding = padding;
+    _spacing = spacing;
+    _layout = layout;
 
     layoutTimer.setInterval(0);
     layoutTimer.setSingleShot(true);

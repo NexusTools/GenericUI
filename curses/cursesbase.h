@@ -118,26 +118,6 @@ protected:
     virtual void hideImpl();
 };
 
-class CursesEvent : public GUIEvent
-{
-public:
-    enum CursesType {
-        CursesTypeBase = GUIUserType,
-
-
-
-        CursesUserType = CursesTypeBase + 50
-    };
-};
-
-class CursesMouseEvent : public GUIEvent
-{
-public:
-    enum CursesType {
-
-    };
-};
-
 class CursesScreen : public CursesWindow
 {
 public:
