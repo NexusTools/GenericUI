@@ -13,8 +13,8 @@ class CursesLabel : public GUILabel, public CursesBase
 
 public:
     enum AttrFlag {
-        Normal = A_STANDOUT,
-        Standout = A_NORMAL,
+        Normal = A_NORMAL,
+        Standout = A_STANDOUT,
         Underline = A_UNDERLINE,
         Reverse = A_REVERSE,
         Dim = A_DIM,

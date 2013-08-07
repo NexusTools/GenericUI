@@ -29,7 +29,7 @@ public:
             _shortcut = 0;
 
         _menu = 0;
-        blinkTimer.setInterval(150);
+        blinkTimer.setInterval(100);
         connect(&blinkTimer, SIGNAL(timeout()), this, SLOT(blink()));
 
         activateTimer.setSingleShot(true);

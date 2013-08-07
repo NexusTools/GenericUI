@@ -24,6 +24,8 @@ public:
         inputTimer.setInterval(50);
         connect(&inputTimer, SIGNAL(timeout()), this, SLOT(readNextCH()));
         inputTimer.start();
+
+        setWAttr(NoAutoResize);
     }
     virtual ~CursesMainWindow() {_current=0;}
 

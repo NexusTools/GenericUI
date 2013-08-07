@@ -151,11 +151,12 @@ void GUIContainer::fixLayoutImpl() {
             break;
         }
 
-        case FreeformLayout:
-            return;
+        default:
+            break;
     }
 
-    setSize(prefSize);
+    if(!wattr().testFlag(NoAutoResize))
+        setSize(prefSize);
 }
 
 template <class T>

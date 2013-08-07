@@ -31,7 +31,8 @@ public:
         Disabled = 0x20,
         Hidden = 0x40,
 
-        DirtyLayout = 0x80
+        DirtyLayout = 0x80,
+        NoAutoResize = 0x100
     };
     Q_DECLARE_FLAGS(WAttrs, WAttr)
 

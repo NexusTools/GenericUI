@@ -16,7 +16,14 @@ class CursesMenu : public GUIMenu, public CursesWindow
 
     friend class CursesAction;
 public:
-    inline CursesMenu(QString title, GUIWindow* parent) : GUIMenu(title, Padding(QPoint(1,1),QPoint(1,1)), parent) {_action=0;setWAttr(Hidden);}
+    inline CursesMenu(QString title, GUIWindow* parent) : GUIMenu(title, Padding(QPoint(1,1),QPoint(1,1)), parent) {
+        _size=0;
+        _action=0;
+        _open=false;
+        _animationTimer.setInterval(40);
+        connect(&_animationTimer, SIGNAL(timeout()), this, SLOT(animate()));
+        setWAttr(WAttrs(NoAutoResize | Hidden));
+    }
 
     virtual GUIAction* action(QString name =QString()) {
         if(name.isEmpty())
@@ -55,12 +62,44 @@ protected:
         CursesWindow::showImpl();
         if(_action)
             _action->markDirty();
+
+        _open = true;
+        _animationTimer.start();
     }
 
     virtual void hideImpl() {
-        CursesWindow::hideImpl();
-        if(_action)
-            _action->markDirty();
+        _open = false;
+        _animationTimer.start();
+    }
+
+protected slots:
+    void animate() {
+        if(_open) {
+            _size += (1-_size+0.4)/4;
+
+            if(_size >= 1) {
+                _size = 1;
+                _animationTimer.stop();
+            }
+        } else {
+            _size -= (_size+0.4)/4;
+
+            if(_size <= 0) {
+                _size = 0;
+                CursesWindow::hideImpl();
+
+                if(_action)
+                    _action->markDirty();
+
+                _animationTimer.stop();
+                return;
+            }
+        }
+
+        QSize pref = preferredSize();
+        pref = QSize(pref.width()*_size, pref.height()*_size);
+        if(pref.width() > 0 && pref.height() > 0)
+            resize(pref);
     }
 
     inline virtual void drawImpl() {
@@ -108,6 +147,9 @@ protected:
     void hideChain();
 
 private:
+    bool _open;
+    float _size;
+    QTimer _animationTimer;
     QPointer<CursesAction> _action;
 };
 

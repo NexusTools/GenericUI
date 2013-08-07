@@ -136,7 +136,7 @@ void CursesAction::feedback() {
         parentMenu->showChain();
 
     blinkTimer.start();
-    activateTimer.start(600);
+    activateTimer.start(300);
 }
 
 void resetScreen(int) {
