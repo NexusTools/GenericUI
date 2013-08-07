@@ -166,7 +166,7 @@ void CursesMainWindow::terminateRequested(int sig) {
     shutdown(sig);
 }
 
-QSize CursesMainWindow::init() {
+QSize CursesMainWindow::initialScreen() {
     static bool initialized = false;
     if(!initialized) {
         initialized = true;

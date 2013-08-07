@@ -12,12 +12,10 @@ class CursesMainWindow : public GUIMainWindow, public CursesScreen
     CURSES_WINDOW
 
 public:
-    inline explicit CursesMainWindow(QString title) : GUIMainWindow(title), CursesScreen(init()) {
+    inline explicit CursesMainWindow(QString title) : GUIMainWindow(title), CursesScreen(initialScreen()) {
         _current = this;
+        resize(initialScreen());
         titleChanged();
-
-        init();
-        resize(checkSize());
 
         repaintTimer.setInterval(0);
         repaintTimer.setSingleShot(true);
@@ -88,7 +86,7 @@ protected:
     virtual bool processEvent(QEvent *ev);
 
 private:
-    static QSize init();
+    static QSize initialScreen();
     static CursesMainWindow* _current;
 
     QList<CursesWindow*> _windowStack;
