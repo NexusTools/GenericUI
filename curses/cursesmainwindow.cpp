@@ -43,8 +43,8 @@ void CursesAction::activateCallback() {
     if(parentMenu)
         parentMenu->hideChain();
 
-    simEvent(GUIEvent::GUIActivated);
     emit activated();
+    simEvent(GUIEvent::GUIActivated);
 }
 
 void CursesWindow::showImpl() {
@@ -60,38 +60,45 @@ bool CursesMenu::isOpen() {
 }
 
 void CursesAction::drawImpl() {
-    bool menuOpen = _menu && _menu->isOpen();
-    bool standout = menuOpen || wattr().testFlag(Focused);
+    if(isDisabled()) {
+        wbkgd(hnd(), COLOR_PAIR(2));
+        wattrset(hnd(), 0);
+    } else {
+        bool menuOpen = _menu && _menu->isOpen();
+        bool standout = menuOpen || wattr().testFlag(Focused);
 
-    if(_blink)
-        standout = !standout;
+        if(_blink)
+            standout = !standout;
 
-    int attr = standout ? A_STANDOUT : A_NORMAL;
-    if(_activateWait || menuOpen)
-        attr |= A_BOLD;
-    else if(isDisabled())
-        attr |= A_DIM;
+        int attr = standout ? A_STANDOUT : A_NORMAL;
+        if(_activateWait || menuOpen)
+            attr |= A_BOLD;
+        else if(isDisabled())
+            attr |= A_DIM;
 
-    wattrset(hnd(), attr);
+        wbkgd(hnd(), COLOR_PAIR(1));
+        wattrset(hnd(), attr);
+    }
+    char space = isDisabled() || has_colors() ? ' ' : ACS_CKBOARD;
+
     wmove(hnd(), 0, 0);
-    waddch(hnd(), isDisabled() ? ACS_CKBOARD : ' ');
+    waddch(hnd(), space);
     foreach(char c, text().toLocal8Bit()) {
         if(c == '_') {
             if(!isDisabled())
                 wattron(hnd(), A_UNDERLINE);
             continue;
-        } else if(isDisabled() && c == ' ')
-            waddch(hnd(), ACS_CKBOARD);
-        else {
-            waddch(hnd(), c);
-            wattroff(hnd(), A_UNDERLINE);
-        }
+        } else if(c == ' ')
+            c = space;
+
+        waddch(hnd(), c);
+        wattroff(hnd(), A_UNDERLINE);
     }
-    waddch(hnd(), isDisabled() ? ACS_CKBOARD : ' ');
+    waddch(hnd(), space);
 
     int left = width() - 2 - text().length();
     while(left > 0) {
-        waddch(hnd(), isDisabled() ? ACS_CKBOARD : ' ');
+        waddch(hnd(), ' ');
         left--;
     }
 }
@@ -185,7 +192,12 @@ QSize CursesMainWindow::initialScreen() {
 
         initscr();
         start_color();
-        init_pair(1, COLOR_WHITE, COLOR_BLACK);
+
+        init_color(COLOR_WHITE, 940, 940, 940);
+        init_color(COLOR_BLACK, 282, 314, 325);
+        init_color(COLOR_CYAN, 474, 530, 550);
+        init_pair(1, COLOR_BLACK, COLOR_WHITE);
+        init_pair(2, COLOR_BLACK, COLOR_CYAN);
         wbkgd(stdscr, COLOR_PAIR(1));
 
         //_window = newwin(0, 0, 0, 0);

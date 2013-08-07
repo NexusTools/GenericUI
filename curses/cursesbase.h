@@ -36,7 +36,7 @@ public:
     inline void* thisBasePtr() {return (void*)static_cast<CursesBase*>(this);}
 
 protected:
-    inline explicit CursesBase(QSize size =QSize(1, 1)) {_window=newpad(size.height(), size.width());wbkgd(_window, COLOR_PAIR(1));if(!_window)throw "Unable to allocate pad";_dirty=true;}
+    explicit CursesBase(QSize size =QSize(1, 1), int colorPair =1);
     virtual bool processEvent(QEvent*);
 
     inline void setSize(QSize s) {

@@ -4,6 +4,14 @@
 
 CursesBase* CursesBase::_focusBase = 0;
 
+CursesBase::CursesBase(QSize size, int colorPair) {
+    _window=newpad(size.height(), size.width());
+    if(!_window)
+        throw "Unable to allocate pad";
+    wbkgd(_window, COLOR_PAIR(colorPair));
+    _dirty=true;
+}
+
 void CursesScreen::processMouseEvent(MEVENT &mEvent)  {
     if(_cursor.isNull())
         curs_set(1);
