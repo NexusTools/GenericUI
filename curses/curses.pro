@@ -35,7 +35,8 @@ HEADERS += \
     cursesmenu.h \
     cursesmenuseparator.h \
     cursesdialog.h \
-    cursesbutton.h
+    cursesbutton.h \
+    cursescontainer.h
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../core/release/ -lGenericUI
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../core/debug/ -lGenericUI

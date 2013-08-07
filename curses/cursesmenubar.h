@@ -5,7 +5,7 @@
 
 #include "curseslabel.h"
 
-class CursesMenuBar : public GUIMenuBar, public CursesContainer
+class CursesMenuBar : public GUIMenuBar, public CursesBaseContainer
 {
     Q_OBJECT
     CURSES_CONTAINER

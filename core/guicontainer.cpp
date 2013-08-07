@@ -112,24 +112,64 @@ QSize GUIContainer::sizeForLayout()  {
 
     }
 
-    return size + QSize(_padding.first.x()+_padding.second.x(),
+    return size += QSize(_padding.first.x()+_padding.second.x(),
                          _padding.first.y()+_padding.second.y());
 }
 
 void GUIContainer::fixLayoutImpl() {
     QSize prefSize = preferredSize();
+
+
+    if(wattr().testFlag(ExpandWidth) ||
+            wattr().testFlag(ExpandHeight)) {
+        GUIContainer* con = parentContainer();
+        if(con) {
+            if(wattr().testFlag(ExpandWidth) &&
+                    con->layout() != HorizontalLayout)
+                prefSize.setWidth(width());
+            if(wattr().testFlag(ExpandHeight) &&
+                    con->layout() != VerticalLayout)
+                prefSize.setHeight(height());
+        }
+    }
+
+
     switch(_layout) {
         case HorizontalLayout:
         {
+            int centerWidth = 0;
+            Children centerChilds;
             int x=_padding.first.x();
+            int xr=_padding.second.x();
             int size = prefSize.height()-_padding.first.y()-_padding.second.y();
             foreach(GUIWidget* child, childWidgets()) {
                 if(child->isHidden())
                     continue;
+                if(child->wattr().testFlag(FloatCenter)) {
+                    child->resize(child->preferredSize().width(),
+                             child->wattr().testFlag(GUIWidget::ExpandHeight) ? size : child->height());
 
-                child->setGeom(QRect(QPoint(x, _padding.first.y()),
-                         QSize(child->preferredSize().width(),
-                         child->wattr().testFlag(GUIWidget::ExpandHeight) ? size : child->height())));
+                    centerWidth += child->preferredSize().width();
+                    centerChilds << child;
+                    continue;
+                }
+
+                if(child->wattr().testFlag(FloatRight)) {
+                    xr += child->width();
+                    child->setGeom(QRect(QPoint(width()-xr, _padding.first.y()),
+                             QSize(child->preferredSize().width(),
+                             child->wattr().testFlag(GUIWidget::ExpandHeight) ? size : child->height())));
+                } else {
+                    child->setGeom(QRect(QPoint(x, _padding.first.y()),
+                             QSize(child->preferredSize().width(),
+                             child->wattr().testFlag(GUIWidget::ExpandHeight) ? size : child->height())));
+                    x += child->width();
+                }
+            }
+
+            x = prefSize.width()/2 - centerWidth/2;
+            foreach(GUIWidget* child, centerChilds) {
+                child->move(x, _padding.first.y());
                 x += child->width();
             }
 
@@ -157,7 +197,9 @@ void GUIContainer::fixLayoutImpl() {
             break;
     }
 
-    if(!wattr().testFlag(NoAutoResize))
+    if(!wattr().testFlag(NoAutoResize) &&
+            !wattr().testFlag(ExpandWidth) &&
+            !wattr().testFlag(ExpandHeight))
         setSize(prefSize);
 }
 

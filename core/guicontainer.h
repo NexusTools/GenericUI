@@ -45,6 +45,8 @@ public:
         _layout = l;
     }
 
+    inline LayoutType layout() const{return _layout;}
+
     inline Spacing spacing() const{return _spacing;}
     inline Padding padding() const{return _padding;}
 

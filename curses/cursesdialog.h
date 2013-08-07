@@ -8,6 +8,7 @@
 #include <guidialog.h>
 
 #include "cursesmainwindow.h"
+#include "cursescontainer.h"
 #include "cursesbutton.h"
 #include "curseslabel.h"
 
@@ -16,7 +17,7 @@ class CursesDialog : public GUIDialog, public CursesWindow
     Q_OBJECT
     CURSES_WINDOW
 public:
-    inline explicit CursesDialog(QString title, GUIContainer *parent) : GUIDialog(title, Spacing(1, 0), Padding(QPoint(2, 3), QPoint(2, 1)), parent) {
+    inline explicit CursesDialog(QString title, GUIContainer *parent) : GUIDialog(title, Spacing(1, 1), Padding(QPoint(2, 2), QPoint(2, 1)), parent) {
         _size = 0;
         _open = false;
         _closable=true;
@@ -40,8 +41,9 @@ public:
         connect(diag, SIGNAL(finished()), diag, SLOT(deleteLater()));
 
         new CursesLabel(text, diag);
+        CursesHBox* buttonContainer = new CursesHBox(Padding(QPoint(0,1),QPoint(0,0)), diag);
         foreach(QString option, options) {
-            CursesButton* act = new CursesButton(option, GUIWidget::FloatCenter, diag);
+            CursesButton* act = new CursesButton(option, GUIWidget::FloatCenter, buttonContainer);
             connect(act, SIGNAL(selected(QVariant)), diag, SLOT(answer(QVariant)));
         }
 
@@ -81,34 +83,35 @@ protected:
     }
 
     inline virtual void drawImpl() {
-        wmove(hnd(), 1, 2);
-        waddstr(hnd(), qPrintable(title()));
-
-        if(_closable) {
-            wmove(hnd(), 1, width()-3);
-            waddch(hnd(), ACS_VLINE);
-            waddch(hnd(), 'X');
-        }
-        wmove(hnd(), 2, 1);
-        int left = width()-2;
-        while(left > 0) {
-            waddch(hnd(), left == 2 && _closable ? ACS_BTEE : ACS_HLINE);
-            left--;
-        }
-
-
         wmove(hnd(), 0, 0);
         waddch(hnd(), ACS_ULCORNER);
-        left = width()-2;
+        int left = width()-2;
         while(left > 0) {
-            waddch(hnd(), left == 2 && _closable ? ACS_TTEE : ACS_HLINE);
+            waddch(hnd(), ACS_HLINE);
             left--;
         }
-        waddch(hnd(), ACS_URCORNER);
+
+        wmove(hnd(), 0, 2);
+        wattrset(hnd(), A_STANDOUT);
+        waddch(hnd(), ' ');
+        waddstr(hnd(), qPrintable(title()));
+        waddch(hnd(), ' ');
+
+        if(_closable) {
+            wmove(hnd(), 0, width()-5);
+            waddstr(hnd(), " X ");
+            wattrset(hnd(), A_NORMAL);
+            waddch(hnd(), ACS_HLINE);
+            waddch(hnd(), ACS_URCORNER);
+        } else {
+            wattrset(hnd(), A_NORMAL);
+            wmove(hnd(), 0, width()-1);
+            waddch(hnd(), ACS_URCORNER);
+        }
 
         for(int y=1; y<height()-1; y++) {
-            mvwaddch(hnd(), y, 0, y == 2 ? ACS_LTEE : ACS_VLINE);
-            mvwaddch(hnd(), y, width()-1, y == 2 ? ACS_RTEE : ACS_VLINE);
+            mvwaddch(hnd(), y, 0, ACS_VLINE);
+            mvwaddch(hnd(), y, width()-1, ACS_VLINE);
         }
 
         wmove(hnd(), height()-1, 0);
@@ -119,6 +122,13 @@ protected:
             left--;
         }
         waddch(hnd(), ACS_LRCORNER);
+    }
+
+    virtual QSize preferredSize() {
+        QSize s = GUIDialog::preferredSize();
+        s.setWidth(qMax(s.width(), 40));
+
+        return QSize(s);
     }
 
     virtual void showImpl() {

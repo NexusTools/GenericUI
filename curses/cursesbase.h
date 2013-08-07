@@ -16,7 +16,7 @@ void cursesDirtyMainWindow();
 class CursesBase
 {
     friend class CursesMainWindow;
-    friend class CursesContainer;
+    friend class CursesBaseContainer;
     friend class CursesScreen;
 
 public:
@@ -77,13 +77,13 @@ protected:
     virtual bool processEvent(QEvent*);
 };
 
-class CursesContainer : public CursesBase
+class CursesBaseContainer : public CursesBase
 {
     friend class CursesScreen;
 public:
 
 protected:
-    inline CursesContainer(QSize size =QSize(1,1)) : CursesBase(size) {}
+    inline CursesBaseContainer(QSize size =QSize(1,1)) : CursesBase(size) {}
     virtual bool processEvent(QEvent*);
 
     virtual void draw(QRect clip, QPoint off) {
@@ -104,10 +104,10 @@ protected:
 private:
 };
 
-class CursesWindow : public CursesContainer
+class CursesWindow : public CursesBaseContainer
 {
 protected:
-    inline CursesWindow(QSize size =QSize(1,1)) : CursesContainer(size) {}
+    inline CursesWindow(QSize size =QSize(1,1)) : CursesBaseContainer(size) {}
 
     inline virtual bool isWindow() const{return true;}
 
@@ -144,7 +144,7 @@ protected:
     inline CursesScreen(QSize s) : CursesWindow(s) {}
 
     virtual bool processEvent(QEvent *ev) {
-        return CursesContainer::processEvent(ev);
+        return CursesBaseContainer::processEvent(ev);
     }
 
     void processMouseEvent(MEVENT& mEvent);
@@ -155,7 +155,7 @@ protected:
     virtual void draw(QRect clip, QPoint off) {
         wnoutrefresh(stdscr);
 
-        CursesContainer::draw(clip, off);
+        CursesBaseContainer::draw(clip, off);
         if(!_cursor.isNull())
             move(_cursor.y(), _cursor.x());
 

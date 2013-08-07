@@ -29,11 +29,11 @@ bool CursesWindow::processEvent(QEvent *ev) {
             showImpl();
     }
 
-    return CursesContainer::processEvent(ev);
+    return CursesBaseContainer::processEvent(ev);
 }
 
 void CursesBase::repaint() {
-    CursesContainer* container = widget()->parentInternal<CursesContainer>();
+    CursesBaseContainer* container = widget()->parentInternal<CursesBaseContainer>();
     if(container)
         container->repaint();
 }
@@ -77,7 +77,7 @@ bool CursesBase::processEvent(QEvent* ev) {
     return false;
 }
 
-bool CursesContainer::processEvent(QEvent* ev) {
+bool CursesBaseContainer::processEvent(QEvent* ev) {
     switch(ev->type()) {
         case GUIEvent::GUISizeChanged:
             ((GUIContainer*)widget())->markLayoutDirty();
