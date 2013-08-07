@@ -43,6 +43,7 @@ void CursesAction::activateCallback() {
     if(parentMenu)
         parentMenu->hideChain();
 
+    simEvent(GUIEvent::GUIActivated);
     emit activated();
 }
 
