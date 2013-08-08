@@ -1,7 +1,8 @@
 #include <guicontainer.h>
 
-#include <cursescontainer.h>
-#include <cursesmenubar.h>
+#include "cursesbuttonbox.h"
+#include "cursescontainer.h"
+#include "cursesmenubar.h"
 
 CursesBase* CursesBase::_focusBase = 0;
 

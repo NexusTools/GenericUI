@@ -7,6 +7,7 @@
 
 #include <guidialog.h>
 
+#include "cursesbuttonbox.h"
 #include "cursesmainwindow.h"
 #include "cursescontainer.h"
 #include "cursesbutton.h"

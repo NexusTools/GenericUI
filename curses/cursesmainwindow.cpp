@@ -1,6 +1,7 @@
 #include "cursesmainwindow.h"
 #include "cursesdialog.h"
 #include "cursesmenubar.h"
+#include "cursesbuttonbox.h"
 #include "cursesmenu.h"
 
 #include <QCoreApplication>
@@ -324,6 +325,30 @@ bool CursesMenu::processEvent(QEvent *ev) {
     }
 
     return CursesWindow::processEvent(ev);
+}
+
+bool CursesButtonBox::processEvent(QEvent *ev) {
+    switch(ev->type()) {
+        case GUIEvent::GUIKeyTyped:
+        {
+            Qt::Key key = ((GUIKeyEvent*)ev)->key();
+            foreach(QObject* ch, children()) {
+                CursesButton* btn = qobject_cast<CursesButton*>(ch);
+                if(btn && !btn->isHidden() && !btn->isDisabled()
+                        && btn->shortcut() == key) {
+                    btn->click();
+                    return true;
+                }
+
+            }
+            break;
+        }
+
+        default:
+            break;
+    }
+
+    return CursesContainer::processEvent(ev);
 }
 
 bool CursesMainWindow::processEvent(QEvent *ev) {

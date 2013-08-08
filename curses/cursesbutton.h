@@ -19,7 +19,7 @@ public:
 
         int pos = text.indexOf('_');
         if(pos > -1)
-            _shortcut = (Qt::Key)(text.toLocal8Bit().toLower().at(pos+1) - 'a');
+            _shortcut = (Qt::Key)(Qt::Key_A + (text.toLocal8Bit().toLower().at(pos+1) - 'a'));
         else
             _shortcut = (Qt::Key)0;
 
