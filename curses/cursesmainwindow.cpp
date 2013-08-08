@@ -177,10 +177,10 @@ void CursesMainWindow::readNextCH()  {
                     Qt::Key key;
                     Qt::KeyboardModifiers mod;
 
-                    if(ch > 0 && ch < 27) {
+                    /*if(ch > 0 && ch < 27) {
                         mod = Qt::ControlModifier;
                         key = (Qt::Key)(Qt::Key_A + (ch - 1));
-                    } else if(ch >= 97 && ch <= 122)
+                    } else */if(ch >= 97 && ch <= 122)
                         key = kOff(Qt::Key_A, ch - 97);
                     else if(ch >= 65 && ch <= 90) {
                         mod = Qt::ShiftModifier;

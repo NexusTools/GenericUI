@@ -40,7 +40,7 @@ bool CursesWindow::processEvent(QEvent *ev) {
                 return true;
             }
 
-            if(kEv->mod().testFlag(Qt::ControlModifier)) {
+            if(kEv->mod().testFlag(Qt::AltModifier)) {
                 CursesMenuBar* menuBar = widget()->findChild<CursesMenuBar*>();
                 if(menuBar)
                     if(menuBar->event(kEv))

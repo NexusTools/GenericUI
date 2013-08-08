@@ -47,6 +47,7 @@ class CursesVBox : public CursesContainer
 public:
     inline explicit CursesVBox(Spacing margin, Padding padding =Padding(QPoint(0,0),QPoint(0,0)), GUIContainer *parent =0) : CursesContainer(margin, padding, VerticalLayout, parent) {expandToParent();}
     inline explicit CursesVBox(Padding padding, GUIContainer *parent =0) : CursesContainer(padding, VerticalLayout, parent) {expandToParent();}
+    inline explicit CursesVBox(Spacing margin, GUIContainer *parent =0) : CursesContainer(margin, VerticalLayout, parent) {expandToParent();}
     inline explicit CursesVBox(GUIContainer* par =0) : CursesContainer(VerticalLayout, par) {expandToParent();}
 
 };

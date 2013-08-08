@@ -168,7 +168,6 @@ void GUIContainer::fixLayoutImpl() {
                 if(child->isHidden())
                     continue;
 
-                int add = 0;
                 QSize pref = child->preferredSize();
                 if(child->wattr().testFlag(FloatCenter)) {
                     if(centerWidth > 0)
