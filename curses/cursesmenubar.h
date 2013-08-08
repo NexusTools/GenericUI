@@ -12,6 +12,7 @@ class CursesMenuBar : public GUIMenuBar, public CursesBaseContainer
     Q_OBJECT
     CURSES_CONTAINER
 
+    friend class CursesMenu;
 public:
     inline CursesMenuBar(GUIContainer* parent) : GUIMenuBar(parent) {}
     inline void addSeparator() {new CursesLabel("|", this);}
@@ -19,7 +20,7 @@ public:
     virtual bool processEvent(QEvent *);
 
 protected:
-    bool passShortcut(CursesAction*, Qt::Key);
+    static bool passShortcut(CursesAction*, Qt::Key);
 
     virtual void drawChildren(QRect clip, QPoint off) {
         Children children = childWidgets();

@@ -34,6 +34,11 @@ bool CursesWindow::processEvent(QEvent *ev) {
         case GUIEvent::GUIKeyTyped:
         {
             GUIKeyEvent* kEv = (GUIKeyEvent*)ev;
+            if(kEv->key() == Qt::Key_Escape) {
+                widget()->hide();
+                return true;
+            }
+
             if(kEv->mod().testFlag(Qt::ControlModifier)) {
                 CursesMenuBar* menuBar = widget()->findChild<CursesMenuBar*>();
                 if(menuBar)
@@ -43,7 +48,6 @@ bool CursesWindow::processEvent(QEvent *ev) {
                 if(buttonBox)
                     if(buttonBox->event(kEv))
                         return true;
-
             }
             break;
         }

@@ -95,6 +95,7 @@ QSize CursesMainWindow::initialScreen() {
         signal(SIGTERM, crash);
         signal(SIGHUP, crash);
 
+        ESCDELAY = 25;
         initscr();
         start_color();
 
@@ -131,10 +132,19 @@ void CursesMainWindow::readNextCH()  {
     MEVENT mEvent;
 
     int ch;
-    while((ch = getch()) > 0) {
+    static bool altPressed = false;
+    forever {
+        ch = getch();
+        if(!altPressed && ch == ERR)
+            return;
+
         qDebug() << "Processing Event" << ch;
 
         switch(ch) {
+            case 27:
+                altPressed = true;
+            continue;
+
             case KEY_MOUSE:
                 if(getmouse(&mEvent) == OK)
                     processMouseEvent(mEvent);
@@ -159,7 +169,7 @@ void CursesMainWindow::readNextCH()  {
                     Qt::Key key;
                     Qt::KeyboardModifiers mod;
 
-                    if(ch < 27) {
+                    if(ch > 0 && ch < 27) {
                         mod = Qt::ControlModifier;
                         key = (Qt::Key)(Qt::Key_A + (ch - 1));
                     } else if(ch >= 97 && ch <= 122)
@@ -173,6 +183,11 @@ void CursesMainWindow::readNextCH()  {
                         key = kOff(Qt::Key_0, ch - 48);
                     else {
                         switch(ch) {
+                            case ERR:
+                                key = Qt::Key_Escape;
+                                altPressed = false;
+                                break;
+
                             case 9:
                                 key = Qt::Key_Tab;
                                 break;
@@ -210,12 +225,18 @@ void CursesMainWindow::readNextCH()  {
                     //else
                     //    return;
 
+
+                    if(altPressed)
+                        mod |= Qt::AltModifier;
+
                     GUIKeyEvent kEv(key, mod);
                     target->pushEvent(&kEv);
                 }
                 break;
             }
         }
+
+        altPressed = false;
     }
 }
 
@@ -289,11 +310,12 @@ bool CursesMenu::processEvent(QEvent *ev) {
 
         case GUIEvent::GUIKeyTyped:
         {
-            if(((GUIKeyEvent*)ev)->key() == 27) {
-                hideChain();
-                return true;
+            GUIKeyEvent* kEv = (GUIKeyEvent*)ev;
+            foreach(QObject* ch, children()) {
+                CursesAction* a = qobject_cast<CursesAction*>(ch);
+                if(a && CursesMenuBar::passShortcut(a, kEv->key()))
+                    return true;
             }
-
             break;
         }
 
