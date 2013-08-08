@@ -41,7 +41,7 @@ public:
         connect(diag, SIGNAL(finished()), diag, SLOT(deleteLater()));
 
         new CursesLabel(text, diag);
-        CursesHBox* buttonContainer = new CursesHBox(Spacing(1, 0), Padding(QPoint(0,1),QPoint(0,0)), diag);
+        CursesButtonBox* buttonContainer = new CursesButtonBox(diag);
         foreach(QString option, options) {
             CursesButton* act = new CursesButton(option, GUIWidget::FloatCenter, buttonContainer);
             connect(act, SIGNAL(selected(QVariant)), diag, SLOT(answer(QVariant)));

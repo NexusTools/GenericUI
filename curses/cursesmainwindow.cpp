@@ -1,5 +1,6 @@
 #include "cursesmainwindow.h"
 #include "cursesdialog.h"
+#include "cursesmenubar.h"
 #include "cursesmenu.h"
 
 #include <QCoreApplication>
@@ -122,6 +123,10 @@ QSize CursesMainWindow::initialScreen() {
     return QSize(getmaxx(stdscr), getmaxy(stdscr));
 }
 
+Qt::Key kOff(Qt::Key k, int o) {
+    return (Qt::Key)(k+o);
+}
+
 void CursesMainWindow::readNextCH()  {
     MEVENT mEvent;
 
@@ -141,21 +146,72 @@ void CursesMainWindow::readNextCH()  {
 
             default:
             {
-                GUIWidget* target;
+                CursesWindow* target;
 
                 if(!_windowStack.isEmpty())
-                    target = _windowStack.last()->widget();
-                else if(ch < 27) {
-                    CursesAction::callShortcut(ch);
-                    return;
-                } else
-                    target = this;
+                    target = _windowStack.last();
+                else
+                    target = internal<CursesWindow>();
 
                 if(target) {
                     qDebug() << target << ch;
 
-                    GUIKeyEvent kEv(ch);
-                    target->event(&kEv);
+                    Qt::Key key;
+                    Qt::KeyboardModifiers mod;
+
+                    if(ch < 27) {
+                        mod = Qt::ControlModifier;
+                        key = (Qt::Key)(Qt::Key_A + (ch - 1));
+                    } else if(ch >= 97 && ch <= 122)
+                        key = kOff(Qt::Key_A, ch - 97);
+                    else if(ch >= 65 && ch <= 90) {
+                        mod = Qt::ShiftModifier;
+                        key = kOff(Qt::Key_A, ch - 65);
+                    } else if(ch >= KEY_F(1) && ch <= KEY_F(12))
+                        key = kOff(Qt::Key_F1, ch - KEY_F(1));
+                    else if(ch >= 48 && ch <= 57)
+                        key = kOff(Qt::Key_0, ch - 48);
+                    else {
+                        switch(ch) {
+                            case 9:
+                                key = Qt::Key_Tab;
+                                break;
+
+                            case 10:
+                                key = Qt::Key_Enter;
+                                break;
+
+                            case 32:
+                                key = Qt::Key_Space;
+                                break;
+
+                            case 46:
+                                key = Qt::Key_Period;
+                                break;
+
+                            case 58:
+                                mod = Qt::ShiftModifier;
+                                key = Qt::Key_Colon;
+                                break;
+
+                            case 59:
+                                key = Qt::Key_Semicolon;
+                                break;
+
+
+
+                            default:
+                                return;
+
+                        }
+                    }
+                    //else if(ch >= ) {
+
+                    //else
+                    //    return;
+
+                    GUIKeyEvent kEv(key, mod);
+                    target->pushEvent(&kEv);
                 }
                 break;
             }
@@ -276,6 +332,38 @@ bool CursesMainWindow::processEvent(QEvent *ev) {
     }
 
     return CursesScreen::processEvent(ev);
+}
+
+bool CursesMenuBar::processEvent(QEvent* ev) {
+    if(ev->type() == GUIEvent::GUIKeyTyped) {
+        GUIKeyEvent* kEv = (GUIKeyEvent*)ev;
+        foreach(QObject* ch, children()) {
+            CursesAction* a = qobject_cast<CursesAction*>(ch);
+            if(a && passShortcut(a, kEv->key()))
+                return true;
+        }
+    }
+
+    return CursesBaseContainer::processEvent(ev);
+}
+
+bool CursesMenuBar::passShortcut(CursesAction* a, Qt::Key key) {
+    if(a->isHidden() || a->isDisabled())
+        return false;
+
+    if(a->shortcut() == key) {
+        a->click();
+        return true;
+    }
+
+    if(a->_menu)
+        foreach(QObject* ch, a->_menu->children()) {
+            CursesAction* a = qobject_cast<CursesAction*>(ch);
+            if(a && passShortcut(a, key))
+                return true;
+        }
+
+    return false;
 }
 
 void cursesDirtyMainWindow() {

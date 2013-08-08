@@ -66,16 +66,20 @@ private:
     Button btn;
     QPoint _pos;
     QList<QPoint> stack;
+    Qt::KeyboardModifiers _mod;
 };
 
 class GUIKeyEvent : public GUIEvent
 {
 public:
-    inline GUIKeyEvent(int key) : GUIEvent(GUIEvent::GUIKeyTyped) {_key=key;}
-    inline int key() const{return _key;}
+    inline GUIKeyEvent(Qt::Key key, Qt::KeyboardModifiers mod = Qt::NoModifier) : GUIEvent(GUIEvent::GUIKeyTyped) {_key=key;_mod=mod;}
+
+    inline Qt::KeyboardModifiers mod() const{return _mod;}
+    inline Qt::Key key() const{return _key;}
 
 private:
-    int _key;
+    Qt::Key _key;
+    Qt::KeyboardModifiers _mod;
 };
 
 #endif // GUIEVENT_H

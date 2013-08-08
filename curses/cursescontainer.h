@@ -60,4 +60,11 @@ public:
 
 };
 
+class CursesButtonBox : public CursesHBox
+{
+public:
+    inline explicit CursesButtonBox(GUIContainer* par =0) : CursesHBox(Spacing(1, 0), Padding(QPoint(0,1),QPoint(0,0)), par) {}
+
+};
+
 #endif // CURSESCONTAINER_H

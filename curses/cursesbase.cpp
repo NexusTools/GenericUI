@@ -1,6 +1,7 @@
 #include <guicontainer.h>
 
-#include "cursesbase.h"
+#include <cursescontainer.h>
+#include <cursesmenubar.h>
 
 CursesBase* CursesBase::_focusBase = 0;
 
@@ -22,11 +23,34 @@ void CursesScreen::processMouseEvent(MEVENT &mEvent)  {
 }
 
 bool CursesWindow::processEvent(QEvent *ev) {
-    if(ev->type() == GUIEvent::GUIVisibilityChanged) {
-        if(widget()->isHidden())
-            hideImpl();
-        else
-            showImpl();
+    switch(ev->type()) {
+        case GUIEvent::GUIVisibilityChanged:
+            if(widget()->isHidden())
+                hideImpl();
+            else
+                showImpl();
+            break;
+
+        case GUIEvent::GUIKeyTyped:
+        {
+            GUIKeyEvent* kEv = (GUIKeyEvent*)ev;
+            if(kEv->mod().testFlag(Qt::ControlModifier)) {
+                CursesMenuBar* menuBar = widget()->findChild<CursesMenuBar*>();
+                if(menuBar)
+                    if(menuBar->event(kEv))
+                        return true;
+                CursesButtonBox* buttonBox = widget()->findChild<CursesButtonBox*>();
+                if(buttonBox)
+                    if(buttonBox->event(kEv))
+                        return true;
+
+            }
+            break;
+        }
+
+        default:
+            break;
+
     }
 
     return CursesBaseContainer::processEvent(ev);

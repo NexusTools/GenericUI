@@ -33,6 +33,10 @@ public:
     virtual bool isScreen() const{return false;}
     virtual bool isWindow() const{return false;}
 
+    inline void pushEvent(QEvent* ev) {
+        processEvent(ev);
+    }
+
     inline void* thisBasePtr() {return (void*)static_cast<CursesBase*>(this);}
 
 protected:
@@ -142,10 +146,6 @@ public:
 
 protected:
     inline CursesScreen(QSize s) : CursesWindow(s) {}
-
-    virtual bool processEvent(QEvent *ev) {
-        return CursesBaseContainer::processEvent(ev);
-    }
 
     void processMouseEvent(MEVENT& mEvent);
     inline QSize checkSize() {

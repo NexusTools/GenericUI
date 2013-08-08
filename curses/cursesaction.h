@@ -15,18 +15,20 @@ class CursesAction : public GUIAction, public CursesBase
     BASIC_CURSES_OBJECT
 
     friend class CursesMenu;
+    friend class CursesMenuBar;
 public:
     inline CursesAction(QString text, GUIContainer* par =0) : GUIAction(text, GUIWidget::ExpandWidth, par) {
         fitToContent();
 
         int pos = text.indexOf('_');
         if(pos > -1) {
-            _shortcut = text.toLocal8Bit().toLower().at(pos+1);
-            shortcuts.insert(1 + (_shortcut - 'a'), this);
+            int shortcut = text.toLocal8Bit().toLower().at(pos+1) - 'a';
+            shortcuts.insert(1 + shortcut, this);
+            _shortcut = (Qt::Key)(Qt::Key_A + shortcut);
 
             qDebug() << "Registering shortcut" << _shortcut << text;
         } else
-            _shortcut = 0;
+            _shortcut = (Qt::Key)0;
 
         _menu = 0;
         blinkTimer.setInterval(100);
@@ -46,7 +48,7 @@ public:
         return action;
     }
 
-    char shortcut() {
+    virtual Qt::Key shortcut() {
         return _shortcut;
     }
 
@@ -75,7 +77,7 @@ private:
     bool _blink;
     bool _activateWait;
 
-    char _shortcut;
+    Qt::Key _shortcut;
     QTimer blinkTimer;
     QTimer activateTimer;
     CursesMenu* _menu;

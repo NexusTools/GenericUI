@@ -5,6 +5,8 @@
 
 #include "curseslabel.h"
 
+class CursesAction;
+
 class CursesMenuBar : public GUIMenuBar, public CursesBaseContainer
 {
     Q_OBJECT
@@ -14,7 +16,11 @@ public:
     inline CursesMenuBar(GUIContainer* parent) : GUIMenuBar(parent) {}
     inline void addSeparator() {new CursesLabel("|", this);}
 
+    virtual bool processEvent(QEvent *);
+
 protected:
+    bool passShortcut(CursesAction*, Qt::Key);
+
     virtual void drawChildren(QRect clip, QPoint off) {
         Children children = childWidgets();
         foreach(GUIWidget* child, children) {

@@ -19,9 +19,9 @@ public:
 
         int pos = text.indexOf('_');
         if(pos > -1)
-            _shortcut = text.toLocal8Bit().toLower().at(pos+1);
+            _shortcut = (Qt::Key)(text.toLocal8Bit().toLower().at(pos+1) - 'a');
         else
-            _shortcut = 0;
+            _shortcut = (Qt::Key)0;
 
         blinkTimer.setInterval(100);
         connect(&blinkTimer, SIGNAL(timeout()), this, SLOT(blink()));
@@ -33,7 +33,7 @@ public:
         _blink = false;
     }
 
-    char shortcut() {
+    virtual Qt::Key shortcut() {
         return _shortcut;
     }
 
@@ -64,7 +64,7 @@ signals:
 private:
     bool _blink;
 
-    char _shortcut;
+    Qt::Key _shortcut;
     QTimer blinkTimer;
     QTimer activateTimer;
     bool _activateWait;
