@@ -29,6 +29,14 @@ public:
     }
     virtual ~CursesDialog() {hideImpl();}
 
+    inline void exec() {
+        show();
+
+        QEventLoop eventLoop;
+        while(!hasValue())
+            eventLoop.processEvents(QEventLoop::WaitForMoreEvents);
+    }
+
     inline static void alert(QString text, QString title ="Alert") {
         options(QStringList() << "O_kay", text, title);
     }
@@ -49,11 +57,7 @@ public:
         }
 
         diag->setLayout(GUIContainer::VerticalLayout);
-        diag->show();
-
-        QEventLoop eventLoop;
-        while(!diag->hasValue())
-            eventLoop.processEvents(QEventLoop::WaitForMoreEvents);
+        diag->exec();
 
         return diag->value<QString>();
     }
