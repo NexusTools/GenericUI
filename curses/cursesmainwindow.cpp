@@ -254,7 +254,7 @@ void CursesDialog::center() {
         win = mainWindow();
     if(win) // Center this window's content in the main window
         move(win->width()/2 - width()/2,
-             win->height()/2 - height()/2 - 2);
+             win->height()/2 - height()/2);
 }
 
 bool CursesDialog::processEvent(QEvent *ev) {

@@ -38,6 +38,7 @@ public:
     };
     Q_DECLARE_FLAGS(WAttrs, WAttr)
 
+    bool setWAttr(WAttr attr, bool on =true);
     inline WAttrs wattr() const{return _attr;}
 
     inline bool testAttr(WAttr wattr) {
@@ -91,7 +92,6 @@ protected:
     inline GUIWidget(GUIContainer* parent =0) : _geom(0, 0, 1, 1) {setParent((QObject*)parent);_attr=Normal;}
 
     inline bool setWAttr(WAttrs attr) {if(_attr==attr)return false;_attr=attr;simEvent(GUIEvent::GUIWAttrChanged);return true;}
-    bool setWAttr(WAttr attr, bool on =true);
 
     // Internals
     void setPos(QPoint p);

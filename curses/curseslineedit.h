@@ -14,7 +14,7 @@ public:
     inline explicit CursesLineEdit(GUIContainer* par) : GUILineEdit(par) {}
 
     virtual QSize preferredSize() {
-        return QSize(18, sizeForString(text()).height());
+        return QSize(22, sizeForString(text()).height());
     }
 
 protected:
@@ -23,17 +23,17 @@ protected:
     inline void drawImpl() {
         wmove(hnd(), 0, 0);
         wattrset(hnd(), A_STANDOUT);
-        waddch(hnd(), ACS_LARROW);
+        //waddch(hnd(), ' '); // ACS_LARROW
 
         wattron(hnd(), A_UNDERLINE);
-        QString visPart = text().mid(0, width()-2);
+        QString visPart = text().mid(0, width());
         waddstr(hnd(), visPart.toLocal8Bit().data());
 
-        if(visPart.length() < width()-2)
-            waddstr(hnd(), QByteArray(width()-2-visPart.length(), ' ').data());
+        if(visPart.length() < width())
+            waddstr(hnd(), QByteArray(width()-visPart.length(), ' ').data());
 
         wattroff(hnd(), A_UNDERLINE);
-        waddch(hnd(), ACS_RARROW);
+        //waddch(hnd(), ' '); // ACS_RARROW
         wattrset(hnd(), A_NORMAL);
     }
 
