@@ -158,8 +158,54 @@ void GUIContainer::fixLayoutImpl() {
             Children centerChilds;
             int x=_padding.first.x();
             int xr=_padding.second.x();
-            bool first[3] = {true, true, true};
             int size = prefSize.height()-_padding.first.y()-_padding.second.y();
+            foreach(GUIWidget* child, childWidgets()) {
+                if(child->isHidden())
+                    continue;
+
+                int add = 0;
+                QSize pref = child->preferredSize();
+                if(child->wattr().testFlag(FloatCenter)) {
+                    if(centerWidth > 0)
+                        centerWidth += spacing().x();
+
+                    centerWidth += pref.width();
+                    centerChilds << child;
+                    continue;
+                }
+
+                if(child->wattr().testFlag(FloatRight)) {
+                    xr += pref.width();
+                    child->setGeom(QRect(QPoint(width()-xr, _padding.first.y()),
+                             QSize(pref.width(),
+                             child->wattr().testFlag(GUIWidget::ExpandHeight) ? size : pref.height())));
+                    xr += spacing().x();
+                } else {
+                    child->setGeom(QRect(QPoint(x, _padding.first.y()),
+                             QSize(pref.width(),
+                             child->wattr().testFlag(GUIWidget::ExpandHeight) ? size : pref.height())));
+                    x += pref.width() + spacing().x();
+                }
+            }
+
+            x = prefSize.width()/2 - centerWidth/2;
+            foreach(GUIWidget* child, centerChilds) {
+                QSize pref = child->preferredSize();
+                child->setGeom(QRect(QPoint(x, _padding.first.y()), pref));
+                x += pref.width() + spacing().x();
+            }
+
+            break;
+        }
+
+        case VerticalLayout:
+        {
+            int centerHeight = 0;
+            Children centerChilds;
+            int y=_padding.first.y();
+            int yr=_padding.second.y();
+            bool first[3] = {true, true, true};
+            int size = prefSize.width()-_padding.first.x()-_padding.second.x();
             foreach(GUIWidget* child, childWidgets()) {
                 if(child->isHidden())
                     continue;
@@ -170,58 +216,31 @@ void GUIContainer::fixLayoutImpl() {
                 if(first[flot])
                     first[flot] = false;
                 else
-                    add = spacing().x();
+                    add = spacing().y();
 
                 if(child->wattr().testFlag(FloatCenter)) {
-                    child->resize(pref.width(),
-                             child->wattr().testFlag(GUIWidget::ExpandHeight) ? size : child->height());
-
-                    centerWidth += pref.width() + add;
+                    centerHeight += pref.height() + add;
                     centerChilds << child;
                     continue;
                 }
 
                 if(child->wattr().testFlag(FloatRight)) {
-                    xr += pref.width() + add;
-                    child->setGeom(QRect(QPoint(width()-xr, _padding.first.y()),
-                             QSize(pref.width(),
-                             child->wattr().testFlag(GUIWidget::ExpandHeight) ? size : child->height())));
+                    yr += pref.height() + add;
+                    child->setGeom(QRect(QPoint(_padding.first.x(), height()-yr),
+                             QSize(child->wattr().testFlag(GUIWidget::ExpandWidth) ? size : pref.width(), pref.height())));
                 } else {
-                    child->setGeom(QRect(QPoint(x, _padding.first.y()),
-                             QSize(pref.width(),
-                             child->wattr().testFlag(GUIWidget::ExpandHeight) ? size : child->height())));
-                    x += pref.width() + add;
+                    child->setGeom(QRect(QPoint(_padding.first.x(), y),
+                             QSize(child->wattr().testFlag(GUIWidget::ExpandWidth) ? size : pref.width(), pref.height())));
+                    y += pref.height() + add;
                 }
             }
 
             first[0] = false;
-            x = prefSize.width()/2 - centerWidth/2;
+            y = prefSize.height()/2 - centerHeight/2;
             foreach(GUIWidget* child, centerChilds) {
                 QSize pref = child->preferredSize();
-                if(first[0])
-                    first[0] = false;
-                else
-                    pref.setWidth(pref.width() + spacing().x());
-
-                child->move(x, _padding.first.y());
-                x += pref.width();
-            }
-
-            break;
-        }
-
-        case VerticalLayout:
-        {
-            int y=_padding.first.y();
-            int size = prefSize.width()-_padding.first.x()-_padding.second.x();
-            foreach(GUIWidget* child, childWidgets()) {
-                if(child->isHidden())
-                    continue;
-
-                child->setGeom(QRect(QPoint(_padding.first.x(), y), QSize(
-                     child->wattr().testFlag(GUIWidget::ExpandWidth) ? size : child->width(),
-                     child->preferredSize().height())));
-                y += child->height();
+                child->setGeom(QRect(QPoint(_padding.first.x(), y), pref));
+                y += pref.height() + spacing().y();
             }
 
             break;
