@@ -2,6 +2,7 @@
 #define CURSESDIALOG_H
 
 #include <QTimer>
+#include <QVariant>
 #include <QEventLoop>
 #include <QStringList>
 
