@@ -309,7 +309,13 @@ bool CursesMenu::processEvent(QEvent *ev) {
         case GUIEvent::GUIMouseClicked:
         {
             if(!QRect(QPoint(0,0),size()).contains(((GUIMouseEvent*)ev)->pos())) {
-                hideChain();
+                CursesWindow::hideImpl();
+                GUIMouseEvent* mEv = (GUIMouseEvent*)ev;
+                GUIMouseEvent nEv((GUIEvent::GUIType)ev->type(), mEv->button(), mEv->pos() + QPoint(screenX(), screenY()));
+                CursesMainWindow::current()->event(&nEv);
+                CursesWindow::showImpl();
+                hide();
+
                 return true;
             }
 

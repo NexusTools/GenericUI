@@ -109,6 +109,11 @@ QSize GUIContainer::sizeForLayout()  {
                     continue;
 
                 QSize pref = child->preferredSize();
+                int flot = valForFloatAttr(child->wattr());
+                if(first[flot])
+                    first[flot] = false;
+                else
+                    pref.setHeight(pref.height() + spacing().y());
 
                 size.setHeight(size.height() + pref.height());
                 if(pref.width() > size.width())
@@ -204,38 +209,32 @@ void GUIContainer::fixLayoutImpl() {
             Children centerChilds;
             int y=_padding.first.y();
             int yr=_padding.second.y();
-            bool first[3] = {true, true, true};
             int size = prefSize.width()-_padding.first.x()-_padding.second.x();
             foreach(GUIWidget* child, childWidgets()) {
                 if(child->isHidden())
                     continue;
 
-                int add = 0;
                 QSize pref = child->preferredSize();
-                int flot = valForFloatAttr(child->wattr());
-                if(first[flot])
-                    first[flot] = false;
-                else
-                    add = spacing().y();
-
                 if(child->wattr().testFlag(FloatCenter)) {
-                    centerHeight += pref.height() + add;
+                    if(centerHeight > 0)
+                        centerHeight += spacing().y();
+                    centerHeight += pref.height();
                     centerChilds << child;
                     continue;
                 }
 
                 if(child->wattr().testFlag(FloatRight)) {
-                    yr += pref.height() + add;
+                    yr += pref.height();
                     child->setGeom(QRect(QPoint(_padding.first.x(), height()-yr),
                              QSize(child->wattr().testFlag(GUIWidget::ExpandWidth) ? size : pref.width(), pref.height())));
+                    yr += spacing().y();
                 } else {
                     child->setGeom(QRect(QPoint(_padding.first.x(), y),
                              QSize(child->wattr().testFlag(GUIWidget::ExpandWidth) ? size : pref.width(), pref.height())));
-                    y += pref.height() + add;
+                    y += pref.height() + spacing().y();
                 }
             }
 
-            first[0] = false;
             y = prefSize.height()/2 - centerHeight/2;
             foreach(GUIWidget* child, centerChilds) {
                 QSize pref = child->preferredSize();
