@@ -30,6 +30,7 @@ public:
     virtual ~CursesDialog() {hideImpl();}
 
     inline void exec() {
+        _value.clear();
         show();
 
         QEventLoop eventLoop;

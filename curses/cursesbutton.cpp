@@ -3,6 +3,7 @@
 
 
 void CursesButton::activateCallback() {
+    _activateWait = false;
     blinkTimer.stop();
     _blink = false;
     markDirty();
