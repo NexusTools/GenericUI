@@ -67,8 +67,31 @@ bool CursesButton::processEvent(QEvent *e) {
             activate();
             break;
 
-        case GUIEvent::GUIStateChanged:
+        case GUIEvent::GUIFocusChanged:
             markDirty();
+            break;
+
+        case GUIEvent::GUIKeyTyped:
+        {
+            GUIKeyEvent* kEv = (GUIKeyEvent*)e;
+            if(kEv->key() == Qt::Key_Enter ||
+                    kEv->key() == Qt::Key_Return ||
+                    kEv->key() == Qt::Key_Space) {
+                activate();
+                return true;
+            }
+            break;
+        }
+
+        case GUIEvent::GUIScreenPositionChanged:
+            if(!widget()->isFocused())
+                break;
+        case GUIEvent::GUIFocusGained:
+            CursesMainWindow::current()->setCursor(screenX() + _spos, screenY());
+            break;
+
+        case GUIEvent::GUIFocusLost:
+            CursesMainWindow::current()->setCursor(-1, -1);
             break;
 
         default:

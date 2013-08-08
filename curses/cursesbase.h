@@ -31,7 +31,7 @@ public:
     virtual void repaint();
 
     void giveFocus();
-    inline GUIWidget* currentFocus() {return _focusBase.data();}
+    inline GUIWidget* currentFocus() const{return _focusBase.data();}
 
     virtual QRect geom() const =0;
     virtual bool isScreen() const{return false;}
@@ -79,16 +79,11 @@ private:
     static QPointer<GUIWidget> _focusBase;
 };
 
-class CursesBaseAction : public CursesBase
-{
-protected:
-    virtual bool processEvent(QEvent*);
-};
-
 class CursesBaseContainer : public CursesBase
 {
     friend class CursesScreen;
 public:
+    GUIWidget* nextFocusable(GUIWidget* from =(GUIWidget*)-1, GUIWidget** first =0);
 
 protected:
     inline CursesBaseContainer(QSize size =QSize(1,1)) : CursesBase(size) {}

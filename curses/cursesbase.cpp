@@ -96,6 +96,7 @@ bool CursesBase::processEvent(QEvent* ev) {
             break;
 
         case GUIEvent::GUIPositionChanged:
+            widget()->simEvent(GUIEvent::GUIScreenPositionChanged);
         case GUIEvent::GUIVisibilityChanged:
             repaint();
             break;
@@ -147,11 +148,79 @@ void CursesBase::giveFocus() {
     widget()->setWAttr(GUIWidget::Focused);
 }
 
+GUIWidget* CursesBaseContainer::nextFocusable(GUIWidget *from, GUIWidget **first) {
+    GUIContainer::Children chld = ((GUIContainer*)widget())->childWidgets();
+    QListIterator<GUIWidget*> i(chld);
+
+    while(i.hasNext()) {
+        GUIWidget* next = i.next();
+        GUIContainer* con = qobject_cast<GUIContainer*>(next);
+        if(!con && !next->isFocusable())
+            continue;
+        if(first && !*first)
+            *first = next;
+
+        if(from == 0) {
+            from = next;
+            i.previous();
+        }
+
+        if(from == next || (from == (GUIWidget *)-1 && next->isFocused())) {
+            while(i.hasNext()) {
+                next = i.next();
+                con = qobject_cast<GUIContainer*>(next);
+                if(con) {
+                    next = con->internal<CursesBaseContainer>()->nextFocusable(0, first);
+                    if(next)
+                        return next;
+                    continue;
+                }
+
+                if(next->isFocusable())
+                    return next;
+            }
+
+            break;
+        }
+    }
+
+    GUIContainer* par = widget()->parentContainer();
+    if(par)
+        return par->internal<CursesBaseContainer>()->nextFocusable(widget());
+
+    return 0;
+}
+
 bool CursesBaseContainer::processEvent(QEvent* ev) {
     switch(ev->type()) {
         case GUIEvent::GUISizeChanged:
             ((GUIContainer*)widget())->markLayoutDirty();
             break;
+
+        case GUIEvent::GUIScreenPositionChanged:
+        {
+            foreach(QObject* obj, widget()->children()) {
+                GUIWidget* child = qobject_cast<GUIWidget*>(obj);
+                if(!child)
+                    continue;
+
+                child->event(ev);
+            }
+
+            break;
+        }
+
+        case GUIEvent::GUIKeyTyped:
+        {
+            GUIKeyEvent* kEv = (GUIKeyEvent*)ev;
+            if(kEv->key() == Qt::Key_Tab) {
+                GUIWidget* next = nextFocusable();
+                if(next) {
+                    next->focus();
+                    return true;
+                }
+            }
+        }
 
         default:
             break;

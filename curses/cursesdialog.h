@@ -137,15 +137,38 @@ protected:
     }
 
     virtual void showImpl() {
+        _lastFocus = currentFocus();
         CursesWindow::showImpl();
+        focusFirstChild(this);
 
         _open = true;
         _animationTimer.start();
     }
 
+    static inline bool focusFirstChild(GUIContainer* container) {
+        foreach(QObject* obj, container->children()) {
+            GUIWidget* child = qobject_cast<GUIWidget*>(obj);
+            if(child && child->isFocusable()) {
+                child->focus();
+                return true;
+            }
+
+            GUIContainer* subContainer = qobject_cast<GUIContainer*>(obj);
+            if(subContainer && focusFirstChild(subContainer))
+                return true;
+        }
+
+        return false;
+    }
+
     virtual void hideImpl() {
         _open = false;
         _animationTimer.start();
+
+        if(!_lastFocus.isNull()) {
+            _lastFocus->focus();
+            _lastFocus = 0;
+        }
     }
 
     virtual bool processEvent(QEvent*);
@@ -196,6 +219,7 @@ private:
     float _size;
 
     QVariant _value;
+    QPointer<GUIWidget> _lastFocus;
     QTimer _animationTimer;
 
 };

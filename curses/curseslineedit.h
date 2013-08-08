@@ -17,23 +17,26 @@ public:
         return QSize(22, sizeForString(text()).height());
     }
 
+    void updateCursor();
+
 protected:
+    bool processEvent(QEvent *);
     inline QSize sizeForString(QString text) {return QSize(text.size(), 1);}
 
     inline void drawImpl() {
         wmove(hnd(), 0, 0);
         wattrset(hnd(), A_STANDOUT);
-        //waddch(hnd(), ' '); // ACS_LARROW
+        // ACS_LARROW
 
-        wattron(hnd(), A_UNDERLINE);
-        QString visPart = text().mid(0, width());
+        wattrset(hnd(), A_UNDERLINE | (isFocused() ? A_NORMAL : A_STANDOUT));
+        QString visPart = text().right(width()-1);
         waddstr(hnd(), visPart.toLocal8Bit().data());
 
         if(visPart.length() < width())
             waddstr(hnd(), QByteArray(width()-visPart.length(), ' ').data());
 
-        wattroff(hnd(), A_UNDERLINE);
-        //waddch(hnd(), ' '); // ACS_RARROW
+        wattrset(hnd(), A_STANDOUT);
+        // ACS_RARROW
         wattrset(hnd(), A_NORMAL);
     }
 

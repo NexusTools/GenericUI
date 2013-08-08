@@ -17,11 +17,12 @@ public:
     inline CursesButton(QString text, WAttrs attr, GUIContainer* par =0) : GUIButton(text, attr, par) {
         fitToContent();
 
-        int pos = text.indexOf('_');
-        if(pos > -1)
-            _shortcut = (Qt::Key)(Qt::Key_A + (text.toLocal8Bit().toLower().at(pos+1) - 'a'));
+        _spos = text.indexOf('_');
+        if(_spos > -1)
+            _shortcut = (Qt::Key)(Qt::Key_A + (text.toLocal8Bit().toLower().at(_spos+1) - 'a'));
         else
             _shortcut = (Qt::Key)0;
+        _spos+=2;
 
         blinkTimer.setInterval(100);
         connect(&blinkTimer, SIGNAL(timeout()), this, SLOT(blink()));
@@ -68,6 +69,7 @@ private:
     QTimer blinkTimer;
     QTimer activateTimer;
     bool _activateWait;
+    int _spos;
 };
 
 #endif // CURSESBUTTON_H

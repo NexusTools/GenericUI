@@ -277,5 +277,5 @@ GUIWindow* GUIWidget::window() {
 
 GUIMainWindow::GUIMainWindow(QString title) : GUIWindow(title, 0)
 {
-    qRegisterMetaType<GUIEvent::GUIType>("GUIEvent::GUIType");
+//    qRegisterMetaType<GUIEvent::GUIType>("GUIEvent::GUIType");
 }

@@ -1,5 +1,6 @@
 #include "cursesmainwindow.h"
 #include "cursesaction.h"
+#include "cursesmenubar.h"
 #include "cursesmenu.h"
 
 
@@ -32,6 +33,11 @@ bool CursesAction::processEvent(QEvent *e) {
                     activate();
                     return true;
 
+                case Qt::Key_Tab:
+                    if(qobject_cast<GUIMenu*>(parent()) ||
+                            qobject_cast<GUIMenuBar*>(parent()))
+                        return false;
+
                 default:
                     break;
             }
@@ -43,13 +49,33 @@ bool CursesAction::processEvent(QEvent *e) {
             break;
 
         case GUIEvent::GUIScreenPositionChanged:
+            if(!widget()->isFocused())
+                break;
         case GUIEvent::GUIFocusGained:
             CursesMainWindow::current()->setCursor(screenX() + _spos, screenY());
             break;
 
         case GUIEvent::GUIFocusLost:
+        {
             CursesMainWindow::current()->setCursor(-1, -1);
+            CursesMenu* menu = qobject_cast<CursesMenu*>(parent());
+            if(menu && currentFocus()) {
+                CursesMenu* newMenu = qobject_cast<CursesMenu*>(currentFocus()->parent());
+                while(newMenu) {
+                    if(newMenu == menu)
+                        break;
+
+                    if(newMenu->currentAction())
+                        newMenu = qobject_cast<CursesMenu*>(newMenu->currentAction()->parent());
+                }
+                if(newMenu == menu)
+                    break;
+
+                menu->close();
+            }
+
             break;
+        }
 
         default:
             break;

@@ -147,7 +147,6 @@ void CursesMainWindow::readNextCH()  {
             return;
 
         qDebug() << "Processing Event" << ch;
-
         switch(ch) {
             case 27:
                 altPressed = true;
@@ -189,8 +188,8 @@ void CursesMainWindow::readNextCH()  {
                         key = kOff(Qt::Key_A, ch - 65);
                     } else if(ch >= KEY_F(1) && ch <= KEY_F(12))
                         key = kOff(Qt::Key_F1, ch - KEY_F(1));
-                    //else if(ch >= 48 && ch <= 57)
-                    //    key = kOff(Qt::Key_0, ch - 48);
+                    else if(ch >= 48 && ch <= 57)
+                        key = kOff(Qt::Key_0, ch - 48);
                     else {
                         switch(ch) {
                             case ERR:
@@ -198,10 +197,13 @@ void CursesMainWindow::readNextCH()  {
                                 altPressed = false;
                                 break;
 
+                            case 353:
+                                mod |= Qt::ShiftModifier;
                             case 9:
                                 key = Qt::Key_Tab;
                                 break;
 
+                            case KEY_ENTER:
                             case 10:
                                 key = Qt::Key_Enter;
                                 break;
@@ -210,8 +212,20 @@ void CursesMainWindow::readNextCH()  {
                                 key = Qt::Key_Space;
                                 break;
 
+                            case 33:
+                                key = Qt::Key_Exclam;
+                                break;
+
+                            case 45:
+                                key = Qt::Key_Bar;
+                                break;
+
                             case 46:
                                 key = Qt::Key_Period;
+                                break;
+
+                            case 47:
+                                key = Qt::Key_Slash;
                                 break;
 
                             case 58:
@@ -222,6 +236,12 @@ void CursesMainWindow::readNextCH()  {
                             case 59:
                                 key = Qt::Key_Semicolon;
                                 break;
+
+                            case 92:
+                                key = Qt::Key_Backslash;
+                                break;
+
+
 
                             case KEY_UP:
                                 key = Qt::Key_Up;
@@ -239,7 +259,12 @@ void CursesMainWindow::readNextCH()  {
                                 key = Qt::Key_Left;
                                 break;
 
+                            case KEY_BACKSPACE:
+                                key = Qt::Key_Backspace;
+                                break;
+
                             default:
+                                qDebug() << "";
                                 return;
 
                         }
@@ -362,11 +387,14 @@ bool CursesMenu::processEvent(QEvent *ev) {
             }
 
             switch(kEv->key()) {
+                case Qt::Key_Tab:
+                    return false;
+
                 case Qt::Key_Right:
                 case Qt::Key_Left:
                     if(_action)
                         _action->event(kEv);
-                    break;
+                    return true;
 
                 case Qt::Key_Down:
                 {
@@ -510,6 +538,7 @@ bool CursesMenuBar::processEvent(QEvent* ev) {
         switch(kEv->key()) {
             case Qt::Key_Right:
             {
+                bool open = false;
                 Children chld = childWidgets();
                 QListIterator<GUIWidget*> i(chld);
                 CursesAction* first = 0;
@@ -522,13 +551,17 @@ bool CursesMenuBar::processEvent(QEvent* ev) {
                     if(!first)
                         first = next;
 
-                    if(next->isMenuOpen()) {
+                    if(next->isMenuOpen() || next->isFocused()) {
+                        open = next->isMenuOpen();
                         next->closeMenu();
 
                         while(i.hasNext()) {
                             next = qobject_cast<CursesAction*>(i.next());
                             if(next && next->isFocusable()) {
-                                next->openMenu();
+                                if(open)
+                                    next->openMenu();
+                                else
+                                    next->giveFocus();
                                 return true;
                             }
                         }
@@ -537,12 +570,16 @@ bool CursesMenuBar::processEvent(QEvent* ev) {
                     }
                 }
 
-                first->openMenu();
+                if(open)
+                    first->openMenu();
+                else
+                    first->giveFocus();
                 return true;
             }
 
             case Qt::Key_Left:
             {
+                bool open = false;
                 Children chld = childWidgets();
                 QListIterator<GUIWidget*> i(chld);
                 CursesAction* last = 0;
@@ -555,13 +592,17 @@ bool CursesMenuBar::processEvent(QEvent* ev) {
                     if(!last)
                         last = prev;
 
-                    if(prev->isMenuOpen()) {
+                    if(prev->isMenuOpen() || prev->isFocused()) {
+                        open = prev->isMenuOpen();
                         prev->closeMenu();
 
                         while(i.hasPrevious()) {
                             prev = qobject_cast<CursesAction*>(i.previous());
                             if(prev && prev->isFocusable()) {
-                                prev->openMenu();
+                                if(open)
+                                    prev->openMenu();
+                                else
+                                    prev->giveFocus();
                                 return true;
                             }
                         }
@@ -570,9 +611,15 @@ bool CursesMenuBar::processEvent(QEvent* ev) {
                     }
                 }
 
-                last->openMenu();
+                if(open)
+                    last->openMenu();
+                else
+                    last->giveFocus();
                 return true;
             }
+
+            default:
+                break;
         }
 
         foreach(QObject* ch, children()) {

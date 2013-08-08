@@ -34,6 +34,8 @@ public:
         return _action.data();
     }
 
+    inline GUIAction* currentAction() const{return _action;}
+
     inline void addAction(GUIAction* action) {action->setParent(this);}
     inline void addMenu(GUIMenu* menu, QString text) {addAction(menu->action(text));}
     inline void addMenu(GUIMenu* menu) {addAction(menu->action());}
@@ -62,10 +64,9 @@ protected:
         _oldFocus = _action ? _action : currentFocus();
 
         CursesWindow::showImpl();
-        foreach(QObject* obj, children()) {
+        foreach(QObject* obj, widget()->children()) {
             GUIWidget* child = qobject_cast<GUIWidget*>(obj);
-            if(child && child->testAttr(GUIWidget::Focusable) &&
-                    !child->isHidden() && !child->isDisabled()) {
+            if(child && child->isFocusable()) {
                 child->metaObject()->invokeMethod(child, "focus", Qt::QueuedConnection);
                 break;
             }

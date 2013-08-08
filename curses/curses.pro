@@ -23,7 +23,8 @@ SOURCES += \
     cursesmainwindow.cpp \
     cursesbase.cpp \
     cursesaction.cpp \
-    cursesbutton.cpp
+    cursesbutton.cpp \
+    cursesedit.cpp
 
 HEADERS += \
     global.h \
