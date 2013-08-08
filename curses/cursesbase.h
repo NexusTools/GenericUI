@@ -4,6 +4,7 @@
 #include <ncurses.h>
 #include <guievent.h>
 
+#include <QPointer>
 #include <QDebug>
 #include <QRect>
 #include <QList>
@@ -20,7 +21,7 @@ class CursesBase
     friend class CursesScreen;
 
 public:
-    virtual ~CursesBase() {destroy();if(_focusBase == this)_focusBase=0;}
+    virtual ~CursesBase() {destroy();}
 
     inline WINDOW* hnd() const{return _window;}
 
@@ -28,6 +29,9 @@ public:
     inline bool isDirty() const{return _dirty;}
     virtual void markDirty();
     virtual void repaint();
+
+    void giveFocus();
+    inline GUIWidget* currentFocus() {return _focusBase.data();}
 
     virtual QRect geom() const =0;
     virtual bool isScreen() const{return false;}
@@ -72,7 +76,7 @@ private:
         }
     }
 
-    static CursesBase* _focusBase;
+    static QPointer<GUIWidget> _focusBase;
 };
 
 class CursesBaseAction : public CursesBase

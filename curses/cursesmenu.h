@@ -59,7 +59,18 @@ public:
 
 protected:
     virtual void showImpl() {
+        _oldFocus = _action ? _action : currentFocus();
+
         CursesWindow::showImpl();
+        foreach(QObject* obj, children()) {
+            GUIWidget* child = qobject_cast<GUIWidget*>(obj);
+            if(child && child->testAttr(GUIWidget::Focusable) &&
+                    !child->isHidden() && !child->isDisabled()) {
+                child->metaObject()->invokeMethod(child, "focus", Qt::QueuedConnection);
+                break;
+            }
+        }
+
         if(_action)
             _action->markDirty();
 
@@ -70,6 +81,11 @@ protected:
     virtual void hideImpl() {
         _open = false;
         _animationTimer.start();
+
+        if(_oldFocus) {
+            _oldFocus->focus();
+            _oldFocus = 0;
+        }
     }
 
     inline virtual void drawImpl() {
@@ -150,6 +166,7 @@ protected slots:
 private:
     bool _open;
     float _size;
+    GUIWidget* _oldFocus;
     QTimer _animationTimer;
     QPointer<CursesAction> _action;
 };

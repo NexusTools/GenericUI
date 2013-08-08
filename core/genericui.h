@@ -122,6 +122,7 @@ public slots:
     void enable() {setEnabled(true);}
     void disable() {setEnabled(false);}
     void setEnabled(bool en) {setDisabled(!en);}
+    void focus() {setWAttr(Focused);}
     void setDisabled(bool dis);
 
     // Simulate

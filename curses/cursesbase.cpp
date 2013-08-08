@@ -4,7 +4,7 @@
 #include "cursescontainer.h"
 #include "cursesmenubar.h"
 
-CursesBase* CursesBase::_focusBase = 0;
+QPointer<GUIWidget> CursesBase::_focusBase;
 
 CursesBase::CursesBase(QSize size, int colorPair) {
     _window=newpad(size.height(), size.width());
@@ -99,11 +99,43 @@ bool CursesBase::processEvent(QEvent* ev) {
             repaint();
             break;
 
+        case GUIEvent::GUIMouseClicked:
+            if(widget()->wattr().testFlag(GUIWidget::Focusable))
+                giveFocus();
+            break;
+
+        case GUIEvent::GUIWAttrChanged:
+            if(widget()->wattr().testFlag(GUIWidget::Focused)) {
+                if(!widget()->wattr().testFlag(GUIWidget::Focusable))
+                    widget()->setWAttr(GUIWidget::Focused, false);
+                else
+                    giveFocus();
+            }
+            break;
+
         default:
             break;
     }
 
     return false;
+}
+
+void CursesBase::giveFocus() {
+    if(_focusBase == widget())
+        return;
+
+    GUIWidget* oldFocus = _focusBase.data();
+    _focusBase = widget();
+
+    if(oldFocus) {
+        oldFocus->setWAttr(GUIWidget::Focused, false);
+        oldFocus->simEvent(GUIEvent::GUIFocusChanged);
+        oldFocus->simEvent(GUIEvent::GUIFocusLost);
+    }
+
+    widget()->simEvent(GUIEvent::GUIFocusChanged);
+    widget()->simEvent(GUIEvent::GUIFocusGained);
+    widget()->setWAttr(GUIWidget::Focused);
 }
 
 bool CursesBaseContainer::processEvent(QEvent* ev) {

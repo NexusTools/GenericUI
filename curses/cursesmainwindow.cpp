@@ -325,6 +325,11 @@ bool CursesMenu::processEvent(QEvent *ev) {
         case GUIEvent::GUIKeyTyped:
         {
             GUIKeyEvent* kEv = (GUIKeyEvent*)ev;
+            if(kEv->key() == Qt::Key_Escape) {
+                CursesWindow::hideImpl();
+                return true;
+            }
+
             foreach(QObject* ch, children()) {
                 CursesAction* a = qobject_cast<CursesAction*>(ch);
                 if(a && CursesMenuBar::passShortcut(a, kEv->key()))

@@ -89,5 +89,4 @@ void CursesButton::activate() {
 void CursesButton::feedback() {
     blinkTimer.start();
     activateTimer.start(300);
-    CursesMainWindow::current()->setCursor(screenX() + 1, screenY());
 }

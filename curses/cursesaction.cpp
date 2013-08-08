@@ -26,8 +26,17 @@ bool CursesAction::processEvent(QEvent *e) {
             activate();
             break;
 
-        case GUIEvent::GUIStateChanged:
+        case GUIEvent::GUIFocusChanged:
             markDirty();
+            break;
+
+        case GUIEvent::GUIScreenPositionChanged:
+        case GUIEvent::GUIFocusGained:
+            CursesMainWindow::current()->setCursor(screenX() + _spos, screenY());
+            break;
+
+        case GUIEvent::GUIFocusLost:
+            CursesMainWindow::current()->setCursor(-1, -1);
             break;
 
         default:
@@ -99,6 +108,5 @@ void CursesAction::feedback() {
 
     blinkTimer.start();
     activateTimer.start(300);
-    CursesMainWindow::current()->setCursor(screenX() + 1, screenY());
 }
 

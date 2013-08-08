@@ -35,6 +35,7 @@ public:
         // Geometry
         GUIGeometryChanged,
         GUIPositionChanged,
+        GUIScreenPositionChanged,
         GUISizeChanged,
 
         GUIUserType = GUITypeBase + 500
