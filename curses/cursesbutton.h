@@ -1,6 +1,7 @@
 #ifndef CURSESBUTTON_H
 #define CURSESBUTTON_H
 
+#include <QVariant>
 #include <QTimer>
 
 #include <guibutton.h>

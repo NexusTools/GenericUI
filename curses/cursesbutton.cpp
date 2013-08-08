@@ -14,7 +14,7 @@ void CursesButton::activateCallback() {
         txt = txt.remove(pos, 1);
 
     emit activated();
-    emit selected(txt);
+    emit selected(QVariant(txt));
     simEvent(GUIEvent::GUIActivated);
 }
 
