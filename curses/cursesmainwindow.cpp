@@ -103,6 +103,8 @@ QSize CursesMainWindow::initialScreen() {
         signal(SIGTERM, crash);
         signal(SIGHUP, crash);
 
+        signal(SIGTSTP, SIG_IGN);
+
         ESCDELAY = 25;
         initscr();
         start_color();

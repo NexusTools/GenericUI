@@ -45,8 +45,8 @@ protected:
 class CursesVBox : public CursesContainer
 {
 public:
-    inline explicit CursesVBox(Spacing margin, Padding padding, GUIContainer *parent) : CursesContainer(margin, padding, VerticalLayout, parent) {expandToParent();}
-    inline explicit CursesVBox(Padding padding, GUIContainer *parent) : CursesContainer(padding, VerticalLayout, parent) {expandToParent();}
+    inline explicit CursesVBox(Spacing margin, Padding padding =Padding(QPoint(0,0),QPoint(0,0)), GUIContainer *parent =0) : CursesContainer(margin, padding, VerticalLayout, parent) {expandToParent();}
+    inline explicit CursesVBox(Padding padding, GUIContainer *parent =0) : CursesContainer(padding, VerticalLayout, parent) {expandToParent();}
     inline explicit CursesVBox(GUIContainer* par =0) : CursesContainer(VerticalLayout, par) {expandToParent();}
 
 };
@@ -54,8 +54,9 @@ public:
 class CursesHBox : public CursesContainer
 {
 public:
-    inline explicit CursesHBox(Spacing margin, Padding padding, GUIContainer *parent) : CursesContainer(margin, padding, HorizontalLayout, parent) {expandToParent();}
-    inline explicit CursesHBox(Padding padding, GUIContainer *parent) : CursesContainer(padding, HorizontalLayout, parent) {expandToParent();}
+    inline explicit CursesHBox(Spacing margin, Padding padding =Padding(QPoint(0,0),QPoint(0,0)), GUIContainer *parent =0) : CursesContainer(margin, padding, HorizontalLayout, parent) {expandToParent();}
+    inline explicit CursesHBox(Padding padding, GUIContainer *parent =0) : CursesContainer(padding, HorizontalLayout, parent) {expandToParent();}
+    inline explicit CursesHBox(Spacing margin, GUIContainer *parent =0) : CursesContainer(margin, HorizontalLayout, parent) {expandToParent();}
     inline explicit CursesHBox(GUIContainer* par =0) : CursesContainer(HorizontalLayout, par) {expandToParent();}
 
 };
