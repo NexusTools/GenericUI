@@ -5,6 +5,7 @@
 #include "cursesmenu.h"
 
 #include <QCoreApplication>
+#include <QTime>
 
 #include <stdio.h>
 #include <signal.h>
@@ -70,9 +71,15 @@ void shutdown(int sig){
 
 void tryTerminate(int sig) {
     CursesMainWindow* mainWin = CursesMainWindow::current();
-    if(mainWin)
-        mainWin->terminateRequested(sig);
-    else
+    if(mainWin) {
+        static int lastSig = 0;
+        static QTime lastSigTime;
+
+        if(sig != lastSig || lastSigTime.elapsed() > 150)
+            mainWin->terminateRequested(sig);
+        lastSigTime.start();
+        lastSig = sig;
+    } else
         shutdown(sig);
 }
 
