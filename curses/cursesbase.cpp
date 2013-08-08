@@ -50,6 +50,7 @@ bool CursesWindow::processEvent(QEvent *ev) {
                     if(buttonBox->event(kEv))
                         return true;
             }
+
             break;
         }
 
@@ -103,6 +104,14 @@ bool CursesBase::processEvent(QEvent* ev) {
             if(widget()->wattr().testFlag(GUIWidget::Focusable))
                 giveFocus();
             break;
+
+        case GUIEvent::GUIKeyTyped:
+        {
+            GUIContainer* container;
+            if(container = widget()->parentContainer())
+                container->internal<CursesBase>()->pushEvent(ev);
+            break;
+        }
 
         case GUIEvent::GUIWAttrChanged:
             if(widget()->wattr().testFlag(GUIWidget::Focused)) {

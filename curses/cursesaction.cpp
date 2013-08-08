@@ -26,6 +26,18 @@ bool CursesAction::processEvent(QEvent *e) {
             activate();
             break;
 
+        case GUIEvent::GUIKeyTyped:
+            switch(((GUIKeyEvent*)e)->key()) {
+                case Qt::Key_Enter:
+                    activate();
+                    return true;
+
+                default:
+                    break;
+            }
+
+            break;
+
         case GUIEvent::GUIFocusChanged:
             markDirty();
             break;
@@ -99,8 +111,7 @@ void CursesAction::drawImpl() {
 }
 
 void CursesAction::feedback() {
-    if(_menu)
-        _menu->show(QPoint(screenX(), screenY()+1));
+    openMenu();
 
     CursesMenu* parentMenu = qobject_cast<CursesMenu*>(parent());
     if(parentMenu)

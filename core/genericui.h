@@ -49,6 +49,14 @@ public:
         return _attr.testFlag(Hidden);
     }
 
+    inline bool isFocused() {
+        return _attr.testFlag(Focused);
+    }
+
+    inline bool isFocusable() {
+        return _attr.testFlag(Focusable) && !_attr.testFlag(Hidden) && !_attr.testFlag(Disabled);
+    }
+
     inline bool isDisabled() {
         return _attr.testFlag(Disabled);
     }

@@ -164,9 +164,11 @@ void CursesMainWindow::readNextCH()  {
 
             default:
             {
-                CursesWindow* target;
+                CursesBase* target;
 
-                if(!_windowStack.isEmpty())
+                if(currentFocus())
+                    target = currentFocus()->internal<CursesBase>();
+                else if(!_windowStack.isEmpty())
                     target = _windowStack.last();
                 else
                     target = internal<CursesWindow>();
@@ -187,8 +189,8 @@ void CursesMainWindow::readNextCH()  {
                         key = kOff(Qt::Key_A, ch - 65);
                     } else if(ch >= KEY_F(1) && ch <= KEY_F(12))
                         key = kOff(Qt::Key_F1, ch - KEY_F(1));
-                    else if(ch >= 48 && ch <= 57)
-                        key = kOff(Qt::Key_0, ch - 48);
+                    //else if(ch >= 48 && ch <= 57)
+                    //    key = kOff(Qt::Key_0, ch - 48);
                     else {
                         switch(ch) {
                             case ERR:
@@ -221,7 +223,21 @@ void CursesMainWindow::readNextCH()  {
                                 key = Qt::Key_Semicolon;
                                 break;
 
+                            case KEY_UP:
+                                key = Qt::Key_Up;
+                                break;
 
+                            case KEY_RIGHT:
+                                key = Qt::Key_Right;
+                                break;
+
+                            case KEY_DOWN:
+                                key = Qt::Key_Down;
+                                break;
+
+                            case KEY_LEFT:
+                                key = Qt::Key_Left;
+                                break;
 
                             default:
                                 return;
@@ -304,6 +320,21 @@ bool CursesDialog::processEvent(QEvent *ev) {
     return CursesWindow::processEvent(ev);
 }
 
+void CursesAction::openMenu() {
+    giveFocus();
+    if(_menu)
+        _menu->show(QPoint(screenX(), screenY()+1));
+}
+
+void CursesAction::closeMenu() {
+    if(_menu)
+        _menu->hide();
+}
+
+bool CursesAction::isMenuOpen() {
+    return _menu && _menu->isOpen();
+}
+
 bool CursesMenu::processEvent(QEvent *ev) {
     switch(ev->type()) {
         case GUIEvent::GUIMouseClicked:
@@ -326,8 +357,81 @@ bool CursesMenu::processEvent(QEvent *ev) {
         {
             GUIKeyEvent* kEv = (GUIKeyEvent*)ev;
             if(kEv->key() == Qt::Key_Escape) {
-                CursesWindow::hideImpl();
+                hide();
                 return true;
+            }
+
+            switch(kEv->key()) {
+                case Qt::Key_Right:
+                case Qt::Key_Left:
+                    if(_action)
+                        _action->event(kEv);
+                    break;
+
+                case Qt::Key_Down:
+                {
+                    Children chld = childWidgets();
+                    QListIterator<GUIWidget*> i(chld);
+                    GUIWidget* first = 0;
+
+                    while(i.hasNext()) {
+                        GUIWidget* next = i.next();
+                        if(!next->isFocusable())
+                            continue;
+                        if(!first)
+                            first = next;
+
+                        if(next->isFocused()) {
+                            while(i.hasNext()) {
+                                next = i.next();
+                                if(next->isFocusable()) {
+                                    next->focus();
+                                    return true;
+                                }
+                            }
+
+                            break;
+                        }
+                    }
+
+                    first->focus();
+                    return true;
+                }
+
+                case Qt::Key_Up:
+                {
+                    Children chld = childWidgets();
+                    QListIterator<GUIWidget*> i(chld);
+                    GUIWidget* last = 0;
+                    i.toBack();
+
+                    while(i.hasPrevious()) {
+                        GUIWidget* prev = i.previous();
+                        if(!prev->isFocusable())
+                            continue;
+                        if(!last)
+                            last = prev;
+
+                        if(prev->isFocused()) {
+                            while(i.hasPrevious()) {
+                                prev = i.previous();
+                                if(prev->isFocusable()) {
+                                    prev->focus();
+                                    return true;
+                                }
+                            }
+
+                            break;
+                        }
+                    }
+
+                    last->focus();
+                    return true;
+                }
+
+
+                default:
+                    break;
             }
 
             foreach(QObject* ch, children()) {
@@ -335,6 +439,7 @@ bool CursesMenu::processEvent(QEvent *ev) {
                 if(a && CursesMenuBar::passShortcut(a, kEv->key()))
                     return true;
             }
+
             break;
         }
 
@@ -357,7 +462,6 @@ bool CursesButtonBox::processEvent(QEvent *ev) {
                     btn->click();
                     return true;
                 }
-
             }
             break;
         }
@@ -402,6 +506,75 @@ bool CursesMainWindow::processEvent(QEvent *ev) {
 bool CursesMenuBar::processEvent(QEvent* ev) {
     if(ev->type() == GUIEvent::GUIKeyTyped) {
         GUIKeyEvent* kEv = (GUIKeyEvent*)ev;
+
+        switch(kEv->key()) {
+            case Qt::Key_Right:
+            {
+                Children chld = childWidgets();
+                QListIterator<GUIWidget*> i(chld);
+                CursesAction* first = 0;
+
+                while(i.hasNext()) {
+                    CursesAction* next = qobject_cast<CursesAction*>(i.next());
+                    if(!next || !next->isFocusable())
+                        continue;
+
+                    if(!first)
+                        first = next;
+
+                    if(next->isMenuOpen()) {
+                        next->closeMenu();
+
+                        while(i.hasNext()) {
+                            next = qobject_cast<CursesAction*>(i.next());
+                            if(next && next->isFocusable()) {
+                                next->openMenu();
+                                return true;
+                            }
+                        }
+
+                        break;
+                    }
+                }
+
+                first->openMenu();
+                return true;
+            }
+
+            case Qt::Key_Left:
+            {
+                Children chld = childWidgets();
+                QListIterator<GUIWidget*> i(chld);
+                CursesAction* last = 0;
+                i.toBack();
+
+                while(i.hasPrevious()) {
+                    CursesAction* prev = qobject_cast<CursesAction*>(i.previous());
+                    if(!prev || !prev->isFocusable())
+                        continue;
+                    if(!last)
+                        last = prev;
+
+                    if(prev->isMenuOpen()) {
+                        prev->closeMenu();
+
+                        while(i.hasPrevious()) {
+                            prev = qobject_cast<CursesAction*>(i.previous());
+                            if(prev && prev->isFocusable()) {
+                                prev->openMenu();
+                                return true;
+                            }
+                        }
+
+                        break;
+                    }
+                }
+
+                last->openMenu();
+                return true;
+            }
+        }
+
         foreach(QObject* ch, children()) {
             CursesAction* a = qobject_cast<CursesAction*>(ch);
             if(a && passShortcut(a, kEv->key()))

@@ -57,6 +57,10 @@ public:
         return QSize((str.contains('_') ? 1 : 2) + str.size(), 1);
     }
 
+    void openMenu();
+    void closeMenu();
+    bool isMenuOpen();
+
 protected:
     void drawImpl();
     void feedback();
