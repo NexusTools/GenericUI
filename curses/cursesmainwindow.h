@@ -12,22 +12,7 @@ class CursesMainWindow : public GUIMainWindow, public CursesScreen
     CURSES_WINDOW
 
 public:
-    inline explicit CursesMainWindow(QString title) : GUIMainWindow(title), CursesScreen(initialScreen()) {
-        _current = this;
-        resize(initialScreen());
-        titleChanged();
-
-        repaintTimer.setInterval(0);
-        repaintTimer.setSingleShot(true);
-        connect(&repaintTimer, SIGNAL(timeout()), this, SLOT(drawNow()));
-
-        inputTimer.setInterval(50);
-        connect(&inputTimer, SIGNAL(timeout()), this, SLOT(readNextCH()));
-        inputTimer.start();
-
-        QTimer::singleShot(0, this, SLOT(focusFirst()));
-        setWAttr(NoAutoResize);
-    }
+    explicit CursesMainWindow(QString title);
     virtual ~CursesMainWindow() {_current=0;}
 
     virtual void repaint() {

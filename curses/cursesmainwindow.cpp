@@ -14,6 +14,30 @@
 CursesMainWindow* CursesMainWindow::_current = 0;
 QHash<char, CursesAction*> CursesAction::shortcuts;
 
+CursesMainWindow::CursesMainWindow(QString title) : GUIMainWindow(title), CursesScreen(initialScreen()) {
+    if(QCoreApplication::instance()->arguments().contains("--test-terminal")) {
+        initialScreen();
+
+        endwin();
+        exit(0);
+    }
+
+    _current = this;
+    resize(initialScreen());
+    titleChanged();
+
+    repaintTimer.setInterval(0);
+    repaintTimer.setSingleShot(true);
+    connect(&repaintTimer, SIGNAL(timeout()), this, SLOT(drawNow()));
+
+    inputTimer.setInterval(50);
+    connect(&inputTimer, SIGNAL(timeout()), this, SLOT(readNextCH()));
+    inputTimer.start();
+
+    QTimer::singleShot(0, this, SLOT(focusFirst()));
+    setWAttr(NoAutoResize);
+}
+
 void CursesMenu::showChain() {
     if(_action) {
         move(_action->screenX(), _action->screenY()+1);
