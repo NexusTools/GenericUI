@@ -335,9 +335,9 @@ bool CursesDialog::processEvent(QEvent *ev) {
 
                 case Qt::Key_Enter:
                 {
-                    GUIMainWindow* mainWin = mainWindow();
-                    if(mainWin) {
-                        CursesButtonBox* menuBar = mainWin->findChild<CursesButtonBox*>();
+                    GUIWindow* win = window();
+                    if(win) {
+                        CursesButtonBox* menuBar = win->findChild<CursesButtonBox*>();
                         if(menuBar && menuBar->activate())
                             return true;
                     }

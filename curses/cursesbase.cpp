@@ -183,7 +183,7 @@ GUIWidget* CursesBaseContainer::nextFocusable(GUIWidget *from) {
             while(i.hasNext()) {
                 next = i.next();
                 con = qobject_cast<GUIContainer*>(next);
-                if(con) {
+                if(con && !con->isWindow()) {
                     next = con->internal<CursesBaseContainer>()->nextFocusable(0);
                     if(next)
                         return next;
@@ -227,7 +227,7 @@ GUIWidget* CursesBaseContainer::prevFocusable(GUIWidget *from) {
             while(i.hasPrevious()) {
                 prev = i.previous();
                 con = qobject_cast<GUIContainer*>(prev);
-                if(con) {
+                if(con && !con->isWindow()) {
                     prev = con->internal<CursesBaseContainer>()->prevFocusable(0);
                     if(prev)
                         return prev;
@@ -244,7 +244,7 @@ GUIWidget* CursesBaseContainer::prevFocusable(GUIWidget *from) {
 
     if(!isWindow()) {
         GUIContainer* par = widget()->parentContainer();
-        if(par)
+        if(par && !par->isWindow())
             return par->internal<CursesBaseContainer>()->prevFocusable(widget());
     }
 
