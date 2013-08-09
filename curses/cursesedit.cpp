@@ -1,4 +1,5 @@
 #include "cursesmainwindow.h"
+#include "cursesbuttonbox.h"
 #include "curseslineedit.h"
 
 char keyToChar(char off, Qt::Key start, Qt::Key key) {

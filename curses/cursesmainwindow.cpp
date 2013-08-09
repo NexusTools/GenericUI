@@ -324,15 +324,30 @@ bool CursesDialog::processEvent(QEvent *ev) {
 
         case GUIEvent::GUIKeyTyped:
         {
-            if(((GUIKeyEvent*)ev)->key() == 27) {
-                if(_closable)
-                    answer("Okay");
-                else {
-                    flash();
-                    beep();
+            switch(((GUIKeyEvent*)ev)->key()) {
+                case Qt::Key_Escape:
+                    if(_closable)
+                        answer("Okay");
+                    else {
+                        flash();
+                        beep();
+                    }
+
+                    return true;
+
+                case Qt::Key_Enter:
+                {
+                    GUIMainWindow* mainWin = mainWindow();
+                    if(mainWin) {
+                        CursesButtonBox* menuBar = mainWin->findChild<CursesButtonBox*>();
+                        if(menuBar && menuBar->activate())
+                            return true;
+                    }
+                    break;
                 }
 
-                return true;
+                default:
+                    break;
             }
 
             break;
@@ -612,6 +627,18 @@ bool CursesMenuBar::passShortcut(Qt::Key key) {
         if(a && passShortcut(a, key))
             return true;
     }
+
+    return false;
+}
+
+bool CursesButtonBox::activate() {
+    CursesButton* firstButton = findChild<CursesButton*>();
+    if(firstButton) {
+        firstButton->click();
+        return true;
+    }
+
+    return false;
 }
 
 bool CursesMenuBar::passShortcut(CursesAction* a, Qt::Key key) {
