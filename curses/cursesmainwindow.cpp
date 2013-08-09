@@ -114,7 +114,6 @@ QSize CursesMainWindow::initialScreen() {
 
         signal(SIGWINCH, resetScreen);
         signal(SIGINT, tryTerminate);
-        signal(SIGHUP, tryTerminate);
 
         signal(SIGILL, crash);
         signal(SIGSEGV, crash);
@@ -122,6 +121,7 @@ QSize CursesMainWindow::initialScreen() {
         signal(SIGQUIT, crash);
         signal(SIGKILL, crash);
         signal(SIGTERM, crash);
+        signal(SIGHUP, crash);
 
         ESCDELAY = 25;
         initscr();
