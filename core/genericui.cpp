@@ -27,7 +27,7 @@ void GUIWidget::setPos(QPoint p) {
         return;
 
     _geom = QRect(p, size());
-    simEvent(GUIEvent::GUISizeChanged);
+    simEvent(GUIEvent::GUIPositionChanged);
     simEvent(GUIEvent::GUIGeometryChanged);
 }
 
