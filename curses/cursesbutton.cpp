@@ -113,9 +113,9 @@ bool CursesButton::processEvent(QEvent *e) {
         case GUIEvent::GUIKeyTyped:
         {
             GUIKeyEvent* kEv = (GUIKeyEvent*)e;
-            if(kEv->key() == Qt::Key_Enter ||
-                    kEv->key() == Qt::Key_Return ||
-                    kEv->key() == Qt::Key_Space) {
+            CursesButtonBox* btnBox = qobject_cast<CursesButtonBox*>(parent());
+            if(kEv->key() == Qt::Key_Space ||
+                    (btnBox && (kEv->key() == Qt::Key_Enter))) {
                 activate();
                 return true;
             }

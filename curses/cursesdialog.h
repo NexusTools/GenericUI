@@ -51,6 +51,10 @@ public:
         return options(QStringList() << "_Yes" << "_No", text, title, config) == "Yes";
     }
 
+    inline static bool continu(QString text, QString title ="Continue?", QSettings* config =0) {
+        return options(QStringList() << "C_ontinue" << "Clos_e", text, title, config) == "Continue";
+    }
+
     inline static QString options(QStringList options, QString text ="Select an option.", QString title ="Options", QSettings* config =0) {
         QString uid;
         if(config) {
@@ -108,13 +112,17 @@ public:
         return _value.isValid();
     }
 
+    inline void clearValue() {
+        _value.clear();
+    }
+
     template <class T>
     inline T value() {
         return _value.value<T>();
     }
 
 public slots:
-    void answer(QVariant val) {_value=val;close();}
+    void answer(QVariant val) {_value=val;close();emit answered();}
 
 protected:
     virtual void drawChildren(QRect clip, QPoint off) {
@@ -257,6 +265,7 @@ protected slots:
     void center();
 
 signals:
+    void answered();
     void finished();
     void finished(QVariant value);
 
