@@ -11,6 +11,7 @@
 
 class GUIWidget;
 class GUIMainWindow;
+class GUIContainer;
 
 void cursesDirtyMainWindow();
 
@@ -87,6 +88,7 @@ public:
 
 protected:
     inline CursesBaseContainer(QSize size =QSize(1,1)) : CursesBase(size) {}
+    bool passShortcut(GUIContainer*, Qt::Key);
     virtual bool processEvent(QEvent*);
 
     virtual void draw(QRect clip, QPoint off) {

@@ -16,8 +16,8 @@ class CursesMenuBar : public GUIMenuBar, public CursesBaseContainer
 public:
     inline CursesMenuBar(GUIContainer* parent) : GUIMenuBar(parent) {}
     inline void addSeparator() {new CursesLabel("|", this);}
-
     virtual bool processEvent(QEvent *);
+    bool passShortcut(Qt::Key);
 
 protected:
     static bool passShortcut(CursesAction*, Qt::Key);

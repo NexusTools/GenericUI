@@ -3,6 +3,8 @@
 #include "cursesbuttonbox.h"
 #include "cursescontainer.h"
 #include "cursesmenubar.h"
+#include "cursesaction.h"
+#include "cursesbutton.h"
 
 QPointer<GUIWidget> CursesBase::_focusBase;
 
@@ -191,6 +193,38 @@ GUIWidget* CursesBaseContainer::nextFocusable(GUIWidget *from, GUIWidget **first
     return 0;
 }
 
+bool CursesBaseContainer::passShortcut(GUIContainer * con, Qt::Key key) {
+    foreach(QObject* ch, con->children()) {
+        GUIWidget* w = qobject_cast<GUIWidget*>(ch);
+        if(w) {
+            CursesMenuBar* mBar = qobject_cast<CursesMenuBar*>(w);
+            if(mBar && mBar->passShortcut(key))
+                return true;
+
+            GUIContainer* subcon = qobject_cast<GUIContainer*>(w);
+            if(subcon && CursesBaseContainer::passShortcut(subcon, key))
+                return true;
+
+            if(w->isFocusable()) {
+                CursesAction* act = qobject_cast<CursesAction*>(w);
+                if(act && act->shortcut() == key) {
+                    act->click();
+                    return true;
+                }
+
+                CursesButton* btn = qobject_cast<CursesButton*>(w);
+                if(btn && btn->shortcut() == key) {
+                    btn->click();
+                    return true;
+                }
+            }
+        }
+
+    }
+
+    return false;
+}
+
 bool CursesBaseContainer::processEvent(QEvent* ev) {
     switch(ev->type()) {
         case GUIEvent::GUISizeChanged:
@@ -220,6 +254,13 @@ bool CursesBaseContainer::processEvent(QEvent* ev) {
                     return true;
                 }
             }
+
+
+            passShortcut((GUIContainer*)this->widget(), ((GUIKeyEvent*)ev)->key());
+
+            if(isWindow())
+                return true;
+            break;
         }
 
         default:

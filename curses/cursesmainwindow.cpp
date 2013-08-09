@@ -478,29 +478,6 @@ bool CursesMenu::processEvent(QEvent *ev) {
     return CursesWindow::processEvent(ev);
 }
 
-bool CursesButtonBox::processEvent(QEvent *ev) {
-    switch(ev->type()) {
-        case GUIEvent::GUIKeyTyped:
-        {
-            Qt::Key key = ((GUIKeyEvent*)ev)->key();
-            foreach(QObject* ch, children()) {
-                CursesButton* btn = qobject_cast<CursesButton*>(ch);
-                if(btn && !btn->isHidden() && !btn->isDisabled()
-                        && btn->shortcut() == key) {
-                    btn->click();
-                    return true;
-                }
-            }
-            break;
-        }
-
-        default:
-            break;
-    }
-
-    return CursesContainer::processEvent(ev);
-}
-
 bool CursesMainWindow::processEvent(QEvent *ev) {
     switch(ev->type()) {
         case GUIEvent::GUIMouseClicked:
@@ -622,14 +599,19 @@ bool CursesMenuBar::processEvent(QEvent* ev) {
                 break;
         }
 
-        foreach(QObject* ch, children()) {
-            CursesAction* a = qobject_cast<CursesAction*>(ch);
-            if(a && passShortcut(a, kEv->key()))
-                return true;
-        }
+        if(passShortcut(kEv->key()))
+            return true;
     }
 
     return CursesBaseContainer::processEvent(ev);
+}
+
+bool CursesMenuBar::passShortcut(Qt::Key key) {
+    foreach(QObject* ch, children()) {
+        CursesAction* a = qobject_cast<CursesAction*>(ch);
+        if(a && passShortcut(a, key))
+            return true;
+    }
 }
 
 bool CursesMenuBar::passShortcut(CursesAction* a, Qt::Key key) {

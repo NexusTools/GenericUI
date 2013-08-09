@@ -9,10 +9,6 @@ class CursesButtonBox : public CursesContainer
 public:
     inline explicit CursesButtonBox(GUIContainer* par =0) : CursesContainer(Spacing(1, 0), HorizontalLayout, par) {expandToParent();}
 
-
-protected:
-    virtual bool processEvent(QEvent *);
-
 };
 
 #endif // CURSESBUTTONBOX_H
