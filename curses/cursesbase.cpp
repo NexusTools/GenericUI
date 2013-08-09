@@ -206,15 +206,9 @@ bool CursesBaseContainer::passShortcut(GUIContainer * con, Qt::Key key) {
                 return true;
 
             if(w->isFocusable()) {
-                CursesAction* act = qobject_cast<CursesAction*>(w);
+                GUIAction* act = qobject_cast<GUIAction*>(w);
                 if(act && act->shortcut() == key) {
                     act->click();
-                    return true;
-                }
-
-                CursesButton* btn = qobject_cast<CursesButton*>(w);
-                if(btn && btn->shortcut() == key) {
-                    btn->click();
                     return true;
                 }
             }

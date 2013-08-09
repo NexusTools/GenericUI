@@ -35,7 +35,8 @@ HEADERS += genericui.h \
     guievent.h \
     guibutton.h \
     guislider.h \
-    guilineedit.h
+    guilineedit.h \
+    guicheckbox.h
 
 unix:!symbian {
     maemo5 {

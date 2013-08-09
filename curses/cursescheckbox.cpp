@@ -1,36 +1,10 @@
 #include "cursesmainwindow.h"
-#include "cursesbuttonbox.h"
-#include "cursesbutton.h"
+#include "cursescheckbox.h"
 
-CursesButton::CursesButton(QString text, WAttrs attr, GUIContainer *par) : GUIButton(text, attr, par) {
-    fitToContent();
 
-    _default = false;
-    if(par) {
-        CursesButtonBox* mBar = qobject_cast<CursesButtonBox*>(par);
-        if(mBar && mBar->findChild<CursesButton*>() == this)
-            _default = true;
-    }
-
-    _spos = text.indexOf('_');
-    if(_spos > -1)
-        _shortcut = (Qt::Key)(Qt::Key_A + (text.toLocal8Bit().toLower().at(_spos+1) - 'a'));
-    else
-        _shortcut = (Qt::Key)0;
-    _spos+=2;
-
-    blinkTimer.setInterval(100);
-    connect(&blinkTimer, SIGNAL(timeout()), this, SLOT(blink()));
-
-    activateTimer.setSingleShot(true);
-    connect(&activateTimer, SIGNAL(timeout()), this, SLOT(activateCallback()));
-
+void CursesCheckBox::activateCallback() {
     _activateWait = false;
-    _blink = false;
-}
-
-void CursesButton::activateCallback() {
-    _activateWait = false;
+    _checked = !_checked;
     blinkTimer.stop();
     _blink = false;
     markDirty();
@@ -45,19 +19,17 @@ void CursesButton::activateCallback() {
     simEvent(GUIEvent::GUIActivated);
 }
 
-void CursesButton::drawImpl() {
-    int attr;
-
+void CursesCheckBox::drawImpl() {
     if(isDisabled()) {
         wbkgd(hnd(), COLOR_PAIR(2));
-        wattrset(hnd(), attr = 0);
+        wattrset(hnd(), 0);
     } else {
         bool standout = wattr().testFlag(Focused);
 
         if(_blink)
             standout = !standout;
 
-        attr = standout ? A_STANDOUT : A_NORMAL;
+        int attr = standout ? A_STANDOUT : A_NORMAL;
         if(_activateWait)
             attr |= A_BOLD;
         else if(isDisabled())
@@ -69,11 +41,9 @@ void CursesButton::drawImpl() {
     char space = isDisabled() || has_colors() ? ' ' : ACS_CKBOARD;
 
     wmove(hnd(), 0, 0);
-    if(_default)
-        wattron(hnd(), A_STANDOUT);
     waddch(hnd(), '[');
-    if(_default)
-        wattrset(hnd(), attr);
+    waddch(hnd(), _checked ? 'X' : space);
+    waddch(hnd(), ']');
     waddch(hnd(), space);
     foreach(char c, text().toLocal8Bit()) {
         if(c == '_') {
@@ -87,20 +57,14 @@ void CursesButton::drawImpl() {
         wattroff(hnd(), A_UNDERLINE);
     }
 
-    int left = width() - 3 - text().length();
+    int left = width() - 4 - text().length();
     while(left > 0) {
-        waddch(hnd(), space);
+        waddch(hnd(), ' ');
         left--;
     }
-    waddch(hnd(), space);
-    if(_default)
-        wattron(hnd(), A_STANDOUT);
-    waddch(hnd(), ']');
-    if(_default)
-        wattrset(hnd(), attr);
 }
 
-bool CursesButton::processEvent(QEvent *e) {
+bool CursesCheckBox::processEvent(QEvent *e) {
     switch(e->type()) {
         case GUIEvent::GUIMouseClicked:
             activate();
@@ -113,9 +77,7 @@ bool CursesButton::processEvent(QEvent *e) {
         case GUIEvent::GUIKeyTyped:
         {
             GUIKeyEvent* kEv = (GUIKeyEvent*)e;
-            if(kEv->key() == Qt::Key_Enter ||
-                    kEv->key() == Qt::Key_Return ||
-                    kEv->key() == Qt::Key_Space) {
+            if(kEv->key() == Qt::Key_Space) {
                 activate();
                 return true;
             }
@@ -140,7 +102,7 @@ bool CursesButton::processEvent(QEvent *e) {
     return CursesBase::processEvent(e);
 }
 
-void CursesButton::activate() {
+void CursesCheckBox::activate() {
     feedback();
 
     if(_activateWait)
@@ -148,7 +110,8 @@ void CursesButton::activate() {
     _activateWait = true;
 }
 
-void CursesButton::feedback() {
+void CursesCheckBox::feedback() {
     blinkTimer.start();
     activateTimer.start(300);
 }
+

@@ -24,7 +24,8 @@ SOURCES += \
     cursesbase.cpp \
     cursesaction.cpp \
     cursesbutton.cpp \
-    cursesedit.cpp
+    cursesedit.cpp \
+    cursescheckbox.cpp
 
 HEADERS += \
     global.h \
@@ -39,7 +40,8 @@ HEADERS += \
     cursesbutton.h \
     cursescontainer.h \
     cursesbuttonbox.h \
-    curseslineedit.h
+    curseslineedit.h \
+    cursescheckbox.h
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../core/release/ -lGenericUI
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../core/debug/ -lGenericUI

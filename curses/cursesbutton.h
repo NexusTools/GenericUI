@@ -5,35 +5,14 @@
 #include <QTimer>
 
 #include <guibutton.h>
-
 #include "cursesbase.h"
-
-class CursesMenu;
 
 class CursesButton : public GUIButton, public CursesBase
 {
     Q_OBJECT
     BASIC_CURSES_OBJECT
 public:
-    inline CursesButton(QString text, WAttrs attr, GUIContainer* par =0) : GUIButton(text, attr, par) {
-        fitToContent();
-
-        _spos = text.indexOf('_');
-        if(_spos > -1)
-            _shortcut = (Qt::Key)(Qt::Key_A + (text.toLocal8Bit().toLower().at(_spos+1) - 'a'));
-        else
-            _shortcut = (Qt::Key)0;
-        _spos+=2;
-
-        blinkTimer.setInterval(100);
-        connect(&blinkTimer, SIGNAL(timeout()), this, SLOT(blink()));
-
-        activateTimer.setSingleShot(true);
-        connect(&activateTimer, SIGNAL(timeout()), this, SLOT(activateCallback()));
-
-        _activateWait = false;
-        _blink = false;
-    }
+    CursesButton(QString text, WAttrs attr =Normal, GUIContainer* par =0);
 
     virtual Qt::Key shortcut() {
         return _shortcut;
@@ -70,6 +49,7 @@ private:
     QTimer blinkTimer;
     QTimer activateTimer;
     bool _activateWait;
+    bool _default;
     int _spos;
 };
 

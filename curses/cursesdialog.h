@@ -4,13 +4,16 @@
 #include <QTimer>
 #include <QVariant>
 #include <QEventLoop>
+#include <QCryptographicHash>
 #include <QStringList>
+#include <QSettings>
 
 #include <guidialog.h>
 
 #include "cursesbuttonbox.h"
 #include "cursesmainwindow.h"
 #include "cursescontainer.h"
+#include "cursescheckbox.h"
 #include "cursesbutton.h"
 #include "curseslabel.h"
 
@@ -43,15 +46,44 @@ public:
         options(QStringList() << "O_kay", text, title);
     }
 
-    inline static bool ensure(QString text, QString title ="Decide") {
-        return options(QStringList() << "_Yes" << "_No", text, title) == "Yes";
+    inline static bool ensure(QString text, QString title ="Decide", QSettings* config =0) {
+        return options(QStringList() << "_Yes" << "_No", text, title, config) == "Yes";
     }
 
-    inline static QString options(QStringList options, QString text ="Select an option.", QString title ="Options") {
+    inline static QString options(QStringList options, QString text ="Select an option.", QString title ="Options", QSettings* config =0) {
+        QString uid;
+        if(config) {
+            uid += '[';
+            QStringList fixedOptions;
+            foreach(QString option, options) {
+                option = option.remove('_');
+                fixedOptions << option;
+                uid += option;
+            }
+            uid += ']';
+            uid += text;
+            uid += ':';
+            uid += title;
+
+            uid = QString(QCryptographicHash::hash(uid.toLocal8Bit(), QCryptographicHash::Md5).toHex());
+
+            config->beginGroup("saved-dialogs");
+            QString saved = config->value(uid).toString();
+            if(!saved.isEmpty() && fixedOptions.contains(saved)) {
+                config->endGroup();
+                return saved;
+            }
+        }
+
         CursesDialog* diag = new CursesDialog(title, CursesMainWindow::current());
         connect(diag, SIGNAL(finished()), diag, SLOT(deleteLater()));
 
         new CursesLabel(text, diag);
+
+        CursesCheckBox* checkBox;
+        if(config)
+            checkBox = new CursesCheckBox("Don't ask again", diag);
+
         CursesButtonBox* buttonContainer = new CursesButtonBox(diag);
         foreach(QString option, options) {
             CursesButton* act = new CursesButton(option, GUIWidget::FloatCenter, buttonContainer);
@@ -61,7 +93,14 @@ public:
         diag->setLayout(GUIContainer::VerticalLayout);
         diag->exec();
 
-        return diag->value<QString>();
+        QString val = diag->value<QString>();
+        if(config) {
+            if(checkBox->isChecked())
+                config->setValue(uid, val);
+            config->endGroup();
+        }
+
+        return val;
     }
 
     inline bool hasValue() const{
