@@ -304,7 +304,9 @@ bool CursesDialog::processEvent(QEvent *ev) {
 
         case GUIEvent::GUIMouseClicked:
         {
-            if(!QRect(QPoint(0,0),size()).contains(((GUIMouseEvent*)ev)->pos())) {
+            QPoint pos = ((GUIMouseEvent*)ev)->pos();
+
+            if(!QRect(QPoint(0,0),size()).contains(pos)) {
                 if(_closable)
                     answer("Close");
                 else {
@@ -313,7 +315,8 @@ bool CursesDialog::processEvent(QEvent *ev) {
                 }
 
                 return true;
-            }
+            } else if(QRect(QPoint(width()-4,0),QSize(1,1)).contains(pos))
+                close();
 
             break;
         }

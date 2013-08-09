@@ -38,13 +38,13 @@ bool CursesWindow::processEvent(QEvent *ev) {
         {
             GUIKeyEvent* kEv = (GUIKeyEvent*)ev;
             switch(kEv->key()) {
-                case Qt::Key_Escape:
-                    widget()->hide();
-                    return true;
-
                 case Qt::Key_Tab:
                 {
-                    GUIWidget* next = nextFocusable(0);
+                    GUIWidget* next;
+                    if(kEv->mod().testFlag(Qt::ShiftModifier))
+                        next = prevFocusable(0);
+                    else
+                        next = nextFocusable(0);
                     if(next)
                         next->focus();
                     return true;
@@ -164,7 +164,7 @@ void CursesBase::giveFocus() {
     widget()->setWAttr(GUIWidget::Focused);
 }
 
-GUIWidget* CursesBaseContainer::nextFocusable(GUIWidget *from, GUIWidget **first) {
+GUIWidget* CursesBaseContainer::nextFocusable(GUIWidget *from) {
     GUIContainer::Children chld = ((GUIContainer*)widget())->childWidgets();
     QListIterator<GUIWidget*> i(chld);
 
@@ -173,8 +173,6 @@ GUIWidget* CursesBaseContainer::nextFocusable(GUIWidget *from, GUIWidget **first
         GUIContainer* con = qobject_cast<GUIContainer*>(next);
         if(!con && !next->isFocusable())
             continue;
-        if(first && !*first)
-            *first = next;
 
         if(from == 0) {
             from = next;
@@ -186,7 +184,7 @@ GUIWidget* CursesBaseContainer::nextFocusable(GUIWidget *from, GUIWidget **first
                 next = i.next();
                 con = qobject_cast<GUIContainer*>(next);
                 if(con) {
-                    next = con->internal<CursesBaseContainer>()->nextFocusable(0, first);
+                    next = con->internal<CursesBaseContainer>()->nextFocusable(0);
                     if(next)
                         return next;
                     continue;
@@ -200,9 +198,55 @@ GUIWidget* CursesBaseContainer::nextFocusable(GUIWidget *from, GUIWidget **first
         }
     }
 
-    GUIContainer* par = widget()->parentContainer();
-    if(par)
-        return par->internal<CursesBaseContainer>()->nextFocusable(widget());
+    if(!isWindow()) {
+        GUIContainer* par = widget()->parentContainer();
+        if(par)
+            return par->internal<CursesBaseContainer>()->nextFocusable(widget());
+    }
+
+    return 0;
+}
+
+GUIWidget* CursesBaseContainer::prevFocusable(GUIWidget *from) {
+    GUIContainer::Children chld = ((GUIContainer*)widget())->childWidgets();
+    QListIterator<GUIWidget*> i(chld);
+    i.toBack();
+
+    while(i.hasPrevious()) {
+        GUIWidget* prev = i.previous();
+        GUIContainer* con = qobject_cast<GUIContainer*>(prev);
+        if(!con && !prev->isFocusable())
+            continue;
+
+        if(from == 0) {
+            from = prev;
+            i.toBack();
+        }
+
+        if(from == prev || (from == (GUIWidget *)-1 && prev->isFocused())) {
+            while(i.hasPrevious()) {
+                prev = i.previous();
+                con = qobject_cast<GUIContainer*>(prev);
+                if(con) {
+                    prev = con->internal<CursesBaseContainer>()->prevFocusable(0);
+                    if(prev)
+                        return prev;
+                    continue;
+                }
+
+                if(prev->isFocusable())
+                    return prev;
+            }
+
+            break;
+        }
+    }
+
+    if(!isWindow()) {
+        GUIContainer* par = widget()->parentContainer();
+        if(par)
+            return par->internal<CursesBaseContainer>()->prevFocusable(widget());
+    }
 
     return 0;
 }
@@ -256,7 +300,11 @@ bool CursesBaseContainer::processEvent(QEvent* ev) {
         {
             GUIKeyEvent* kEv = (GUIKeyEvent*)ev;
             if(kEv->key() == Qt::Key_Tab) {
-                GUIWidget* next = nextFocusable();
+                GUIWidget* next;
+                if(kEv->mod().testFlag(Qt::ShiftModifier))
+                    next = prevFocusable();
+                else
+                    next = nextFocusable();
                 if(next) {
                     next->focus();
                     return true;

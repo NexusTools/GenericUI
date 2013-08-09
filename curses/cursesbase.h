@@ -84,7 +84,8 @@ class CursesBaseContainer : public CursesBase
 {
     friend class CursesScreen;
 public:
-    GUIWidget* nextFocusable(GUIWidget* from =(GUIWidget*)-1, GUIWidget** first =0);
+    GUIWidget* nextFocusable(GUIWidget* from =(GUIWidget*)-1);
+    GUIWidget* prevFocusable(GUIWidget* from =(GUIWidget*)-1);
 
 protected:
     inline CursesBaseContainer(QSize size =QSize(1,1)) : CursesBase(size) {}

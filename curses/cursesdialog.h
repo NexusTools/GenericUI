@@ -118,6 +118,9 @@ public slots:
 
 protected:
     virtual void drawChildren(QRect clip, QPoint off) {
+        Padding pad = padding();
+        clip &= QRect(pad.first, QPoint(width(), height()+1) - (pad.second+pad.first));
+
         Children children = childWidgets();
         foreach(GUIWidget* child, children) {
             if(child->isHidden() || child->isWindow())
