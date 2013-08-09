@@ -310,7 +310,7 @@ bool CursesDialog::processEvent(QEvent *ev) {
         {
             if(!QRect(QPoint(0,0),size()).contains(((GUIMouseEvent*)ev)->pos())) {
                 if(_closable)
-                    answer("Okay");
+                    answer("Close");
                 else {
                     flash();
                     beep();
@@ -327,7 +327,7 @@ bool CursesDialog::processEvent(QEvent *ev) {
             switch(((GUIKeyEvent*)ev)->key()) {
                 case Qt::Key_Escape:
                     if(_closable)
-                        answer("Okay");
+                        answer("Close");
                     else {
                         flash();
                         beep();
