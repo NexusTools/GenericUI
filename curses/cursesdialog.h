@@ -21,6 +21,7 @@ class CursesDialog : public GUIDialog, public CursesWindow
 {
     Q_OBJECT
     CURSES_WINDOW
+
 public:
     inline explicit CursesDialog(QString title, GUIContainer *parent) : GUIDialog(title, Spacing(1, 1), Padding(QPoint(2, 2), QPoint(2, 1)), parent) {
         _size = 0;

@@ -332,7 +332,6 @@ bool CursesDialog::processEvent(QEvent *ev) {
                         flash();
                         beep();
                     }
-
                     return true;
 
                 case Qt::Key_Enter:
