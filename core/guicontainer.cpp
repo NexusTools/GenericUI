@@ -269,7 +269,7 @@ GUIMainWindow* GUIWidget::mainWindow() {
 
 GUIWindow* GUIWidget::window() {
     GUIWidget* widget = this;
-    while(!isCompatible<GUIWidget>(widget))
+    while(!isCompatible<GUIWindow>(widget))
         widget = widget->parentContainer();
 
     return (GUIWindow*)widget;

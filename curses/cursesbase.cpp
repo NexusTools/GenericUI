@@ -37,9 +37,21 @@ bool CursesWindow::processEvent(QEvent *ev) {
         case GUIEvent::GUIKeyTyped:
         {
             GUIKeyEvent* kEv = (GUIKeyEvent*)ev;
-            if(kEv->key() == Qt::Key_Escape) {
-                widget()->hide();
-                return true;
+            switch(kEv->key()) {
+                case Qt::Key_Escape:
+                    widget()->hide();
+                    return true;
+
+                case Qt::Key_Tab:
+                {
+                    GUIWidget* next = nextFocusable(0);
+                    if(next)
+                        next->focus();
+                    return true;
+                }
+
+                default:
+                    break;
             }
 
             if(kEv->mod().testFlag(Qt::AltModifier)) {
@@ -247,13 +259,13 @@ bool CursesBaseContainer::processEvent(QEvent* ev) {
                     next->focus();
                     return true;
                 }
+                GUIWindow* win = widget()->window();
+                win->event(kEv);
+                return true;
             }
 
-
             passShortcut((GUIContainer*)this->widget(), ((GUIKeyEvent*)ev)->key());
-
-            if(isWindow())
-                return true;
+            return true;
             break;
         }
 
