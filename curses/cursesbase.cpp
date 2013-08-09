@@ -65,6 +65,8 @@ bool CursesWindow::processEvent(QEvent *ev) {
                         return true;
             }
 
+            passShortcut((GUIContainer*)this->widget(), ((GUIKeyEvent*)ev)->key());
+            return true;
             break;
         }
 
@@ -263,9 +265,6 @@ bool CursesBaseContainer::processEvent(QEvent* ev) {
                 win->event(kEv);
                 return true;
             }
-
-            passShortcut((GUIContainer*)this->widget(), ((GUIKeyEvent*)ev)->key());
-            return true;
             break;
         }
 
