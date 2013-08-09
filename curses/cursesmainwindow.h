@@ -25,6 +25,7 @@ public:
         connect(&inputTimer, SIGNAL(timeout()), this, SLOT(readNextCH()));
         inputTimer.start();
 
+        QTimer::singleShot(0, this, SLOT(focusFirst()));
         setWAttr(NoAutoResize);
     }
     virtual ~CursesMainWindow() {_current=0;}
@@ -79,6 +80,12 @@ public:
 protected slots:
     inline void drawNow() {
         render();
+    }
+
+    void focusFirst() {
+        GUIWidget* first = nextFocusable(0);
+        if(first)
+            first->focus();
     }
 
     void readNextCH();
