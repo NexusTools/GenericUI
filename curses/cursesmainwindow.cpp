@@ -4,12 +4,12 @@
 #include "cursesbuttonbox.h"
 #include "cursesmenu.h"
 
+#include <stdio.h>
+#include <sys/prctl.h>
+#include <signal.h>
+
 #include <QCoreApplication>
 #include <QTime>
-
-#include <stdio.h>
-#include <signal.h>
-#include <sys/prctl.h>
 
 CursesMainWindow* CursesMainWindow::_current = 0;
 QHash<char, CursesAction*> CursesAction::shortcuts;
@@ -40,10 +40,6 @@ void CursesWindow::showImpl() {
 
 void CursesWindow::hideImpl() {
     CursesMainWindow::current()->hideWindow(this);
-}
-
-bool CursesMenu::isOpen() {
-    return CursesMainWindow::current()->isWindowOpen(this);
 }
 
 void resetScreen(int) {

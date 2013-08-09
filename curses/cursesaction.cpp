@@ -137,7 +137,10 @@ void CursesAction::drawImpl() {
 }
 
 void CursesAction::feedback() {
-    openMenu();
+    if(isMenuOpen())
+        closeMenu();
+    else
+        openMenu();
 
     CursesMenu* parentMenu = qobject_cast<CursesMenu*>(parent());
     if(parentMenu)

@@ -27,7 +27,7 @@ public:
         _size = 0;
         _open = false;
         _closable=true;
-        setWAttr(Hidden);
+        setWAttr(WAttrs(NoAutoResize | Hidden));
 
         _animationTimer.setInterval(40);
         connect(&_animationTimer, SIGNAL(timeout()), this, SLOT(animate()));
@@ -179,6 +179,8 @@ protected:
     }
 
     virtual void showImpl() {
+        setWAttr(WAttrs(wattr() | NoAutoResize));
+
         _lastFocus = currentFocus();
         CursesWindow::showImpl();
         focusFirstChild(this);
@@ -204,6 +206,8 @@ protected:
     }
 
     virtual void hideImpl() {
+        setWAttr(WAttrs(wattr() | NoAutoResize));
+
         _open = false;
         _animationTimer.start();
 
@@ -217,8 +221,6 @@ protected:
 
 protected slots:
     void animate() {
-        setWAttr(WAttrs(wattr() | NoAutoResize));
-
         if(_open) {
             _size += (1-_size+0.4)/4;
 
@@ -245,7 +247,7 @@ protected slots:
         if(pref.height() >= 0 || pref.width() >= 0)
         resize(pref + QSize(2, 2));
 
-        if(_size == 1)
+        if(_size == 1 && wattr().testFlag(NoAutoResize))
             setWAttr(WAttrs(wattr() ^ NoAutoResize));
     }
 

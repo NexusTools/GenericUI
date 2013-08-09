@@ -57,7 +57,7 @@ public:
         return QSize(2+w,2+h);
     }
 
-    bool isOpen();
+    inline bool isOpen() const{return _open;}
 
 protected:
     virtual void showImpl() {
