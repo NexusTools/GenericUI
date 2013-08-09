@@ -55,7 +55,7 @@ void crash(int sig) {
     endwin();
     printf("Unrecoverable signal %i received.\n%s Terminated.\n\n", sig, qPrintable(QCoreApplication::instance()->applicationName()));
 
-    exit(0);
+    exit(1);
 }
 
 void shutdown(int sig){
@@ -90,6 +90,7 @@ QSize CursesMainWindow::initialScreen() {
 
         signal(SIGWINCH, resetScreen);
         signal(SIGINT, tryTerminate);
+        signal(SIGHUP, tryTerminate);
 
         signal(SIGILL, crash);
         signal(SIGSEGV, crash);
@@ -97,7 +98,6 @@ QSize CursesMainWindow::initialScreen() {
         signal(SIGQUIT, crash);
         signal(SIGKILL, crash);
         signal(SIGTERM, crash);
-        signal(SIGHUP, crash);
 
         ESCDELAY = 25;
         initscr();
