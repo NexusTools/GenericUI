@@ -10,6 +10,7 @@
 
 #include <guidialog.h>
 
+#include "curseslineedit.h"
 #include "cursesbuttonbox.h"
 #include "cursesmainwindow.h"
 #include "cursescontainer.h"
@@ -53,6 +54,27 @@ public:
 
     inline static bool continu(QString text, QString title ="Continue?", QSettings* config =0) {
         return options(QStringList() << "C_ontinue" << "Clos_e", text, title, config) == "Continue";
+    }
+
+    inline static QString input(QString text, QString title ="Input", QString def ="") {
+        CursesDialog* diag = new CursesDialog(title, CursesMainWindow::current());
+        connect(diag, SIGNAL(finished()), diag, SLOT(deleteLater()));
+
+        new CursesLabel(text, diag);
+        CursesLineEdit* lineEdit = new CursesLineEdit(def, diag);
+        lineEdit->setWAttr(GUIWidget::ExpandWidth);
+
+        CursesButtonBox* buttonContainer = new CursesButtonBox(diag);
+        foreach(QString option, QStringList() << "O_kay" << "Ca_ncel") {
+            CursesButton* act = new CursesButton(option, GUIWidget::FloatCenter, buttonContainer);
+            connect(act, SIGNAL(selected(QVariant)), diag, SLOT(answer(QVariant)));
+        }
+
+        diag->setLayout(GUIContainer::VerticalLayout);
+        diag->exec();
+
+        QString val = diag->value<QString>();
+        return val == "Okay" ? lineEdit->text() : "";
     }
 
     inline static QString options(QStringList options, QString text ="Select an option.", QString title ="Options", QSettings* config =0) {
