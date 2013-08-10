@@ -36,12 +36,17 @@ bool CursesWindow::processEvent(QEvent *ev) {
 
         case GUIEvent::GUIKeyTyped:
         {
+            bool reverse = false;
             GUIKeyEvent* kEv = (GUIKeyEvent*)ev;
             switch(kEv->key()) {
+                case Qt::Key_Left:
+                    reverse = true;
                 case Qt::Key_Tab:
+                    reverse = reverse || kEv->mod().testFlag(Qt::ShiftModifier);
+                case Qt::Key_Right:
                 {
                     GUIWidget* next;
-                    if(kEv->mod().testFlag(Qt::ShiftModifier))
+                    if(reverse)
                         next = prevFocusable(0);
                     else
                         next = nextFocusable(0);
@@ -244,7 +249,7 @@ GUIWidget* CursesBaseContainer::prevFocusable(GUIWidget *from) {
 
     if(!isWindow()) {
         GUIContainer* par = widget()->parentContainer();
-        if(par && !par->isWindow())
+        if(par)
             return par->internal<CursesBaseContainer>()->prevFocusable(widget());
     }
 
@@ -299,9 +304,14 @@ bool CursesBaseContainer::processEvent(QEvent* ev) {
         case GUIEvent::GUIKeyTyped:
         {
             GUIKeyEvent* kEv = (GUIKeyEvent*)ev;
-            if(kEv->key() == Qt::Key_Tab) {
+            bool next = kEv->key() == Qt::Key_Tab;
+            bool reverse = (next && kEv->mod().testFlag(Qt::ShiftModifier))
+                                        || (kEv->key() == Qt::Key_Left);
+            next = next || reverse || (kEv->key() == Qt::Key_Right);
+
+            if(next) {
                 GUIWidget* next;
-                if(kEv->mod().testFlag(Qt::ShiftModifier))
+                if(reverse)
                     next = prevFocusable();
                 else
                     next = nextFocusable();
