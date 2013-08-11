@@ -142,9 +142,13 @@ void CursesAction::feedback() {
     else
         openMenu();
 
+
     CursesMenu* parentMenu = qobject_cast<CursesMenu*>(parent());
-    if(parentMenu)
+    if(parentMenu) {
         parentMenu->showChain();
+        if(!isMenuOpen())
+            QTimer::singleShot(5, this, SLOT(focus()));
+    }
 
     blinkTimer.start();
     activateTimer.start(300);
