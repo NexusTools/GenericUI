@@ -10,6 +10,7 @@
 #include <cursesaction.h>
 #include <cursesmenubar.h>
 #include <cursesmainwindow.h>
+//#include <cursesscrollbar.h>
 #include <curseslabel.h>
 
 class GenericUITest : public QObject

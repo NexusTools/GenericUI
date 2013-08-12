@@ -60,8 +60,9 @@ public:
         CursesDialog* diag = new CursesDialog(title, CursesMainWindow::current());
         connect(diag, SIGNAL(finished()), diag, SLOT(deleteLater()));
 
-        new CursesLabel(text, diag);
-        CursesLineEdit* lineEdit = new CursesLineEdit(def, diag);
+        CursesVBox* vBox = new CursesVBox(diag);
+        new CursesLabel(text, vBox);
+        CursesLineEdit* lineEdit = new CursesLineEdit(def, vBox);
         lineEdit->setWAttr(GUIWidget::ExpandWidth);
 
         CursesButtonBox* buttonContainer = new CursesButtonBox(diag);
@@ -105,7 +106,9 @@ public:
         CursesDialog* diag = new CursesDialog(title, CursesMainWindow::current());
         connect(diag, SIGNAL(finished()), diag, SLOT(deleteLater()));
 
-        new CursesLabel(text, diag);
+        CursesVBox* vBox = new CursesVBox(diag);
+        foreach(QString line, text.split('\n'))
+            new CursesLabel(line, vBox);
 
         CursesCheckBox* checkBox;
         if(config)
