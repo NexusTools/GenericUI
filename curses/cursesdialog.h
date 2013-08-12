@@ -146,6 +146,10 @@ public:
         return _value.value<T>();
     }
 
+    inline bool isExpanded() {
+        return _size > 0;
+    }
+
 public slots:
     void answer(QVariant val) {_value=val;close();emit answered();}
 
