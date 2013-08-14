@@ -1,5 +1,5 @@
 TEMPLATE = subdirs
 
-SUBDIRS += core \
-    curses \
-	test
+SUBDIRS += core
+
+packagesExist(ncurses):SUBDIRS += curses test
