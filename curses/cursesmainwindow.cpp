@@ -36,6 +36,10 @@ CursesMainWindow::CursesMainWindow(QString title) : GUIMainWindow(title), Curses
 
     QTimer::singleShot(0, this, SLOT(focusFirst()));
     setWAttr(NoAutoResize);
+
+    connect(&sizeTimer, SIGNAL(timeout()), this, SLOT(updateSize()));
+    sizeTimer.setSingleShot(true);
+    sizeTimer.setInterval(0);
 }
 
 void CursesMenu::showChain() {
@@ -69,10 +73,6 @@ void CursesWindow::hideImpl() {
 void resetScreen(int) {
     if(CursesMainWindow::current())
         CursesMainWindow::current()->recheckSize();
-    else {
-        endwin();
-        refresh();
-    }
 }
 
 void crash(int sig) {

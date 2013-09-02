@@ -23,10 +23,7 @@ public:
     virtual void terminateRequested(int);
 
     inline void recheckSize() {
-        endwin();
-        refresh();
-
-        resize(checkSize());
+        sizeTimer.start();
     }
 
     inline void showWindow(CursesWindow* window) {
@@ -67,6 +64,13 @@ protected slots:
         render();
     }
 
+    inline void updateSize() {
+        endwin();
+        refresh();
+
+        resize(checkSize());
+    }
+
     void focusFirst() {
         GUIWidget* first = nextFocusable(0);
         if(first)
@@ -82,6 +86,7 @@ private:
     static QSize initialScreen();
     static CursesMainWindow* _current;
 
+    QTimer sizeTimer;
     QList<CursesWindow*> _windowStack;
     bool _repaintScheduled;
     QTimer repaintTimer;
