@@ -1,5 +1,7 @@
 TEMPLATE = subdirs
 
-SUBDIRS += core
+SUBDIRS += core \
+    qtgui \
+    test
 
-packagesExist(ncurses):SUBDIRS += curses test
+packagesExist(ncurses):SUBDIRS += curses

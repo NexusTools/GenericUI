@@ -15,28 +15,14 @@ TEMPLATE = lib
 DEFINES += GENERICUI_LIBRARY
 
 SOURCES += \
-    genericui.cpp \
-    guicontainer.cpp \
-    guiscrollview.cpp
+    uiscreenthread.cpp \
+    uiwidgetfactory.cpp \
+    uiabstractscreen.cpp
 
-HEADERS += genericui.h \
-    global.h \
-    guilabel.h \
-    guicontainer.h \
-    guiwindow.h \
-    guimainwindow.h \
-    guidialog.h \
-    guiaction.h \
-    guimenubar.h \
-    guimenu.h \
-    guimessagelog.h \
-    guiscrollview.h \
-    guiscrollbar.h \
-    guievent.h \
-    guibutton.h \
-    guislider.h \
-    guilineedit.h \
-    guicheckbox.h
+HEADERS += \
+    uiscreenthread.h \
+    uiwidgetfactory.h \
+    uiabstractscreen.h
 
 unix:!symbian {
     maemo5 {

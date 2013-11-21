@@ -19,29 +19,9 @@ TEMPLATE = lib
 LIBS += -lncurses
 
 
-SOURCES += \
-    cursesmainwindow.cpp \
-    cursesbase.cpp \
-    cursesaction.cpp \
-    cursesbutton.cpp \
-    cursesedit.cpp \
-    cursescheckbox.cpp
+SOURCES +=
 
-HEADERS += \
-    global.h \
-    curseslabel.h \
-    cursesmainwindow.h \
-    cursesbase.h \
-    cursesaction.h \
-    cursesmenubar.h \
-    cursesmenu.h \
-    cursesmenuseparator.h \
-    cursesdialog.h \
-    cursesbutton.h \
-    cursescontainer.h \
-    cursesbuttonbox.h \
-    curseslineedit.h \
-    cursescheckbox.h
+HEADERS +=
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../core/release/ -lGenericUI
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../core/debug/ -lGenericUI
